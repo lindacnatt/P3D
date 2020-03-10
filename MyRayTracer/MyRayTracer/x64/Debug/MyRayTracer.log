@@ -1,0 +1,22 @@
+﻿  main.cpp
+C:\Users\Josefin\source\repos\MyRayTracer\MyRayTracer\color.h(42,14): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
+C:\Users\Josefin\source\repos\MyRayTracer\MyRayTracer\color.h(41,14): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
+C:\Users\Josefin\source\repos\MyRayTracer\MyRayTracer\color.h(40,28): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
+  scene.cpp
+C:\Users\Josefin\source\repos\MyRayTracer\MyRayTracer\color.h(42,14): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
+C:\Users\Josefin\source\repos\MyRayTracer\MyRayTracer\color.h(41,14): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
+C:\Users\Josefin\source\repos\MyRayTracer\MyRayTracer\color.h(40,28): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
+C:\Users\Josefin\source\repos\MyRayTracer\MyRayTracer\scene.cpp(138,23): warning C4267: 'return': conversion from 'size_t' to 'int', possible loss of data
+C:\Users\Josefin\source\repos\MyRayTracer\MyRayTracer\scene.cpp(158,22): warning C4267: 'return': conversion from 'size_t' to 'int', possible loss of data
+C:\Users\Josefin\source\repos\MyRayTracer\MyRayTracer\scene.cpp(286,23): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
+C:\Users\Josefin\source\repos\MyRayTracer\MyRayTracer\scene.cpp(287,23): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
+C:\Users\Josefin\source\repos\MyRayTracer\MyRayTracer\scene.cpp(226,8): warning C4101: 't_intersec': unreferenced local variable
+C:\Users\Josefin\source\repos\MyRayTracer\MyRayTracer\scene.cpp(340,56): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
+C:\Users\Josefin\source\repos\MyRayTracer\MyRayTracer\scene.cpp(340,53): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
+C:\Users\Josefin\source\repos\MyRayTracer\MyRayTracer\scene.cpp(340,46): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
+C:\Users\Josefin\source\repos\MyRayTracer\MyRayTracer\scene.cpp(340,42): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
+C:\Users\Josefin\source\repos\MyRayTracer\MyRayTracer\scene.cpp(340,34): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
+C:\Users\Josefin\source\repos\MyRayTracer\MyRayTracer\scene.cpp(440,56): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
+  Generating Code...
+  MyRayTracer.vcxproj -> C:\Users\Josefin\source\repos\MyRayTracer\x64\Debug\MyRayTracer.exe
+  0 File(s) copied
