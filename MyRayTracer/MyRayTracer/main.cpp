@@ -63,7 +63,38 @@ int WindowHandle = 0;
 
 Color rayTracing( Ray ray, int depth, float ior_1)  //index of refraction of medium 1 where the ray is travelling
 {
+	// Variables: Ray (includes origin and direction, depth and index of refraction
 	//INSERT HERE YOUR CODE
+	//Calculate intersection
+
+
+	// WHERE TO START???? Teacher talks about plane.point[0] etc???
+	if (Plane.intercepts(ray))
+	{
+
+	};
+	Vector normal = Plane.getNormal(Plane.point[0]);
+
+
+	float ti =( ((ray.origin - a) * normal) / (normal * ray.direction))*(-1);
+
+	//What happens after
+	if (ti <= 0)
+	{
+		return Color(scene->GetBackgroundColor());
+	};
+	else
+	{
+		// reflection
+		if (reflective)
+		{
+			Vector V = (ray.direction) * (-1);
+			Vector normal = ;  //depends on what it hits
+			Ray rRay = (V * n) * n * 2 - V;
+			rColor = rayTracing(rRay, depth, ior_1); //iteration 
+			//reduce rColor by the specular reflection coefficient and add to color;
+		}
+	};
 	
 	return Color(0.0f, 0.0f, 0.0f);
 }
