@@ -1,4 +1,4 @@
-#include <iostream>
+﻿#include <iostream>
 #include <string>
 #include <fstream>
 #include <IL/il.h>
@@ -39,7 +39,7 @@ Vector Triangle::getNormal(Vector point)
 //
 
 bool Triangle::intercepts(Ray& r, float& t ) {
-
+	
 	return (false);
 }
 
@@ -72,7 +72,12 @@ Plane::Plane(Vector& P0, Vector& P1, Vector& P2)
 
 bool Plane::intercepts( Ray& r, float& t )
 {
-  
+	Vector n = (points[1] - points[0]) % (points[2] - points[0]);
+	float denom = (n * r.direction);
+	if (denom > 1e-6){
+		float ti = (r.origin - points[0]) * n / denom;    //WHAT IS a??? (o-a)*n/denom
+		return (ti > 0);
+	}
    return (false);
 }
 
@@ -84,6 +89,28 @@ Vector Plane::getNormal(Vector point)
 
 bool Sphere::intercepts(Ray& r, float& t )
 {
+	// a=D^2, b=2OD and c=O^2−R^2, from scratchapixel
+	float a = r.direction*r.direction;
+	float b = (r.origin*r.direction)*2;
+	float c = -1*SqRadius + (r.origin*r.origin);
+
+	if (c > 0.0f) {  //If c > 0.0f then ray origin outside, so check b
+		if (b <= 0.0f)   //If b <= 0.0f then sphere is “behind” of the ray; return false 
+		{
+			return (false);
+		}
+		if (pow(b, 2) - c <= 0.0f) {   //Calculate the discriminant (b^2 – c). If <= 0.0f then return false
+			return (false);
+		}
+		float tmin = b - sqrt(pow(b, 2) - c);  //If origin outside, calculate the smallest root
+		return (tmin > 0);
+	}
+	else {
+		float tpos = b + sqrt(pow(b, 2) + c);  //else calculate the positive root 
+		return (tpos > 0);
+	}
+
+	
   return (false);
 }
 
