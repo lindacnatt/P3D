@@ -39,8 +39,49 @@ Vector Triangle::getNormal(Vector point)
 //
 
 bool Triangle::intercepts(Ray& r, float& t ) {
-	
-	return (false);
+
+	Vector P0P1 = points[1] - points[0];
+	Vector P0P2 = points[2] - points[0];
+
+	Vector N = P0P1.operator*(P0P2);
+	float area2 = N.length();
+
+	//are the ray and the plans parallel?
+	float NdotRayDirection = N.operator*(r.direction);
+	if (fabs(NdotRayDirection) < EPSILON) {
+		return false; //they are parallel, so they dont intersect
+	}
+
+	float d = N.operator*(points[0]);
+
+	//t = (N.operator*(r.origin) + d) / NdotRayDirection; has not to be calculated since given as a parameter
+
+	Vector P = r.origin + t * r.direction;
+
+	Vector edge0 = points[1] - points[0];
+	Vector vp0 = P - v0;
+	C = edge0.operator*(vp0);
+	if (N.operator*(C) < 0) {
+		return false
+	}
+
+	Vector C;
+	Vector edge1 = points[2] - points[1];
+	Vector vp1 = P - v1;
+	C = edge1.operator*(vp1);
+	if (N.operator*(C) < 0) {
+		return false
+	}
+
+	Vector C;
+	Vector edge2 = points[0] - points[2];
+	Vector vp2 = P - v2;
+	C = edge2.operator*(vp2);
+	if (N.operator*(C) < 0) {
+		return false
+	}
+
+	return (true);
 }
 
 Plane::Plane(Vector& a_PN, float a_D)
