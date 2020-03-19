@@ -61,30 +61,89 @@ int RES_X, RES_Y;
 int WindowHandle = 0;
 
 
+
+
 Color rayTracing( Ray ray, int depth, float ior_1)  //index of refraction of medium 1 where the ray is travelling
 {
 	// Variables: Ray (includes origin and direction, depth and index of refraction
 	//INSERT HERE YOUR CODE
 	//Calculate intersection
 
+	//depth calculation
+	float ti = (((ray.origin - a) * normal) / (normal * ray.direction)) * (-1);
+	if (ti = > MAX_DEPTH)
+	{
+		return color;
+	};
+
+	bool trace(ray.origin,ray.direction,tNear) {
+
+		hitObject = NULL;
+		for (uint32_t i = 0; i < Scene::getNumObjects; ++i) {
+			float tNeark = INFINITY;
+			if (Scene::getObject(i)->intercepts(ray, tNeark) && tNeark < tNear) {
+				hitObject = Scene::getObject(i);
+				tNear = tNeark
+			}
+		}
+		return (hitObject != NULL);
+	}
+
+	float tnear = INFINITY;
+	Object* hitObject = NULL;
+	Vector hitColor = scene->GetBackgroundColor();
+	Vector hitPoint = ray.origin + ray.direction * tnear;
+
+	if (trace(ray.origin, ray.direction, tnear, hitObject)) {
+		switch (hitObject->SetMaterial) {
+		case REFLECTION_AND_REFRACTION:
+			Vector reflectionColor = rayTracing(hitPoint,r)
+
+		
+		}
+	}
+
+
+	
+
 
 	// WHERE TO START???? Teacher talks about plane.point[0] etc???
-	if (Plane.intercepts(ray))
+	if (Plane.intercepts(ray) == false || Sphere.intercepts(ray) == false || Triangle.intercepts(ray) == false)  //if (!intersection point) return BACKGROUND;
 	{
-
+		return scene::GetBackgroundColor();
 	};
-	Vector normal = Plane.getNormal(Plane.point[0]);
 
+	else {
+		//compute normal at the hit point;
+		hitObj = scene::getObject();   // Somehow get the object that was hit
+		Vector normal = hitObj.getNormal();
+		Vector phit = ray.direction * t + ray.origin;
+		// Loop through lights
+		for (int i = 0; i <= scene->getNumLights() - 1; i += 1)  // for every i, starting from 0, to the amount of lights (-1 for correct indexing), stepping 1 index per loop
+		{
+			Vector lightsource = scene->getLight(i);
+			Vector L = (lightsource - phit).normalize();		// unit light vector from hit point to light source
 
-	float ti =( ((ray.origin - a) * normal) / (normal * ray.direction))*(-1);
+			if (L * normal > 0)
+			{
+				float diff_c = scene->getMaterial()->getDiffColor;
+				float diff_color
+					diffuse_color;
+				color = diffuse_color + specular color;
+			};
 
-	//What happens after
-	if (ti <= 0)
-	{
-		return Color(scene->GetBackgroundColor());
+		};
 	};
+
+	
+
+	
+
 	else
 	{
+		
+		}
+
 		// reflection
 		if (reflective)
 		{
@@ -97,7 +156,7 @@ Color rayTracing( Ray ray, int depth, float ior_1)  //index of refraction of med
 	};
 	
 	return Color(0.0f, 0.0f, 0.0f);
-}
+}};
 
 /////////////////////////////////////////////////////////////////////// ERRORS
 
