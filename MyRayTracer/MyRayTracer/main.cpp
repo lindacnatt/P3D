@@ -1,7 +1,7 @@
  ///////////////////////////////////////////////////////////////////////
 //
 // P3D Course
-// (c) 2019 by Jo„o Madeiras Pereira
+// (c) 2019 by Jo√£o Madeiras Pereira
 //Ray Tracing P3F scenes and drawing points with Modern OpenGL
 //
 ///////////////////////////////////////////////////////////////////////
@@ -65,19 +65,17 @@ Color rayTracing( Ray ray, int depth, float ior_1)  //index of refraction of med
 {
 	// Variables: Ray (includes origin and direction, depth and index of refraction
 	//INSERT HERE YOUR CODE
-	//Calculate intersection  intercepts() functions returns true or false
-	if (Plane.intercepts(ray) == false || Sphere.intercepts(ray) == false || Triangle.intercepts(ray) == false)  //if (!intersection point) return BACKGROUND;
+	float t = INFINITY;
+	hitObject = NULL;
+	for (uint32_t obj_i = 0; obj_i = scene->getNumObjects - 1; obj_i = obj_i + 1)  //Looping through all objects to check if there is an intersection
 	{
-		return Color(scene->GetBackgroundColor());
-	}
-
-	//What happens after
-
-	else
-	{
-		//compute normal at the hit point;
-		hitObj = scene->getObject();   // Somehow get the object that was hit
-		Vector normal = hitObj.getNormal();
+		if (scene->getObject(obj_i)->intercepts(ray, t) == true && t < tNear)  //if ray is intercepting object, put obj_i in list of hitObjects;
+		{
+			hitObject = scene->getObject(obj_i);
+			t = tNear;  //get the one closest to camera
+		};
+	};
+		Vector normal = hitObject.getNormal();
 		Vector phit = ray.direction * t + ray.origin;
 		// Loop through lights
 		for (int i = 0; i <= scene->getNumLights() - 1; i += 1)  // for every i, starting from 0, to the amount of lights (-1 for correct indexing), stepping 1 index per loop
@@ -93,19 +91,25 @@ Color rayTracing( Ray ray, int depth, float ior_1)  //index of refraction of med
 				color = diffuse_color + specular color;
 			};
 
-		};
+
 
 
 		// reflection
 		if (reflective)
 		{
 			Vector V = (ray.direction) * (-1);
-			Ray rRay =  Ray(phit,normal * 2 - V * (V * normal));
+			Ray rRay = Ray(phit, normal * 2 - V * (V * normal));
 			rColor = rayTracing(rRay, depth, ior_1); //iteration 
 			//reduce rColor by the specular reflection coefficient and add to color;
 		};
 
-	};
+
+
+
+	
+	//What happens after
+
+	
 	return Color(0.0f, 0.0f, 0.0f);
 }
 
@@ -210,8 +214,8 @@ void createBufferObjects()
 	glGenBuffers(2, VboId);
 	glBindBuffer(GL_ARRAY_BUFFER, VboId[0]);
 
-	/* SÛ se faz a alocaÁ„o dos arrays glBufferData (NULL), e o envio dos pontos para a placa gr·fica
-	È feito na drawPoints com GlBufferSubData em tempo de execuÁ„o pois os arrays s„o GL_DYNAMIC_DRAW */
+	/* S√≥ se faz a aloca√ß√£o dos arrays glBufferData (NULL), e o envio dos pontos para a placa gr√°fica
+	√© feito na drawPoints com GlBufferSubData em tempo de execu√ß√£o pois os arrays s√£o GL_DYNAMIC_DRAW */
 	glBufferData(GL_ARRAY_BUFFER, size_vertices, NULL, GL_DYNAMIC_DRAW);
 	glEnableVertexAttribArray(VERTEX_COORD_ATTRIB);
 	glVertexAttribPointer(VERTEX_COORD_ATTRIB, 2, GL_FLOAT, 0, 0, 0);
