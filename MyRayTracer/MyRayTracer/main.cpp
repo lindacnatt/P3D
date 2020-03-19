@@ -65,37 +65,47 @@ Color rayTracing( Ray ray, int depth, float ior_1)  //index of refraction of med
 {
 	// Variables: Ray (includes origin and direction, depth and index of refraction
 	//INSERT HERE YOUR CODE
-	//Calculate intersection
-
-
-	// WHERE TO START???? Teacher talks about plane.point[0] etc???
-	if (Plane.intercepts(ray))
-	{
-
-	};
-	Vector normal = Plane.getNormal(Plane.point[0]);
-
-
-	float ti =( ((ray.origin - a) * normal) / (normal * ray.direction))*(-1);
-
-	//What happens after
-	if (ti <= 0)
+	//Calculate intersection  intercepts() functions returns true or false
+	if (Plane.intercepts(ray) == false || Sphere.intercepts(ray) == false || Triangle.intercepts(ray) == false)  //if (!intersection point) return BACKGROUND;
 	{
 		return Color(scene->GetBackgroundColor());
-	};
+	}
+
+	//What happens after
+
 	else
 	{
+		//compute normal at the hit point;
+		hitObj = scene->getObject();   // Somehow get the object that was hit
+		Vector normal = hitObj.getNormal();
+		Vector phit = ray.direction * t + ray.origin;
+		// Loop through lights
+		for (int i = 0; i <= scene->getNumLights() - 1; i += 1)  // for every i, starting from 0, to the amount of lights (-1 for correct indexing), stepping 1 index per loop
+		{
+			Vector lightsource = scene->getLight(i);
+			Vector L = (lightsource - phit).normalize();		// unit light vector from hit point to light source
+
+			if (L * normal > 0)
+			{
+				float diff_c = scene->getMaterial()->getDiffColor;
+				float diff_color
+					diffuse_color;
+				color = diffuse_color + specular color;
+			};
+
+		};
+
+
 		// reflection
 		if (reflective)
 		{
 			Vector V = (ray.direction) * (-1);
-			Vector normal = ;  //depends on what it hits
-			Ray rRay = (V * n) * n * 2 - V;
+			Ray rRay =  Ray(phit,normal * 2 - V * (V * normal));
 			rColor = rayTracing(rRay, depth, ior_1); //iteration 
 			//reduce rColor by the specular reflection coefficient and add to color;
-		}
+		};
+
 	};
-	
 	return Color(0.0f, 0.0f, 0.0f);
 }
 
