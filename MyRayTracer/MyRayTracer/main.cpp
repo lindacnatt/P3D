@@ -66,19 +66,24 @@ Color rayTracing( Ray ray, int depth, float ior_1)  //index of refraction of med
 	// Variables: Ray (includes origin and direction, depth and index of refraction
 	//INSERT HERE YOUR CODE
 	//Calculate intersection  intercepts() functions returns true or false
-	if (Plane.intercepts(ray) == false || Sphere.intercepts(ray) == false || Triangle.intercepts(ray) == false)  //if (!intersection point) return BACKGROUND;
-	{
-		return Color(scene->GetBackgroundColor());
-	}
+	Color finalColor = Color(0.0f, 0.0f, 0.0f); // defining finalcolor as black, to return if no object or no light hits the pixel
 
-	//What happens after
-
-	else
+	float t = INFINITY;		// !!! Need to check t!!!
+	hitObject = NULL;   // defines hitObject
+	for (uint32_t obj_i = 0; obj_i = scene->getNumObjects - 1; obj_i = obj_i + 1)  //Looping through all objects to check if there is an intersection
 	{
-		//compute normal at the hit point;
-		hitObj = scene->getObject();   // Somehow get the object that was hit
-		Vector normal = hitObj.getNormal();
+		if (scene->getObject(obj_i)->intercepts(ray, t) == true && t < tNear)  //check if ray is intercepting object, put obj_i in list of hitObjects;
+		{
+			hitObject = scene->getObject(obj_i);
+			t = tNear;  //get the one closest to camera
+		};
+	};
+
+	if (hitObject != NULL)
+	{
+		Vector normal = hitObject.getNormal();
 		Vector phit = ray.direction * t + ray.origin;
+
 		// Loop through lights
 		for (int i = 0; i <= scene->getNumLights() - 1; i += 1)  // for every i, starting from 0, to the amount of lights (-1 for correct indexing), stepping 1 index per loop
 		{
@@ -87,26 +92,57 @@ Color rayTracing( Ray ray, int depth, float ior_1)  //index of refraction of med
 
 			if (L * normal > 0)
 			{
-				float diff_c = scene->getMaterial()->getDiffColor;
-				float diff_color
-					diffuse_color;
-				color = diffuse_color + specular color;
+				shadowObject = NULL;   // just like the intercepting test on line 73, defines an shadowObject
+				for (uint32_t obj_i = 0; obj_i = scene->getNumObjects - 1; obj_i = obj_i + 1)  //Looping through all objects to check if there is an intersection
+				{
+					if (scene->getObject(obj_i)->intercepts(L, t) == true && t < tNear)  //check if ray towards source light is intercepting object
+					{
+						shadowObject = scene->getObject(obj_i);
+						t = tNear; 
+					};
+				};
+				if (shadowObject != NULL) //if no object blocking source light
+				{
+					float Kd = hitObject->GetMaterial()->GetDiffuse();
+					Color diffuse_color = hitObject->GetMaterial()->GetDiffColor() * Kd; // Calculate diffuse
+					float Ks = hitObject->GetMaterial()->GetSpecular();
+					Color specular_color = hitObject->GetMaterial()->GetSpecColor() * Ks;  // Calculate specular
+					Color specDiffColor = diffuse_color + specular_color;  //combine colors
+					finalColor += specDiffColor;
+				};
 			};
-
 		};
-
 
 		// reflection
-		if (reflective)
+		if (hitObject is reflective)   // !! Check somehow if it is reflective
 		{
-			Vector V = (ray.direction) * (-1);
-			Ray rRay =  Ray(phit,normal * 2 - V * (V * normal));
-			rColor = rayTracing(rRay, depth, ior_1); //iteration 
-			//reduce rColor by the specular reflection coefficient and add to color;
+			Vector V = (ray.direction) * (-1);		// math from slides
+			Vector rRefl = normal * 2 * (V * normal) - V;
+			Ray reflRay = Ray(phit, rRefl);
+
+			Color reflColor = rayTracing(reflRay, depth, ior_1); //iteration 
+			reflColor = reflColor * (hitObject->GetMaterial()->GetSpecular()); //  reduce rColor by the specular reflection coefficient
+			finalColor += reflColor;  // add to color;
 		};
 
-	};
-	return Color(0.0f, 0.0f, 0.0f);
+		//refraction
+		if (refractive)  // !! Check somehow if it is refractive
+		{
+			Vector tr = (normal * ((ray.direction * (-1)) * normal) - (ray.direction * (-1)));  // math from slides
+			float angleIncoming = normal * (ray.direction * -1);
+			float ior_2 = hitObject->GetMaterial()->GetRefrIndex;
+			float angleTransSin = (ior_1 / ior_2) * angleIncoming;
+			float angleTransCos = sqrt(1 - (angleTransSin) * (angleTransSin));
+			Vector rRefr = tr.normalize() * angleTransSin + normal * (-1) * angleTransCos;
+			Ray refrRay = Ray(phit, rRefr);
+			Color refrColor = rayTracing(refrRay, depth, ior_1);		//tColor = trace(scene, point, tRay direction, depth + 1);   not sure about depth +1
+			refrColor = refrColor * (hitObject->GetMaterial()->GetTransmittance());  // reduce tColor by the transmittance coefficient
+			finalColor += refrColor;	// add to color
+		};
+
+	}
+	
+	return (finalColor);
 }
 
 /////////////////////////////////////////////////////////////////////// ERRORS
