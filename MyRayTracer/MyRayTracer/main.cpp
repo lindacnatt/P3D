@@ -72,27 +72,27 @@ Color rayTracing(Ray ray, int depth, float ior_1)  //index of refraction of medi
 
 	Color finalColor = Color(0.0f, 0.0f, 0.0f);
 
-	if (depth = > MAX_DEPTH Plane.intercepts(ray) == false || Sphere.intercepts(ray) == false || Triangle.intercepts(ray) == false)
+	if (depth = > MAX_DEPTH || Plane.intercepts(ray) == false || Sphere.intercepts(ray) == false || Triangle.intercepts(ray) == false)
 	{
 		return finalColor;
 	};
 
-	bool trace(ray.origin, ray.direction, tNear, ) {
+	bool trace(&ray.origin,&ray.direction,tNear) {
 
 		hitObject = NULL;
 		for (uint32_t i = 0; i < Scene::getNumObjects; ++i) {
 			float tNeark = INFINITY;
-			if (Scene::getObject(i)->intercepts(ray, tNeark) && tNeark < tNear) {
+			if (Scene::getObject(i)->intercepts(ray.origin,ray.direction, tNeark) && tNeark < tNear) {
 				hitObject = Scene::getObject(i);
-				tNear = tNeark
+				tNear = tNeark;
 			}
 		}
 		return (hitObject != NULL);
 	}
 
-	void fresnel(const Vector I, const Vector N, const float ior_1, float kr) {
-		float cosi = clamp(-1, 1, I.operator*(N));
-		float etai = 1
+	float fresnel(const Vector I, const Vector N, const float ior_1, float kr) {
+		float cosi = CLAMP(-1, 1, I.operator*(N));
+		float etai = 1;
 		float etat = ior_1;
 		if (cosi > 0) {
 			swap(etai, etat);
@@ -101,7 +101,8 @@ Color rayTracing(Ray ray, int depth, float ior_1)  //index of refraction of medi
 		float sint = etai / etat * sqrtf(std::max(0.f, 1 - cosi * cosi));
 		//Total internal reflection
 		if (sint >= 1) {
-			kr =1}
+			kr = 1;
+		}
 		else {
 			float cost = sqrtf(std::max(0.f, 1 - sint * sint));
 			float cosi = fabsf(cosi);
@@ -110,6 +111,7 @@ Color rayTracing(Ray ray, int depth, float ior_1)  //index of refraction of medi
 			kr = (Rs * Rs + Rp * Rp) / 2;
 
 		}
+		return kr;
 	}
 
 	float tnear = INFINITY; //distance to the intersected object
@@ -118,7 +120,7 @@ Color rayTracing(Ray ray, int depth, float ior_1)  //index of refraction of medi
 	Vector phit = ray.origin + ray.direction * tnear;
 	Vector normal = hitObject->getNormal();
 
-	if (trace(ray.origin, ray.direction, tnear, hitObject)) {
+	if (trace(ray.origin, ray.direction, tnear, /*hitObject*/)) {
 		switch (hitObject->SetMaterial) {
 		case REFLECTION_AND_REFRACTION:
 			Vector reflectionColor = rayTracing(phit, depth + 1, ior_1);
@@ -133,44 +135,27 @@ Color rayTracing(Ray ray, int depth, float ior_1)  //index of refraction of medi
 			break;
 		default:
 			for (uint32_t i = 0; i < scene::getNumLights(); ++i) {
-				Vector lightDirection = Scene::getNumLights(i).getLight - phit;
+				Vector lightSource = Scene::getNumLights(i).getLight();
+				Vector lightDirection = (lightSource - phit).normalize();
 				float len2 = lightDirection.operator*(lightDirection);
 				float tNearShadow = INFINITY;
 				// is phit in the lightshadow and is the light getting closed by the intersection point?
 				bool isInShadow = (trace(phit, lightDirection.normalize(), tNearShadow) && tNearShadow * tNearShadow < len2);
-				// compute the Phong model terms
-				hitColor = (1 - isInShadow) * ();
+				// compute the Phong model
+				if (isInShadow){
+					float Kd = hitObject->GetMaterial()->GetDiffuse();
+					Color diffuse_color = hitObject->GetMaterial()->GetDiffColor() * Kd;
+					float Ks = hitObject->GetMaterial()->GetSpecular();
+					Color specular_color = hitObject->GetMaterial()->GetSpecColor() * Ks;
+					Color specDiffColor = diffuse_color + specular_color;
+					hitColor += specDiffColor;
 			}
 			break;
 		}
 	}
 	return hitColor;
-}
 
-
-	
-
-	else {
-		//compute normal at the hit point;
-		hitObj = scene::getObject();   // Somehow get the object that was hit
-		Vector normal = hitObj.getNormal();
-		Vector phit = ray.direction * t + ray.origin;
-		// Loop through lights
-		for (int i = 0; i <= scene->getNumLights() - 1; i += 1)  // for every i, starting from 0, to the amount of lights (-1 for correct indexing), stepping 1 index per loop
-		{
-			Vector lightsource = scene->getLight(i);
-			Vector L = (lightsource - phit).normalize();		// unit light vector from hit point to light source
-
-			if (L * normal > 0)
-			{
-				float diff_c = scene->getMaterial()->getDiffColor;
-				float diff_color
-					diffuse_color;
-				color = diffuse_color + specular color;
-			};
-
-		};
-	};
+	}
 	
 	return Color(0.0f, 0.0f, 0.0f);
 }};
