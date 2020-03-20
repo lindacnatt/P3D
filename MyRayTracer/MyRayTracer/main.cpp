@@ -24,6 +24,7 @@
 #include "grid.h"
 #include "maths.h"
 #include "sampler.h"
+#include <algorithm>
 
 #define CAPTION "Whitted Ray-Tracer"
 
@@ -63,20 +64,20 @@ int WindowHandle = 0;
 
 
 
-Color rayTracing( Ray ray, int depth, float ior_1)  //index of refraction of medium 1 where the ray is travelling
+Color rayTracing(Ray ray, int depth, float ior_1)  //index of refraction of medium 1 where the ray is travelling
 {
 	// Variables: Ray (includes origin and direction, depth and index of refraction
 	//INSERT HERE YOUR CODE
 	//Calculate intersection
 
-	//depth calculation
-	float ti = (((ray.origin - a) * normal) / (normal * ray.direction)) * (-1);
-	if (ti = > MAX_DEPTH)
+	Color finalColor = Color(0.0f, 0.0f, 0.0f);
+
+	if (depth = > MAX_DEPTH Plane.intercepts(ray) == false || Sphere.intercepts(ray) == false || Triangle.intercepts(ray) == false)
 	{
-		return color;
+		return finalColor;
 	};
 
-	bool trace(ray.origin,ray.direction,tNear) {
+	bool trace(ray.origin, ray.direction, tNear, ) {
 
 		hitObject = NULL;
 		for (uint32_t i = 0; i < Scene::getNumObjects; ++i) {
@@ -89,29 +90,65 @@ Color rayTracing( Ray ray, int depth, float ior_1)  //index of refraction of med
 		return (hitObject != NULL);
 	}
 
-	float tnear = INFINITY;
-	Object* hitObject = NULL;
-	Vector hitColor = scene->GetBackgroundColor();
-	Vector hitPoint = ray.origin + ray.direction * tnear;
+	void fresnel(const Vector I, const Vector N, const float ior_1, float kr) {
+		float cosi = clamp(-1, 1, I.operator*(N));
+		float etai = 1
+		float etat = ior_1;
+		if (cosi > 0) {
+			swap(etai, etat);
+		}
+		//Snell's low
+		float sint = etai / etat * sqrtf(std::max(0.f, 1 - cosi * cosi));
+		//Total internal reflection
+		if (sint >= 1) {
+			kr =1}
+		else {
+			float cost = sqrtf(std::max(0.f, 1 - sint * sint));
+			float cosi = fabsf(cosi);
+			float Rs = ((etat * cosi) - (etai * cost)) / ((etat * cosi) + (etai * cost));
+			float Rp = ((etai * cosi) - (etat * cost)) / ((etai * cosi) + (etat * cost));
+			kr = (Rs * Rs + Rp * Rp) / 2;
+
+		}
+	}
+
+	float tnear = INFINITY; //distance to the intersected object
+	Object* hitObject = NULL; // pointer to the intersected object
+	Vector hitColor = 0; // color of the intersected point
+	Vector phit = ray.origin + ray.direction * tnear;
+	Vector normal = hitObject->getNormal();
 
 	if (trace(ray.origin, ray.direction, tnear, hitObject)) {
 		switch (hitObject->SetMaterial) {
 		case REFLECTION_AND_REFRACTION:
-			Vector reflectionColor = rayTracing(hitPoint,r)
-
-		
+			Vector reflectionColor = rayTracing(phit, depth + 1, ior_1);
+			Vector refractionColor = rayTracing(phit, depth + 1, ior_1);
+			float kr; // how much light is refrected (Fresnel equ.)
+			fresnel(ray.direction, normal, ior_1, kr);
+			hitColor = reflectionColor * kr + refractionColor * (1 - kr);
+			break;
+		case REFLECTION:
+			Vector reflectionColor = rayTracing(ray, depth + 1, ior_1);
+			hitColor = reflectionColor;
+			break;
+		default:
+			for (uint32_t i = 0; i < scene::getNumLights(); ++i) {
+				Vector lightDirection = Scene::getNumLights(i).getLight - phit;
+				float len2 = lightDirection.operator*(lightDirection);
+				float tNearShadow = INFINITY;
+				// is phit in the lightshadow and is the light getting closed by the intersection point?
+				bool isInShadow = (trace(phit, lightDirection.normalize(), tNearShadow) && tNearShadow * tNearShadow < len2);
+				// compute the Phong model terms
+				hitColor = (1 - isInShadow) * ();
+			}
+			break;
 		}
 	}
+	return hitColor;
+}
 
 
 	
-
-
-	// WHERE TO START???? Teacher talks about plane.point[0] etc???
-	if (Plane.intercepts(ray) == false || Sphere.intercepts(ray) == false || Triangle.intercepts(ray) == false)  //if (!intersection point) return BACKGROUND;
-	{
-		return scene::GetBackgroundColor();
-	};
 
 	else {
 		//compute normal at the hit point;
@@ -133,26 +170,6 @@ Color rayTracing( Ray ray, int depth, float ior_1)  //index of refraction of med
 			};
 
 		};
-	};
-
-	
-
-	
-
-	else
-	{
-		
-		}
-
-		// reflection
-		if (reflective)
-		{
-			Vector V = (ray.direction) * (-1);
-			Vector normal = ;  //depends on what it hits
-			Ray rRay = (V * n) * n * 2 - V;
-			rColor = rayTracing(rRay, depth, ior_1); //iteration 
-			//reduce rColor by the specular reflection coefficient and add to color;
-		}
 	};
 	
 	return Color(0.0f, 0.0f, 0.0f);
