@@ -38,50 +38,31 @@ Vector Triangle::getNormal(Vector point)
 // Ray/Triangle intersection test using Tomas Moller-Ben Trumbore algorithm.
 //
 
-bool Triangle::intercepts(Ray& r, float& t ) {
+bool Triangle::intercepts(Ray& r, float& t) {
 
 	Vector P0P1 = points[1] - points[0];
 	Vector P0P2 = points[2] - points[0];
+	Vector pvec = r.direction%(P0P2);
+	float det = P0P1*(pvec);
+	float invDet = 1 / det;
 
-	Vector N = P0P1.operator*(P0P2);
-	float area2 = N.length();
-
-	//are the ray and the plans parallel?
-	float NdotRayDirection = N.operator*(r.direction);
-	if (fabs(NdotRayDirection) < EPSILON) {
-		return false; //they are parallel, so they dont intersect
+	//CULLING
+	if (det < EPSILON || fabs(det) < EPSILON) {
+		return false;
 	}
 
-	float d = N.operator*(points[0]);
+	Vector tvec = r.origin - points[0];
+	float u = tvec*(pvec)*invDet;
+	if (u < 0 || u > 1) return false;
 
-	//t = (N.operator*(r.origin) + d) / NdotRayDirection; has not to be calculated since given as a parameter
+	Vector qvec = tvec%(P0P1);
+	float v = r.direction*(qvec) * invDet;
+	if (v < 0 || u + v > 1) return false;
 
-	Vector P = r.origin + t * r.direction;
+	t = P0P2 *(qvec) * invDet;
 
-	Vector edge0 = points[1] - points[0];
-	Vector vp0 = P - v0;
-	C = edge0.operator*(vp0);
-	if (N.operator*(C) < 0) {
-		return false
-	}
+	return true;
 
-	Vector C;
-	Vector edge1 = points[2] - points[1];
-	Vector vp1 = P - v1;
-	C = edge1.operator*(vp1);
-	if (N.operator*(C) < 0) {
-		return false
-	}
-
-	Vector C;
-	Vector edge2 = points[0] - points[2];
-	Vector vp2 = P - v2;
-	C = edge2.operator*(vp2);
-	if (N.operator*(C) < 0) {
-		return false
-	}
-
-	return (true);
 }
 
 Plane::Plane(Vector& a_PN, float a_D)
@@ -113,11 +94,17 @@ Plane::Plane(Vector& P0, Vector& P1, Vector& P2)
 
 bool Plane::intercepts( Ray& r, float& t )
 {
-	Vector n = (points[1] - points[0]) % (points[2] - points[0]);
-	float denom = (n * r.direction);
+	
+		 
+	Vector n = PN;
+	Vector l = PN.normalize();
+	Vector l0 = r.origin;
+	Vector p0 = Vector(0, 0, 0);
+	float denom = (n*l);
 	if (denom > 1e-6){
-		float ti = (r.origin - points[0]) * n / denom;    //WHAT IS a??? (o-a)*n/denom
-		return (ti > 0);
+		Vector p010 = p0 - l0;
+		t = (p010*n)/ denom;    
+		return (t >= 0);
 	}
    return (false);
 }
