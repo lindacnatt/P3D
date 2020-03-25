@@ -66,47 +66,95 @@ Color rayTracing( Ray ray, int depth, float ior_1)  //index of refraction of med
 	// Variables: Ray (includes origin and direction, depth and index of refraction
 	//INSERT HERE YOUR CODE
 	//Calculate intersection  intercepts() functions returns true or false
-	if (Plane.intercepts(ray) == false || Sphere.intercepts(ray) == false || Triangle.intercepts(ray) == false)  //if (!intersection point) return BACKGROUND;
-	{
-		return Color(scene->GetBackgroundColor());
-	}
+	Color finalColor; // defining finalcolor
 
-	//What happens after
-
-	else
+	float dist;	
+	float tNear = depth;
+	int hitIndex = NULL;
+	for (int obj_i = 0; obj_i = scene->getNumObjects() - 1; obj_i = obj_i + 1)  //Looping through all objects to check if there is an intersection
 	{
-		//compute normal at the hit point;
-		hitObj = scene->getObject();   // Somehow get the object that was hit
-		Vector normal = hitObj.getNormal();
-		Vector phit = ray.direction * t + ray.origin;
+		if (scene->getObject(obj_i)->intercepts(ray, dist) == true && dist < tNear)					//check if ray is intercepting object, put obj_i in list of hitObjects; t in intercepts function checks that it is the closest t
+		{
+			float tNear = dist;	// continues to make tNear smaller
+			hitIndex = obj_i;	// stores index for future uses when the object is needed
+		}
+	};
+
+	if (hitIndex != NULL)
+	{
+		Vector phit = ray.direction * tNear + ray.origin;
+		Vector normal = scene->getObject(hitIndex)->getNormal(phit);
+
 		// Loop through lights
 		for (int i = 0; i <= scene->getNumLights() - 1; i += 1)  // for every i, starting from 0, to the amount of lights (-1 for correct indexing), stepping 1 index per loop
 		{
-			Vector lightsource = scene->getLight(i);
+			Vector lightsource = scene->getLight(i)->position;
 			Vector L = (lightsource - phit).normalize();		// unit light vector from hit point to light source
+			Ray shadowRay = scene->GetCamera()->PrimaryRay(L, phit);
 
 			if (L * normal > 0)
 			{
-				float diff_c = scene->getMaterial()->getDiffColor;
-				float diff_color
-					diffuse_color;
-				color = diffuse_color + specular color;
+				int shadowIndex = NULL;
+				float shadowDist;
+				float tNearShadow = INFINITE;
+				for (uint32_t sobj_i = 0; sobj_i = scene->getNumObjects() - 1; sobj_i = sobj_i + 1)  //Looping through all objects to check if there is an intersection
+				{
+					if (scene->getObject(sobj_i)->intercepts(shadowRay, shadowDist) == true && shadowDist < tNearShadow)  //check if ray towards source light is intercepting object
+					{
+						shadowIndex = sobj_i;
+						tNearShadow = shadowDist;
+					};
+				};
+				if (shadowIndex != NULL) //if no object blocking source light
+				{
+					float Kd = scene->getObject(shadowIndex)->GetMaterial()->GetDiffuse();
+					Color diffuse_color = scene->getObject(shadowIndex)->GetMaterial()->GetDiffColor() * Kd; // Calculate diffuse
+					float Ks = scene->getObject(shadowIndex)->GetMaterial()->GetSpecular();
+					Color specular_color = scene->getObject(shadowIndex)->GetMaterial()->GetSpecColor() * Ks;  // Calculate specular
+					Color specDiffColor = diffuse_color + specular_color;  //combine colors
+					finalColor += specDiffColor;
+				}
+				else
+				{
+					return (Color(0.0f, 0.0f, 0.0f));
+				};
 			};
-
 		};
-
 
 		// reflection
-		if (reflective)
+		if (scene->getObject(hitIndex)->GetMaterial()->GetReflection() > 0)   // !! If reflective component is bigger than 0, means it is reflective?
 		{
-			Vector V = (ray.direction) * (-1);
-			Ray rRay =  Ray(phit,normal * 2 - V * (V * normal));
-			rColor = rayTracing(rRay, depth, ior_1); //iteration 
-			//reduce rColor by the specular reflection coefficient and add to color;
+			Vector V = (ray.direction) * (-1);		// math from slides
+			Vector rRefl = normal * 2 * (V * normal) - V;
+			Ray reflRay = Ray(phit, rRefl);
+
+			Color reflColor = rayTracing(reflRay, depth, ior_1); //iteration 
+			reflColor = reflColor * (scene->getObject(hitIndex)->GetMaterial()->GetSpecular()); //  reduce rColor by the specular reflection coefficient
+			finalColor += reflColor;  // add to color;
 		};
 
+		//refraction
+		if (scene->getObject(hitIndex)->GetMaterial()->GetTransmittance() > 0)  // !! Transmission > 0 means refractive?
+		{
+			Vector tr = (normal * ((ray.direction * (-1)) * normal) - (ray.direction * (-1)));  // math from slides
+			float angleIncoming = normal * (ray.direction * -1);
+			float ior_2 = scene->getObject(hitIndex)->GetMaterial()->GetRefrIndex();
+			float angleTransSin = (ior_1 / ior_2) * angleIncoming;
+			float angleTransCos = sqrt(1 - (angleTransSin) * (angleTransSin));
+			Vector rRefr = tr.normalize() * angleTransSin + normal * (-1) * angleTransCos;
+			Ray refrRay = Ray(phit, rRefr);
+			Color refrColor = rayTracing(refrRay, depth, ior_1);		//tColor = trace(scene, point, tRay direction, depth + 1);   not sure about depth +1
+			refrColor = refrColor * (scene->getObject(hitIndex)->GetMaterial()->GetTransmittance());  // reduce tColor by the transmittance coefficient
+			finalColor += refrColor;	// add to color
+		};
+
+	}
+
+	else
+	{
+		finalColor = scene->GetBackgroundColor(); //  If no hit object, get backgroundcolour
 	};
-	return Color(0.0f, 0.0f, 0.0f);
+	return (finalColor);
 }
 
 /////////////////////////////////////////////////////////////////////// ERRORS
@@ -304,10 +352,24 @@ void renderScene()
 			pixel.x = x + 0.5f;  
 			pixel.y = y + 0.5f;
 
-			/*YOUR 2 FUNCTIONS:
+			// Jittering
+			/*
+			Color c = Color(0.0, 0.0, 0.0);
+			int n = 5; // defined by us to decide how much to split the pixel in
+			for (int p = 0; n - 1; p++)
+			{ 
+				for (int q = 0; n - 1; q++)
+				{
+					c = c + SOMETHING(pixel.x + (p + rand) / n, pixel.y + (q + rand) / n);
+				};
+			};
+			Color cij = c / pow(n, 2);
+			*/
+
+			//YOUR 2 FUNCTIONS:
 			Ray ray = scene->GetCamera()->PrimaryRay(pixel);
 			color = rayTracing(ray, 1, 1.0);
-			*/
+			
 
 			color = scene->GetBackgroundColor(); //just for the template
 
@@ -324,7 +386,7 @@ void renderScene()
 
 				colors[index_col++] = (float)color.b();
 
-
+				
 				if (draw_mode == 0) {  // drawing point by point
 					drawPoints();
 					index_pos = 0;
