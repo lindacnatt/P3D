@@ -65,8 +65,8 @@ public:
 	{
 		Vector ray_dir;
 		Vector ray_dirz = n * (-(eye-at).length());
-		Vector ray_diry = v * h*(pixel_sample.y / res_y - 1 / 2);
-		Vector ray_dirx = u * w*(pixel_sample.x / res_x - 1 / 2);
+		Vector ray_diry = v * h*(pixel_sample.y / res_y - 0.5f);
+		Vector ray_dirx = u * w*(pixel_sample.x / res_x - 0.5f);
 		ray_dir = ray_dirz + ray_diry + ray_dirx;
 		ray_dir.normalize();
 
