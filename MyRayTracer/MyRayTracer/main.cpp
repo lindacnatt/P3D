@@ -63,6 +63,7 @@ int WindowHandle = 0;
 
 Color rayTracing( Ray ray, int depth, float ior_1)  //index of refraction of medium 1 where the ray is travelling
 {
+	cout << "Raytracing!";
 	// Variables: Ray (includes origin and direction, depth and index of refraction
 	//INSERT HERE YOUR CODE
 	//Calculate intersection  intercepts() functions returns true or false
@@ -71,71 +72,93 @@ Color rayTracing( Ray ray, int depth, float ior_1)  //index of refraction of med
 	float dist;	
 	float tNear = depth;
 	int hitIndex = NULL;
-	for (int obj_i = 0; obj_i = scene->getNumObjects() - 1; obj_i = obj_i + 1)  //Looping through all objects to check if there is an intersection
+	for (int obj_i = 0; obj_i <= scene->getNumObjects()-1; obj_i += 1)  //Looping through all objects to check if there is an intersection
 	{
 		if (scene->getObject(obj_i)->intercepts(ray, dist) == true && dist < tNear)					//check if ray is intercepting object, put obj_i in list of hitObjects; t in intercepts function checks that it is the closest t
 		{
 			float tNear = dist;	// continues to make tNear smaller
 			hitIndex = obj_i;	// stores index for future uses when the object is needed
-		}
+			cout << "Hit object! \n ";
+
+		};
 	};
 
 	if (hitIndex != NULL)
 	{
 		Vector phit = ray.direction * tNear + ray.origin;
 		Vector normal = scene->getObject(hitIndex)->getNormal(phit);
-
 		// Loop through lights
-		for (int i = 0; i <= scene->getNumLights() - 1; i += 1)  // for every i, starting from 0, to the amount of lights (-1 for correct indexing), stepping 1 index per loop
+		
+		for (int i = 0; i < scene->getNumLights(); i += 1)  // for every i, starting from 0, to the amount of lights (-1 for correct indexing), stepping 1 index per loop
 		{
 			Vector lightsource = scene->getLight(i)->position;
 			Vector L = (lightsource - phit).normalize();		// unit light vector from hit point to light source
 			Ray shadowRay = scene->GetCamera()->PrimaryRay(L, phit);
+			cout << "Light nr: ";
+			cout << i;
 
 			if (L * normal > 0)
 			{
+				cout << "L*normal > 0";
 				int shadowIndex = NULL;
 				float shadowDist;
-				float tNearShadow = INFINITE;
-				for (uint32_t sobj_i = 0; sobj_i = scene->getNumObjects() - 1; sobj_i = sobj_i + 1)  //Looping through all objects to check if there is an intersection
+				float tNearShadow = depth;
+				for (int sobj_i = 0; sobj_i < scene->getNumObjects(); sobj_i += 1)  //Looping through all objects to check if there is an intersection
 				{
+					cout << sobj_i;
 					if (scene->getObject(sobj_i)->intercepts(shadowRay, shadowDist) == true && shadowDist < tNearShadow)  //check if ray towards source light is intercepting object
 					{
+
 						shadowIndex = sobj_i;
 						tNearShadow = shadowDist;
+						cout << "shadow object found: ";
+						cout << shadowIndex;
 					};
-				};
-				if (shadowIndex != NULL) //if no object blocking source light
-				{
-					float Kd = scene->getObject(shadowIndex)->GetMaterial()->GetDiffuse();
-					Color diffuse_color = scene->getObject(shadowIndex)->GetMaterial()->GetDiffColor() * Kd; // Calculate diffuse
-					float Ks = scene->getObject(shadowIndex)->GetMaterial()->GetSpecular();
-					Color specular_color = scene->getObject(shadowIndex)->GetMaterial()->GetSpecColor() * Ks;  // Calculate specular
+				}
+				//if (shadowIndex == NULL) //if  object is blocking source light
+				/*{
+					cout << "Returning shadow";
+					finalColor = Color(0.0f, 0.0f, 0.0f);
+				}
+				else*/
+				//{
+					cout << "Not shadowed";
+					float Kd = scene->getObject(hitIndex)->GetMaterial()->GetDiffuse();
+					Color diffuse_color = scene->getObject(hitIndex)->GetMaterial()->GetDiffColor() * Kd; // Calculate diffuse
+					float Ks = scene->getObject(hitIndex)->GetMaterial()->GetSpecular();
+					Color specular_color = scene->getObject(hitIndex)->GetMaterial()->GetSpecColor() * Ks;  // Calculate specular
 					Color specDiffColor = diffuse_color + specular_color;  //combine colors
 					finalColor += specDiffColor;
-				}
-				else
-				{
-					return (Color(0.0f, 0.0f, 0.0f));
-				};
-			};
-		};
+					int OutputR = finalColor.r();
+					cout << "Red color is: " + OutputR;
 
+				//};
+			};
+		
+		}
+		
+		
+	
 		// reflection
+		/*
 		if (scene->getObject(hitIndex)->GetMaterial()->GetReflection() > 0)   // !! If reflective component is bigger than 0, means it is reflective?
 		{
+			cout << "Is reflective";
 			Vector V = (ray.direction) * (-1);		// math from slides
 			Vector rRefl = normal * 2 * (V * normal) - V;
 			Ray reflRay = Ray(phit, rRefl);
-
+			cout << "reflective ray exists";
 			Color reflColor = rayTracing(reflRay, depth, ior_1); //iteration 
 			reflColor = reflColor * (scene->getObject(hitIndex)->GetMaterial()->GetSpecular()); //  reduce rColor by the specular reflection coefficient
 			finalColor += reflColor;  // add to color;
 		};
+		*/
+		
 
 		//refraction
 		if (scene->getObject(hitIndex)->GetMaterial()->GetTransmittance() > 0)  // !! Transmission > 0 means refractive?
 		{
+			cout << "Is refractive";
 			Vector tr = (normal * ((ray.direction * (-1)) * normal) - (ray.direction * (-1)));  // math from slides
 			float angleIncoming = normal * (ray.direction * -1);
 			float ior_2 = scene->getObject(hitIndex)->GetMaterial()->GetRefrIndex();
@@ -150,8 +173,9 @@ Color rayTracing( Ray ray, int depth, float ior_1)  //index of refraction of med
 
 	}
 
-	else
+	else 
 	{
+		cout << "No hit \n";
 		finalColor = scene->GetBackgroundColor(); //  If no hit object, get backgroundcolour
 	};
 	return (finalColor);
@@ -368,10 +392,13 @@ void renderScene()
 
 			//YOUR 2 FUNCTIONS:
 			Ray ray = scene->GetCamera()->PrimaryRay(pixel);
+
+			cout << "PrimaryRay exist \n";
+
 			color = rayTracing(ray, 1, 1.0);
 			
 
-			color = scene->GetBackgroundColor(); //just for the template
+			//color = scene->GetBackgroundColor(); //just for the template
 
 			img_Data[counter++] = u8fromfloat((float)color.r());
 			img_Data[counter++] = u8fromfloat((float)color.g());
