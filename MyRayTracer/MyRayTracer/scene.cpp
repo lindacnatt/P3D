@@ -114,14 +114,53 @@ Vector Plane::getNormal(Vector point)
   return PN;
 }
 
+bool solveQuadratic(const float& a, const float& b, const float& c, float& x0, float& x1) {
+	float discr = b * b - 4 * a * c;
+	if (discr < 0) {
+		return false;
+	}
+	else if (discr = 0) {
+		x0 = x1 = -0.5 * b / a;
+	}
+	else {
+		float q = (b > 0) ?
+			-0.5 * (b + sqrt(discr)) :
+			-0.5 * (b - sqrt(discr));
+		x0 = q / a;
+		x1 = c / q;
+	}
+	if (x0 > x1) {
+		std::swap(x0, x1);
+	}
+	return true;
+}
 
-bool Sphere::intercepts(Ray& r, float& t )
+bool Sphere::intercepts(Ray& r, float& t)
 {
+	Vector L = r.origin - center;
 	// a=D^2, b=2OD and c=O^2−R^2, from scratchapixel
-	float a = r.direction*r.direction;
-	float b = (r.origin*r.direction)*2;
-	float c = -1*SqRadius + (r.origin*r.origin);
+	float a = r.direction * r.direction;
+	float b = (r.origin * r.direction) * 2;
+	float c = (L * L) - SqRadius;
 
+	//analytic solution
+	float t0, t1;
+	if (!solveQuadratic(a, b, c, t0, t1)) {
+		return false;
+	}
+	if (t0 < 0) {
+		t0 = t1;
+	}
+	if (t0 < 0) {
+		return false;
+	}
+	float tNear = t0;
+
+		return true;
+}
+
+
+	/* old solution
 	if (c > 0.0f) {  //If c > 0.0f then ray origin outside, so check b
 		if (b <= 0.0f)   //If b <= 0.0f then sphere is “behind” of the ray; return false 
 		{
@@ -139,8 +178,8 @@ bool Sphere::intercepts(Ray& r, float& t )
 	}
 
 	
-  return (false);
-}
+  return (false);*/
+
 
 
 Vector Sphere::getNormal( Vector point )
