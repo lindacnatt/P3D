@@ -347,31 +347,32 @@ void renderScene()
 		for (int x = 0; x < RES_X; x++)
 		{
 			Color color; 
-
-			Vector pixel;  //viewport coordinates
-			pixel.x = x + 0.5f;  
-			pixel.y = y + 0.5f;
-
-			// Jittering
-			/*
-			Color c = Color(0.0, 0.0, 0.0);
 			int n = 5; // defined by us to decide how much to split the pixel in
-			for (int p = 0; n - 1; p++)
-			{ 
-				for (int q = 0; n - 1; q++)
-				{
-					c = c + SOMETHING(pixel.x + (p + rand) / n, pixel.y + (q + rand) / n);
+			Ray ray;
+			ray.origin = scene->GetCamera()->PrimaryRay(Vector(0, 0, 0));
+
+			// Antialiasing with jittering ... combined solution from book and https://www.scratchapixel.com/code.php?id=13&origin=/lessons/3d-basic-rendering/introduction-to-shading
+			
+			Color c = Color(0.0, 0.0, 0.0);
+			for (int p = 0; n - 1; p++){
+				for (int q = 0; n - 1; q++){
+					Vector pixel;  //viewport coordinates
+					srand(time(0)); //using current time as seed
+					pixel.x = x + 0.5f*((p + rand_int) / n);
+					pixel.y = y + 0.5f*((q + rand_int) / n);
+					ray.direction = scene->GetCamera()->PrimaryRay(pixel);
+					c = c + rayTracing(ray,1,1.0); 
 				};
 			};
 			Color cij = c / pow(n, 2);
-			*/
-
-			//YOUR 2 FUNCTIONS:
-			Ray ray = scene->GetCamera()->PrimaryRay(pixel);
-			color = rayTracing(ray, 1, 1.0);
 			
 
-			color = scene->GetBackgroundColor(); //just for the template
+			//YOUR 2 FUNCTIONS:
+			//Ray ray = scene->GetCamera()->PrimaryRay(pixel); ----> use it as parameter above
+			//color = rayTracing(ray, 1, 1.0);  ----> we take those parameters for the jittering method above and dont use this color function anymore
+			
+
+			color = scene->GetBackgroundColor(); //just for the template ---> maybe later also to be excluded
 
 			img_Data[counter++] = u8fromfloat((float)color.r());
 			img_Data[counter++] = u8fromfloat((float)color.g());

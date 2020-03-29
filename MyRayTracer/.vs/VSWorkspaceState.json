@@ -5,6 +5,6 @@
     "\\MyRayTracer\\Dependencies",
     "\\MyRayTracer\\P3D_Scenes"
   ],
-  "SelectedNode": "\\MyRayTracer\\scene.cpp",
+  "SelectedNode": "\\MyRayTracer\\camera.h",
   "PreviewInSolutionExplorer": false
 }
