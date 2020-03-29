@@ -15,6 +15,8 @@
 #include <time.h>
 #include <chrono>
 #include <conio.h>
+#include <algorithm>
+#include <iterator>
 
 #include <GL/glew.h>
 #include <GL/freeglut.h>
@@ -364,13 +366,50 @@ void renderScene()
 					c = c + rayTracing(ray,1,1.0); 
 				};
 			};
-			Color cij = c / pow(n, 2);
+			Color cxy = c / pow(n, 2);
+			
 			
 
 			//YOUR 2 FUNCTIONS:
 			//Ray ray = scene->GetCamera()->PrimaryRay(pixel); ----> use it as parameter above
 			//color = rayTracing(ray, 1, 1.0);  ----> we take those parameters for the jittering method above and dont use this color function anymore
+		////////////////////////////////////////////////////77
+
+		// Antialiasing and soft shadows/////////////
+
+			Color c = Color(0.0, 0.0, 0.0);
+			for (int p = 0; n - 1; p++) {
+				for (int q = 0; n - 1; q++) {
+					Vector pixel;  //viewport coordinates
+					srand(time(0)); //using current time as seed
+					pixel.x = x + 0.5f * ((p + rand_int) / n);
+					pixel.y = y + 0.5f * ((q + rand_int) / n);
+					ray.direction = scene->GetCamera()->PrimaryRay(pixel);
+					c = c + rayTracing(ray, 1, 1.0);
+
+					int r[100];
+					int s[100];
+					for (int i = 0; i < std::size(r)) {
+						r[i] = c;
+						s[i] = c;
+					}
+					std::random_shuffle(s); //use shuffle routine from slides instead
+				};
+			};
 			
+			for (int p = 0; n - 1; p++) {
+					Vector pixel;  //viewport coordinates
+					srand(time(0)); //using current time as seed
+					pixel.x = x + r[p].x(); //whats the x() function?
+					pixel.y = y + r[p].y(); //whats the y() function?
+					ray.direction = scene->GetCamera()->PrimaryRay(pixel);
+					c = c + rayTracing(ray, s[p], 1.0);
+				};
+			};
+			Color cxy = c / n;
+			//////////////////////////////////////////////
+
+
 
 			color = scene->GetBackgroundColor(); //just for the template ---> maybe later also to be excluded
 
@@ -569,7 +608,7 @@ int main(int argc, char* argv[])
 			renderScene();  //Just creating an image file
 			auto timeEnd = std::chrono::high_resolution_clock::now();
 			auto passedTime = std::chrono::duration<double, std::milli>(timeEnd - timeStart).count();
-			printf("\nDone: %.2f (sec)\n", passedTime / 1000);
+			printf("\nDone: %.2f (sec)\n", passedTime / F1000);
 		
 			cout << "\nPress 'y' to render another image or another key to terminate!\n";
 			delete(scene);
