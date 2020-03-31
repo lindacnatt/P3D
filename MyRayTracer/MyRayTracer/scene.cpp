@@ -39,7 +39,7 @@ Vector Triangle::getNormal(Vector point)
 //
 
 bool Triangle::intercepts(Ray& r, float& t) {
-	cout << "Checking triangle";
+
 	Vector P0P1 = points[1] - points[0];
 	Vector P0P2 = points[2] - points[0];
 	Vector pvec = r.direction % (P0P2);
@@ -48,24 +48,20 @@ bool Triangle::intercepts(Ray& r, float& t) {
 
 	//CULLING
 	if (det < EPSILON || fabs(det) < EPSILON) {
-		return (false);
-	};
+		return false;
+	}
 
 	Vector tvec = r.origin - points[0];
 	float u = tvec * (pvec)*invDet;
-	if (u < 0 || u > 1) {
-		return (false);
-	};
+	if (u < 0 || u > 1) return false;
 
 	Vector qvec = tvec % (P0P1);
 	float v = r.direction * (qvec)*invDet;
-	if (v < 0 || u + v > 1) {
-		return (false);
-	};
+	if (v < 0 || u + v > 1) return false;
 
 	t = P0P2 * (qvec)*invDet;
-	cout << "Triangle intersects";
-	return (true);
+
+	return true;
 
 }
 
@@ -78,7 +74,7 @@ Plane::Plane(Vector& P0, Vector& P1, Vector& P2)
 	float l;
 
 	//Calculate the normal plane: counter-clockwise vectorial product.
-	Vector PN = Vector(0, 0, 0);
+	PN = Vector(0, 0, 0);
 
 	if ((l = PN.length()) == 0.0)
 	{
@@ -99,7 +95,7 @@ Plane::Plane(Vector& P0, Vector& P1, Vector& P2)
 bool Plane::intercepts(Ray& r, float& t)
 {
 
-	cout << "Checking plane";
+
 	Vector n = PN;
 	Vector l = PN.normalize();
 	Vector l0 = r.origin;
@@ -108,7 +104,6 @@ bool Plane::intercepts(Ray& r, float& t)
 	if (denom > 1e-6) {
 		Vector p010 = p0 - l0;
 		t = (p010 * n) / denom;
-		cout << "Plane intersects", t;
 		return (t >= 0);
 	}
 	return (false);
@@ -116,49 +111,69 @@ bool Plane::intercepts(Ray& r, float& t)
 
 Vector Plane::getNormal(Vector point)
 {
-	Vector P1 = points[1] - points[0];
-	Vector P2 = points[2] - points[0];
-	Vector PN = P1 % P2;
-	return (PN);
+	return PN;
 }
 
+/*
+bool solveQuadratic(const float& a, const float& b, const float& c, float& x0, float& x1) {
+	float discr = b * b - 4 * a * c;
+	if (discr < 0) {
+		return false;
+	}
+	else if (discr == 0) {
+		x0 = x1 = -0.5 * b / a;
+	}
+	else {
+		float q = (b > 0) ?
+			-0.5 * (b + sqrt(discr)):
+			-0.5 * (b - sqrt(discr));
+		x0 = q / a;
+		x1 = c / q;
+	}
+	if (x0 > x1) {
+		std::swap(x0, x1);
+	}
+	return true;
+}
+*/
 
 bool Sphere::intercepts(Ray& r, float& t)
 {
-	cout << "Checking sphere \n";
-	// a=D^2, b=2OD and c=O^2−R^2, from scratchapixel
 	float a = pow(r.direction.x, 2) + pow(r.direction.y, 2) + pow(r.direction.z, 2);
 	float b = r.direction.x * (center.x - r.origin.x) + r.direction.y * (center.y - r.origin.y) + r.direction.z * (center.z - r.origin.z);
-	float c = pow((center.x - r.origin.x), 2) + pow((center.y - r.origin.y), 2) + pow((center.z - r.origin.z), 2) - pow(radius, 2);
+	float c = pow((r.origin.x-center.x), 2) + pow((r.origin.y - center.y), 2) + pow((r.origin.z - center.z), 2) - pow(radius, 2);
 
-	if (c > 0.0f) {  //If c > 0.0f then ray origin outside, so check b
-		cout << "c>0";
-		if (b > 0.0f)   //If b <= 0.0f then sphere is “behind” of the ray; return false 
+	//analytic solution
+	
+	if (c > 0.0f)
+	{  //If c > 0.0f then ray origin outside, so check b
+		if (b < 0.0f)   //If b <= 0.0f then sphere is “behind” of the ray; return false 
 		{
-			cout << "b>0";
-			if (pow(b, 2) - c > 0.0f) {   //Calculate the discriminant (b^2 – c). If <= 0.0f then return false
-				float tmin = b - sqrt(pow(b, 2) - c);  //If origin outside, calculate the smallest root
-				if (tmin > 0) {
-					t = tmin;
-					cout << "tmin!";
-					return (true);
-				}
-				else {
-					float tpos = b + sqrt(pow(b, 2) + c);  //else calculate the positive root 
-					if (tpos > 0) {
-						t = tpos;
-						cout << "tpos!";
-						return (true);
-					};
-
-				};
+			return (false);
+		}
+		if (pow(b, 2) - c < 0.0f) {    //Calculate the discriminant (b^2 – c). If <= 0.0f then return false
+			return false;
+		}
+		float tmin = b - sqrt(pow(b, 2) - c);  //If origin outside, calculate the smallest root
+		if (tmin > 0) {
+			float t = tmin;
+			return (true);
+		}
+		else {
+			float tpos = b + sqrt(pow(b, 2) + c);  //else calculate the positive root 
+			if (tpos > 0) {
+				float t = tpos;
+				return (true);
 			};
 		};
 	}
+		
 	else {
 		return (false);
 	};
 }
+
+
 
 Vector Sphere::getNormal(Vector point)
 {
