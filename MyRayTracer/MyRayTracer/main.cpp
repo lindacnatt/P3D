@@ -75,98 +75,105 @@ Color rayTracing(Ray ray, int depth, float ior_1)  //index of refraction of medi
 	{
 		if (scene->getObject(obj_i)->intercepts(ray, dist) == true && dist < tNear)					//check if ray is intercepting object, put obj_i in list of hitObjects; t in intercepts function checks that it is the closest t
 		{
-			float tNear = dist;	// continues to make tNear smaller
+			tNear = dist;	// continues to make tNear smaller
 			hitIndex = obj_i;	// stores index for future uses when the object is needed
-			Vector phit = ray.direction * tNear + ray.origin;
-			cout << "Hit object! \n ";
-			cout << hitIndex;
+			
 		};
 	};
 	if (hitIndex < 0)
 	{
-		cout << "HitIndex < 0";
 		return scene->GetBackgroundColor();
 	}
 	else
 	{
+		Vector phit = ray.direction * tNear + ray.origin;
 		Vector normal = scene->getObject(hitIndex)->getNormal(phit);
 		Color finalColor;
+		Vector bias = normal * EPSILON; //To escape from self-intersections
+		Vector I = (ray.direction * (-1));  // symmetric of the incident ray direction
+
 		// LOOP THROUGH LIGHTS
 		for (int i = 0; i < scene->getNumLights(); i += 1)  // for every i, starting from 0, to the amount of lights (-1 for correct indexing), stepping 1 index per loop
 		{
-			cout << "Lights";
+			// cout << "Lights";
 			Vector lightsource = scene->getLight(i)->position;
-			Vector L = (lightsource - phit).normalize();		// unit light vector from hit point to light source
-			Ray shadowRay = scene->GetCamera()->PrimaryRay(L, phit);
-			if (L * normal > 0)
+			Vector L = (lightsource - phit);		// unit light vector from hit point to light source
+			float shadowDist = L.length();
+			L.normalize();
+			bool shadow = false;
+			float ts;
+			float intensity = L.normalize() * normal;
+			Vector H = (L + I).normalize();  //Half-Vector from Blinn model
+			float NH = normal * H;
+			if (NH < 0) NH = 0;
+			Ray shadowRay = Ray((phit + bias), L);
+
+			if (intensity > 0)  // intensity of light
 			{
-				cout << "L normal > 0";
-				int shadowIndex = -1;
-				float shadowDist = depth;
-				float tNearShadow = INFINITY;
+				
+			//	cout << "L normal > 0";
 				for (int sobj_i = 0; sobj_i < scene->getNumObjects(); sobj_i += 1)  //Looping through all objects to check if there is an intersection
 				{
-					if (scene->getObject(sobj_i)->intercepts(shadowRay, shadowDist) == true && shadowDist < tNearShadow)  //check if ray towards source light is intercepting object
+					if (scene->getObject(sobj_i)->intercepts(shadowRay, ts) == true && ts < shadowDist)  //check if ray towards source light is intercepting object
 					{
-						cout << "Shadow object";
-						shadowIndex = sobj_i;
-						tNearShadow = shadowDist;
-						//cout << "shadow object found: ";
-						//cout << shadowIndex;
+					
+						shadow = true;
+						break;
 					};
 				}
-				if (shadowIndex >= 0 && tNearShadow > depth) //if  object is blocking source light
-				{
-					cout << "Not shadowed";
-					float Kd = scene->getObject(hitIndex)->GetMaterial()->GetDiffuse();
-					Color diffuse_color = scene->getObject(hitIndex)->GetMaterial()->GetDiffColor() * Kd; // Calculate diffuse
-					float Ks = scene->getObject(hitIndex)->GetMaterial()->GetSpecular();
-					Color specular_color = scene->getObject(hitIndex)->GetMaterial()->GetSpecColor() * Ks;  // Calculate specular
-					Color specDiffColor = diffuse_color + specular_color;  //combine colors
-					finalColor += specDiffColor;
-					
-				}
+			}
+			if (!shadow) //if no object is blocking source light
+			{
+				// calculate inner product between light vector and normal
+				float Kd = scene->getObject(hitIndex)->GetMaterial()->GetDiffuse();
+				Color diffuse_color = scene->getObject(hitIndex)->GetMaterial()->GetDiffColor() * Kd * intensity; // Calculate diffuse
+				float Ks = scene->getObject(hitIndex)->GetMaterial()->GetSpecular();
+				float spec = pow(NH, scene->getObject(hitIndex)->GetMaterial()->GetShine());
+				Color specular_color = scene->getObject(hitIndex)->GetMaterial()->GetSpecColor() * Ks * spec;  // Calculate specular
+				Color specDiffColor = diffuse_color +specular_color;  //combine colors
+				finalColor += specDiffColor;
 			}
 		}
+		
 
-
-		if (tNear > depth)   // if depth >= maxDepth
+		if (depth < MAX_DEPTH)   // if depth >= maxDepth
 		{
-			return finalColor;
+			// reflection
+			// Fresnel
+			/*float Rp = pow((n1 * cosi - n2 * cost) / (n1 * cosi + n2 * cost), 2);
+			float Rs = pow((n1*cost - n2*cosi)/(n1*cost + n2*cosi),2)
+			float KR = (Rs + Rp) * 1 / 2;
+			float T = 1 - KR;*/
+
+			
+			if (scene->getObject(hitIndex)->GetMaterial()->GetReflection() > 0)   // !! If reflective component is bigger than 0, means it is reflective?
+			{
+				Vector V = (ray.direction) * (-1);		// math from slides
+				Vector rRefl = normal * 2 * (V * normal) - V;
+				Ray reflRay = Ray(phit + bias, rRefl);
+				Color reflColor = rayTracing(reflRay, depth + 1, ior_1); //iteration
+				reflColor = reflColor * scene->getObject(hitIndex)->GetMaterial()->GetReflection(); //  reduce rColor by the specular reflection coefficient
+				finalColor += reflColor;  // add to color;
+
+			};
+			
+			/*
+					//refraction
+					if (scene->getObject(hitIndex)->GetMaterial()->GetTransmittance() > 0)  // !! Transmission > 0 means refractive?
+					{
+						Vector tr = (normal * ((ray.direction * (-1)) * normal) - (ray.direction * (-1)));  // math from slides
+						float angleIn = normal * (ray.direction * -1);
+						float ior_2 = scene->getObject(hitIndex)->GetMaterial()->GetRefrIndex();
+						float angleSin = (ior_1 / ior_2) * angleIn;
+						float angleCos = sqrt(1 - (angleSin) * (angleSin));
+						Vector rRefr = tr.normalize() * angleSin + normal * (-1) * angleCos;
+						Ray refrRay = Ray(phit + bias, rRefr);
+						Color refrColor = rayTracing(refrRay, depth, ior_1);		//tColor = trace(scene, point, tRay direction, depth + 1);   not sure about depth +1
+						refrColor = refrColor * scene->getObject(hitIndex)->GetMaterial()->GetTransmittance();// reduce tColor by the transmittance coefficient
+						finalColor += refrColor;	// add to color
+					}*/
 		};
-
-		// reflection
-
-		if (scene->getObject(hitIndex)->GetMaterial()->GetReflection() > 0)   // !! If reflective component is bigger than 0, means it is reflective?
-		{
-			cout << "Is reflective";
-			Vector V = (ray.direction) * (-1);		// math from slides
-			Vector rRefl = normal * 2 * (V * normal) - V;
-			Ray reflRay = Ray(phit, rRefl);
-			//cout << "reflective ray exists";
-			Color reflColor = rayTracing(reflRay, depth, ior_1); //iteration
-			reflColor = reflColor * (scene->getObject(hitIndex)->GetMaterial()->GetSpecular()); //  reduce rColor by the specular reflection coefficient
-			finalColor += reflColor;  // add to color;
-
-		};
-
-		//refraction
-		if (scene->getObject(hitIndex)->GetMaterial()->GetTransmittance() > 0)  // !! Transmission > 0 means refractive?
-		{
-			cout << "Is refractive";
-			Vector tr = (normal * ((ray.direction * (-1)) * normal) - (ray.direction * (-1)));  // math from slides
-			float angleIncoming = normal * (ray.direction * -1);
-			float ior_2 = scene->getObject(hitIndex)->GetMaterial()->GetRefrIndex();
-			float angleTransSin = (ior_1 / ior_2) * angleIncoming;
-			float angleTransCos = sqrt(1 - (angleTransSin) * (angleTransSin));
-			Vector rRefr = tr.normalize() * angleTransSin + normal * (-1) * angleTransCos;
-			Ray refrRay = Ray(phit, rRefr);
-			Color refrColor = rayTracing(refrRay, depth, ior_1);		//tColor = trace(scene, point, tRay direction, depth + 1);   not sure about depth +1
-			refrColor = refrColor * (scene->getObject(hitIndex)->GetMaterial()->GetTransmittance());  // reduce tColor by the transmittance coefficient
-			finalColor += refrColor;	// add to color
-		}
-
-		return (finalColor);
+		return (finalColor.clamp());
 	}
 }
 

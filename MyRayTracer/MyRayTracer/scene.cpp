@@ -12,6 +12,7 @@ Triangle::Triangle(Vector& P0, Vector& P1, Vector& P2)
 	points[0] = P0; points[1] = P1; points[2] = P2;
 
 	/* Calculate the normal */
+	// normal = (P2 - P1) % (P0 - P1);		// counter-clockwise vectorial product
 	normal = Vector(0, 0, 0);
 	normal.normalize();
 
@@ -39,7 +40,7 @@ Vector Triangle::getNormal(Vector point)
 //
 
 bool Triangle::intercepts(Ray& r, float& t) {
-
+	cout << "checking triangle";
 	Vector P0P1 = points[1] - points[0];
 	Vector P0P2 = points[2] - points[0];
 	Vector pvec = r.direction % (P0P2);
@@ -60,7 +61,7 @@ bool Triangle::intercepts(Ray& r, float& t) {
 	if (v < 0 || u + v > 1) return false;
 
 	t = P0P2 * (qvec)*invDet;
-
+	cout << "TRIANGLE";
 	return true;
 
 }
@@ -74,7 +75,8 @@ Plane::Plane(Vector& P0, Vector& P1, Vector& P2)
 	float l;
 
 	//Calculate the normal plane: counter-clockwise vectorial product.
-	PN = Vector(0, 0, 0);
+	// PN = Vector(0,0,0);
+	PN = (P2 - P1) % (P0 - P1);		// counter-clockwise vectorial product
 
 	if ((l = PN.length()) == 0.0)
 	{
@@ -84,7 +86,7 @@ Plane::Plane(Vector& P0, Vector& P1, Vector& P2)
 	{
 		PN.normalize();
 		//Calculate D
-		D = 0.0f;
+		D = -(PN * P0);
 	}
 }
 
@@ -94,19 +96,13 @@ Plane::Plane(Vector& P0, Vector& P1, Vector& P2)
 
 bool Plane::intercepts(Ray& r, float& t)
 {
-
-
-	Vector n = PN;
-	Vector l = PN.normalize();
-	Vector l0 = r.origin;
-	Vector p0 = Vector(0, 0, 0);
-	float denom = (n * l);
-	if (denom > 1e-6) {
-		Vector p010 = p0 - l0;
-		t = (p010 * n) / denom;
-		return (t >= 0);
-	}
-	return (false);
+	float PNxRd;
+	PNxRd = PN * r.direction;
+	if (fabs(PNxRd) < EPSILON)  
+		return false;
+	t = -((PN * r.origin) + D) / PNxRd;
+	return (t > 0 ? true : false);
+	
 }
 
 Vector Plane::getNormal(Vector point)
@@ -139,38 +135,26 @@ bool solveQuadratic(const float& a, const float& b, const float& c, float& x0, f
 
 bool Sphere::intercepts(Ray& r, float& t)
 {
-	float a = pow(r.direction.x, 2) + pow(r.direction.y, 2) + pow(r.direction.z, 2);
-	float b = r.direction.x * (center.x - r.origin.x) + r.direction.y * (center.y - r.origin.y) + r.direction.z * (center.z - r.origin.z);
-	float c = pow((r.origin.x-center.x), 2) + pow((r.origin.y - center.y), 2) + pow((r.origin.z - center.z), 2) - pow(radius, 2);
+	Vector OC = center - r.origin;
+	float SqOC = OC * OC;
+	float C = SqOC - SqRadius;
+	float B = r.direction * OC;
 
 	//analytic solution
 	
-	if (c > 0.0f)
+	if (C > 0.0f && B < 0.0f)
 	{  //If c > 0.0f then ray origin outside, so check b
-		if (b < 0.0f)   //If b <= 0.0f then sphere is “behind” of the ray; return false 
-		{
-			return (false);
-		}
-		if (pow(b, 2) - c < 0.0f) {    //Calculate the discriminant (b^2 – c). If <= 0.0f then return false
-			return false;
-		}
-		float tmin = b - sqrt(pow(b, 2) - c);  //If origin outside, calculate the smallest root
-		if (tmin > 0) {
-			float t = tmin;
-			return (true);
-		}
-		else {
-			float tpos = b + sqrt(pow(b, 2) + c);  //else calculate the positive root 
-			if (tpos > 0) {
-				float t = tpos;
-				return (true);
-			};
-		};
+		return false;
 	}
-		
-	else {
-		return (false);
-	};
+
+	float delta = B * B - C;
+	if (delta <= 0) return false;    // if the value is negative the ray misses, if == 0 means tangent ray, also misses
+
+	if (C>0) t = B - sqrt(delta);
+	else  t = B + sqrt(delta);
+
+	return (t > 0 ? true : false);
+
 }
 
 
