@@ -138,11 +138,6 @@ Color rayTracing(Ray ray, int depth, float ior_1)  //index of refraction of medi
 
 		if (depth < MAX_DEPTH)   // if depth >= maxDepth
 		{
-			// reflection
-			// Fresnel
-			
-
-			
 			if (scene->getObject(hitIndex)->GetMaterial()->GetReflection() > 0)   // !! If reflective component is bigger than 0, means it is reflective?
 			{
 				Vector V = (ray.direction) * (-1);		// math from slides
@@ -163,12 +158,7 @@ Color rayTracing(Ray ray, int depth, float ior_1)  //index of refraction of medi
 				float ior_2 = scene->getObject(hitIndex)->GetMaterial()->GetRefrIndex();
 				float angleSint = (ior_1 / ior_2) * angleIn;
 				float angleCost = sqrt(1 - (angleSint) * (angleSint));
-				Vector rRefr = tr.normalize() * angleSint + normal * (-1) * angleCost;
-				Ray refrRay = Ray(phit + bias, rRefr);
-				Color refrColor = rayTracing(refrRay, depth, ior_1);		//tColor = trace(scene, point, tRay direction, depth + 1);   not sure about depth +1
-				refrColor = refrColor * scene->getObject(hitIndex)->GetMaterial()->GetTransmittance();// reduce tColor by the transmittance coefficient
-				finalColor += refrColor;	// add to color
-				//fresnels
+				float KR = 0;
 				if (angleSint >= 1){ //If total reflection
 					float KR = 1;
 				}
@@ -177,8 +167,14 @@ Color rayTracing(Ray ray, int depth, float ior_1)  //index of refraction of medi
 					float Rp = pow((ior_1 * angleCosi - ior_2 * angleCost) / (ior_1 * angleCosi + ior_2 * angleCost), 2);
 					float Rs = pow((ior_1* angleCost - ior_2*angleCosi)/(ior_1*angleCost + ior_2 *angleCosi),2);
 					float KR = (Rs + Rp) * 0.5;
-					float T = 1 - KR;
+					
 				}
+				Vector rRefr = tr.normalize() * angleSint + normal * (-1) * angleCost;
+				Ray refrRay = Ray(phit + bias, rRefr);
+				Color refrColor = rayTracing(refrRay, depth, ior_1);		//tColor = trace(scene, point, tRay direction, depth + 1);   not sure about depth +1
+				refrColor = refrColor * scene->getObject(hitIndex)->GetMaterial()->GetTransmittance();// reduce tColor by the transmittance coefficient
+				finalColor += refrColor;	// add to color
+				float T = 1 - KR;
 			}
 		};
 		return (finalColor.clamp());
