@@ -1,7 +1,7 @@
 ///////////////////////////////////////////////////////////////////////
 //
 // P3D Course
-// (c) 2019 by João Madeiras Pereira
+// (c) 2019 by Joï¿½o Madeiras Pereira
 //Ray Tracing P3F scenes and drawing points with Modern OpenGL
 //
 ///////////////////////////////////////////////////////////////////////
@@ -140,10 +140,7 @@ Color rayTracing(Ray ray, int depth, float ior_1)  //index of refraction of medi
 		{
 			// reflection
 			// Fresnel
-			/*float Rp = pow((n1 * cosi - n2 * cost) / (n1 * cosi + n2 * cost), 2);
-			float Rs = pow((n1*cost - n2*cosi)/(n1*cost + n2*cosi),2)
-			float KR = (Rs + Rp) * 1 / 2;
-			float T = 1 - KR;*/
+			
 
 			
 			if (scene->getObject(hitIndex)->GetMaterial()->GetReflection() > 0)   // !! If reflective component is bigger than 0, means it is reflective?
@@ -157,21 +154,32 @@ Color rayTracing(Ray ray, int depth, float ior_1)  //index of refraction of medi
 
 			};
 			
-			/*
-					//refraction
-					if (scene->getObject(hitIndex)->GetMaterial()->GetTransmittance() > 0)  // !! Transmission > 0 means refractive?
-					{
-						Vector tr = (normal * ((ray.direction * (-1)) * normal) - (ray.direction * (-1)));  // math from slides
-						float angleIn = normal * (ray.direction * -1);
-						float ior_2 = scene->getObject(hitIndex)->GetMaterial()->GetRefrIndex();
-						float angleSin = (ior_1 / ior_2) * angleIn;
-						float angleCos = sqrt(1 - (angleSin) * (angleSin));
-						Vector rRefr = tr.normalize() * angleSin + normal * (-1) * angleCos;
-						Ray refrRay = Ray(phit + bias, rRefr);
-						Color refrColor = rayTracing(refrRay, depth, ior_1);		//tColor = trace(scene, point, tRay direction, depth + 1);   not sure about depth +1
-						refrColor = refrColor * scene->getObject(hitIndex)->GetMaterial()->GetTransmittance();// reduce tColor by the transmittance coefficient
-						finalColor += refrColor;	// add to color
-					}*/
+			
+			//refraction
+			if (scene->getObject(hitIndex)->GetMaterial()->GetTransmittance() > 0)  // !! Transmission > 0 means refractive?
+			{
+				Vector tr = (normal * ((ray.direction * (-1)) * normal) - (ray.direction * (-1)));  // math from slides
+				float angleIn = normal * (ray.direction * -1);
+				float ior_2 = scene->getObject(hitIndex)->GetMaterial()->GetRefrIndex();
+				float angleSint = (ior_1 / ior_2) * angleIn;
+				float angleCost = sqrt(1 - (angleSint) * (angleSint));
+				Vector rRefr = tr.normalize() * angleSint + normal * (-1) * angleCost;
+				Ray refrRay = Ray(phit + bias, rRefr);
+				Color refrColor = rayTracing(refrRay, depth, ior_1);		//tColor = trace(scene, point, tRay direction, depth + 1);   not sure about depth +1
+				refrColor = refrColor * scene->getObject(hitIndex)->GetMaterial()->GetTransmittance();// reduce tColor by the transmittance coefficient
+				finalColor += refrColor;	// add to color
+				//fresnels
+				if (angleSint >= 1){ //If total reflection
+					float KR = 1;
+				}
+				else {
+					float angleCosi = sqrt(1 - (angleIn) * (angleIn));
+					float Rp = pow((ior_1 * angleCosi - ior_2 * angleCost) / (ior_1 * angleCosi + ior_2 * angleCost), 2);
+					float Rs = pow((ior_1* angleCost - ior_2*angleCosi)/(ior_1*angleCost + ior_2 *angleCosi),2);
+					float KR = (Rs + Rp) * 0.5;
+					float T = 1 - KR;
+				}
+			}
 		};
 		return (finalColor.clamp());
 	}
@@ -278,8 +286,8 @@ void createBufferObjects()
 	glGenBuffers(2, VboId);
 	glBindBuffer(GL_ARRAY_BUFFER, VboId[0]);
 
-	/* Só se faz a alocação dos arrays glBufferData (NULL), e o envio dos pontos para a placa gráfica
-	é feito na drawPoints com GlBufferSubData em tempo de execução pois os arrays são GL_DYNAMIC_DRAW */
+	/* Sï¿½ se faz a alocaï¿½ï¿½o dos arrays glBufferData (NULL), e o envio dos pontos para a placa grï¿½fica
+	ï¿½ feito na drawPoints com GlBufferSubData em tempo de execuï¿½ï¿½o pois os arrays sï¿½o GL_DYNAMIC_DRAW */
 	glBufferData(GL_ARRAY_BUFFER, size_vertices, NULL, GL_DYNAMIC_DRAW);
 	glEnableVertexAttribArray(VERTEX_COORD_ATTRIB);
 	glVertexAttribPointer(VERTEX_COORD_ATTRIB, 2, GL_FLOAT, 0, 0, 0);
