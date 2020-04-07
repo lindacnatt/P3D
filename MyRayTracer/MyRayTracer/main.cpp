@@ -1,4 +1,4 @@
- ///////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////
 //
 // P3D Course
 // (c) 2019 by João Madeiras Pereira
@@ -15,8 +15,6 @@
 #include <time.h>
 #include <chrono>
 #include <conio.h>
-#include <algorithm>
-#include <iterator>
 
 #include <GL/glew.h>
 #include <GL/freeglut.h>
@@ -41,13 +39,13 @@ bool drawModeEnabled = true;
 int draw_mode = 1;
 
 // Points defined by 2 attributes: positions which are stored in vertices array and colors which are stored in colors array
-float *colors;
-float *vertices;
+float* colors;
+float* vertices;
 int size_vertices;
 int size_colors;
 
 //Array of Pixels to be stored in a file by using DevIL library
-uint8_t *img_Data;
+uint8_t* img_Data;
 
 GLfloat m[16];  //projection matrix initialized by ortho function
 
@@ -63,100 +61,126 @@ int RES_X, RES_Y;
 int WindowHandle = 0;
 
 
-Color rayTracing( Ray ray, int depth, float ior_1)  //index of refraction of medium 1 where the ray is travelling
+Color rayTracing(Ray ray, int depth, float ior_1)  //index of refraction of medium 1 where the ray is travelling
 {
 	// Variables: Ray (includes origin and direction, depth and index of refraction
 	//INSERT HERE YOUR CODE
 	//Calculate intersection  intercepts() functions returns true or false
-	Color finalColor; // defining finalcolor
-
-	float dist;	
-	float tNear = depth;
-	int hitIndex = NULL;
-	for (int obj_i = 0; obj_i = scene->getNumObjects() - 1; obj_i = obj_i + 1)  //Looping through all objects to check if there is an intersection
+	float dist;
+	float tNear = INFINITY;
+	int hitIndex = -1;
+	Vector phit;
+	Vector normal;
+	for (int obj_i = 0; obj_i < scene->getNumObjects() ; obj_i += 1)  //Looping through all objects to check if there is an intersection
 	{
 		if (scene->getObject(obj_i)->intercepts(ray, dist) == true && dist < tNear)					//check if ray is intercepting object, put obj_i in list of hitObjects; t in intercepts function checks that it is the closest t
 		{
-			float tNear = dist;	// continues to make tNear smaller
+			tNear = dist;	// continues to make tNear smaller
 			hitIndex = obj_i;	// stores index for future uses when the object is needed
-		}
+			
+		};
 	};
-
-	if (hitIndex != NULL)
+	if (hitIndex < 0)
+	{
+		return scene->GetBackgroundColor();
+	}
+	else
 	{
 		Vector phit = ray.direction * tNear + ray.origin;
 		Vector normal = scene->getObject(hitIndex)->getNormal(phit);
+		Color finalColor;
+		Vector bias = normal * EPSILON; //To escape from self-intersections
+		Vector I = (ray.direction * (-1));  // symmetric of the incident ray direction
 
-		// Loop through lights
-		for (int i = 0; i <= scene->getNumLights() - 1; i += 1)  // for every i, starting from 0, to the amount of lights (-1 for correct indexing), stepping 1 index per loop
+		// LOOP THROUGH LIGHTS
+		for (int i = 0; i < scene->getNumLights(); i += 1)  // for every i, starting from 0, to the amount of lights (-1 for correct indexing), stepping 1 index per loop
 		{
+			// cout << "Lights";
 			Vector lightsource = scene->getLight(i)->position;
-			Vector L = (lightsource - phit).normalize();		// unit light vector from hit point to light source
-			Ray shadowRay = scene->GetCamera()->PrimaryRay(L, phit);
+			Vector L = (lightsource - phit);		// unit light vector from hit point to light source
+			float shadowDist = L.length();
+			L.normalize();
+			bool shadow = false;
+			float ts;
+			float intensity = L.normalize() * normal;
+			Vector H = (L + I).normalize();  //Half-Vector from Blinn model
+			float NH = normal * H;
+			if (NH < 0) NH = 0;
+			Ray shadowRay = Ray((phit + bias), L);
 
-			if (L * normal > 0)
+			if (intensity > 0)  // intensity of light
 			{
-				int shadowIndex = NULL;
-				float shadowDist;
-				float tNearShadow = INFINITE;
-				for (uint32_t sobj_i = 0; sobj_i = scene->getNumObjects() - 1; sobj_i = sobj_i + 1)  //Looping through all objects to check if there is an intersection
+				
+			//	cout << "L normal > 0";
+				for (int sobj_i = 0; sobj_i < scene->getNumObjects(); sobj_i += 1)  //Looping through all objects to check if there is an intersection
 				{
-					if (scene->getObject(sobj_i)->intercepts(shadowRay, shadowDist) == true && shadowDist < tNearShadow)  //check if ray towards source light is intercepting object
+					if (scene->getObject(sobj_i)->intercepts(shadowRay, ts) == true && ts < shadowDist)  //check if ray towards source light is intercepting object
 					{
-						shadowIndex = sobj_i;
-						tNearShadow = shadowDist;
+					
+						shadow = true;
+						break;
 					};
-				};
-				if (shadowIndex != NULL) //if no object blocking source light
-				{
-					float Kd = scene->getObject(shadowIndex)->GetMaterial()->GetDiffuse();
-					Color diffuse_color = scene->getObject(shadowIndex)->GetMaterial()->GetDiffColor() * Kd; // Calculate diffuse
-					float Ks = scene->getObject(shadowIndex)->GetMaterial()->GetSpecular();
-					Color specular_color = scene->getObject(shadowIndex)->GetMaterial()->GetSpecColor() * Ks;  // Calculate specular
-					Color specDiffColor = diffuse_color + specular_color;  //combine colors
-					finalColor += specDiffColor;
 				}
-				else
-				{
-					return (Color(0.0f, 0.0f, 0.0f));
-				};
+			}
+			if (!shadow) //if no object is blocking source light
+			{
+				// calculate inner product between light vector and normal
+				float Kd = scene->getObject(hitIndex)->GetMaterial()->GetDiffuse();
+				Color diffuse_color = scene->getObject(hitIndex)->GetMaterial()->GetDiffColor() * Kd * intensity; // Calculate diffuse
+				float Ks = scene->getObject(hitIndex)->GetMaterial()->GetSpecular();
+				float spec = pow(NH, scene->getObject(hitIndex)->GetMaterial()->GetShine());
+				Color specular_color = scene->getObject(hitIndex)->GetMaterial()->GetSpecColor() * Ks * spec;  // Calculate specular
+				Color specDiffColor = diffuse_color +specular_color;  //combine colors
+				finalColor += specDiffColor;
+			}
+		}
+		
+
+		if (depth < MAX_DEPTH)   // if depth >= maxDepth
+		{	
+			// reflection
+			if (scene->getObject(hitIndex)->GetMaterial()->GetReflection() > 0)   // !! If reflective component is bigger than 0, means it is reflective?
+			{
+				Vector V = (ray.direction) * (-1);		// math from slides
+				Vector rRefl = normal * 2 * (V * normal) - V;
+				Ray reflRay = Ray(phit + bias, rRefl);
+				Color reflColor = rayTracing(reflRay, depth + 1, ior_1); //iteration
+				reflColor = reflColor * scene->getObject(hitIndex)->GetMaterial()->GetReflection(); //  reduce rColor by the specular reflection coefficient
+				finalColor += reflColor;  // add to color;
+
 			};
+			
+			//refraction
+			if (scene->getObject(hitIndex)->GetMaterial()->GetTransmittance() > 0)  // !! Transmission > 0 means refractive?
+			{
+
+				float angleSini = normal * (ray.direction * -1);
+				float ior_2 = scene->getObject(hitIndex)->GetMaterial()->GetRefrIndex();
+				float angleSint = (ior_1 / ior_2) * angleSini;
+				float angleCost = sqrt(1 - (angleSint) * (angleSint));
+				float KR = 1;
+				//fresnels
+				if (angleSint >= 1) { //If total reflection
+					float KR = 1;
+				}
+				else {
+					float angleCosi = sqrt(1 - (angleSini) * (angleSini));
+					float Rp = pow((ior_1 * angleCosi - ior_2 * angleCost) / (ior_1 * angleCosi + ior_2 * angleCost), 2);
+					float Rs = pow((ior_1 * angleCost - ior_2 * angleCosi) / (ior_1 * angleCost + ior_2 * angleCosi), 2);
+					float KR = (Rs + Rp) * 0.5;
+				}
+				float T = 1 - KR;
+			
+				Vector tr = (normal * ((ray.direction * (-1)) * normal) - (ray.direction * (-1)));  // math from slides
+				Vector rRefr = tr.normalize() * angleSint + normal * (-1) * angleCost;
+				Ray refrRay = Ray(phit + bias, rRefr);
+				Color refrColor = rayTracing(refrRay, depth + 1, ior_1);		//tColor = trace(scene, point, tRay direction, depth + 1);   not sure about depth +1
+				refrColor = refrColor * scene->getObject(hitIndex)->GetMaterial()->GetTransmittance() * T;// reduce tColor by the transmittance coefficient
+				finalColor += refrColor;	// add to color
+			}
 		};
-
-		// reflection
-		if (scene->getObject(hitIndex)->GetMaterial()->GetReflection() > 0)   // !! If reflective component is bigger than 0, means it is reflective?
-		{
-			Vector V = (ray.direction) * (-1);		// math from slides
-			Vector rRefl = normal * 2 * (V * normal) - V;
-			Ray reflRay = Ray(phit, rRefl);
-
-			Color reflColor = rayTracing(reflRay, depth, ior_1); //iteration 
-			reflColor = reflColor * (scene->getObject(hitIndex)->GetMaterial()->GetSpecular()); //  reduce rColor by the specular reflection coefficient
-			finalColor += reflColor;  // add to color;
-		};
-
-		//refraction
-		if (scene->getObject(hitIndex)->GetMaterial()->GetTransmittance() > 0)  // !! Transmission > 0 means refractive?
-		{
-			Vector tr = (normal * ((ray.direction * (-1)) * normal) - (ray.direction * (-1)));  // math from slides
-			float angleIncoming = normal * (ray.direction * -1);
-			float ior_2 = scene->getObject(hitIndex)->GetMaterial()->GetRefrIndex();
-			float angleTransSin = (ior_1 / ior_2) * angleIncoming;
-			float angleTransCos = sqrt(1 - (angleTransSin) * (angleTransSin));
-			Vector rRefr = tr.normalize() * angleTransSin + normal * (-1) * angleTransCos;
-			Ray refrRay = Ray(phit, rRefr);
-			Color refrColor = rayTracing(refrRay, depth, ior_1);		//tColor = trace(scene, point, tRay direction, depth + 1);   not sure about depth +1
-			refrColor = refrColor * (scene->getObject(hitIndex)->GetMaterial()->GetTransmittance());  // reduce tColor by the transmittance coefficient
-			finalColor += refrColor;	// add to color
-		};
-
+		return (finalColor.clamp());
 	}
-
-	else
-	{
-		finalColor = scene->GetBackgroundColor(); //  If no hit object, get backgroundcolour
-	};
-	return (finalColor);
 }
 
 /////////////////////////////////////////////////////////////////////// ERRORS
@@ -164,7 +188,7 @@ Color rayTracing( Ray ray, int depth, float ior_1)  //index of refraction of med
 bool isOpenGLError() {
 	bool isError = false;
 	GLenum errCode;
-	const GLubyte *errString;
+	const GLubyte* errString;
 	while ((errCode = glGetError()) != GL_NO_ERROR) {
 		isError = true;
 		errString = gluErrorString(errCode);
@@ -175,7 +199,7 @@ bool isOpenGLError() {
 
 void checkOpenGLError(std::string error)
 {
-	if(isOpenGLError()) {
+	if (isOpenGLError()) {
 		std::cerr << error << std::endl;
 		exit(EXIT_FAILURE);
 	}
@@ -230,7 +254,7 @@ void createShaderProgram()
 
 	glBindAttribLocation(ProgramId, VERTEX_COORD_ATTRIB, "in_Position");
 	glBindAttribLocation(ProgramId, COLOR_ATTRIB, "in_Color");
-	
+
 	glLinkProgram(ProgramId);
 	UniformId = glGetUniformLocation(ProgramId, "Matrix");
 
@@ -265,17 +289,17 @@ void createBufferObjects()
 	glBufferData(GL_ARRAY_BUFFER, size_vertices, NULL, GL_DYNAMIC_DRAW);
 	glEnableVertexAttribArray(VERTEX_COORD_ATTRIB);
 	glVertexAttribPointer(VERTEX_COORD_ATTRIB, 2, GL_FLOAT, 0, 0, 0);
-	
+
 	glBindBuffer(GL_ARRAY_BUFFER, VboId[1]);
 	glBufferData(GL_ARRAY_BUFFER, size_colors, NULL, GL_DYNAMIC_DRAW);
 	glEnableVertexAttribArray(COLOR_ATTRIB);
 	glVertexAttribPointer(COLOR_ATTRIB, 3, GL_FLOAT, 0, 0, 0);
-	
-// unbind the VAO
+
+	// unbind the VAO
 	glBindVertexArray(0);
-    glBindBuffer(GL_ARRAY_BUFFER, 0);
-//	glDisableVertexAttribArray(VERTEX_COORD_ATTRIB); 
-//	glDisableVertexAttribArray(COLOR_ATTRIB);
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
+	//	glDisableVertexAttribArray(VERTEX_COORD_ATTRIB); 
+	//	glDisableVertexAttribArray(COLOR_ATTRIB);
 	checkOpenGLError("ERROR: Could not create VAOs and VBOs.");
 }
 
@@ -283,7 +307,7 @@ void destroyBufferObjects()
 {
 	glDisableVertexAttribArray(VERTEX_COORD_ATTRIB);
 	glDisableVertexAttribArray(COLOR_ATTRIB);
-	
+
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 	glBindVertexArray(0);
 
@@ -303,10 +327,10 @@ void drawPoints()
 	glBufferSubData(GL_ARRAY_BUFFER, 0, size_colors, colors);
 
 	glUniformMatrix4fv(UniformId, 1, GL_FALSE, m);
-	
+
 	if (draw_mode == 0) glDrawArrays(GL_POINTS, 0, 1);
 	else if (draw_mode == 1) glDrawArrays(GL_POINTS, 0, RES_X);
-	else glDrawArrays(GL_POINTS, 0, RES_X*RES_Y);
+	else glDrawArrays(GL_POINTS, 0, RES_X * RES_Y);
 	glFinish();
 
 	glUseProgram(0);
@@ -316,7 +340,7 @@ void drawPoints()
 	checkOpenGLError("ERROR: Could not draw scene.");
 }
 
-ILuint saveImgFile(const char *filename) {
+ILuint saveImgFile(const char* filename) {
 	ILuint ImageId;
 
 	ilEnable(IL_FILE_OVERWRITE);
@@ -339,79 +363,69 @@ ILuint saveImgFile(const char *filename) {
 
 void renderScene()
 {
-	int index_pos=0;
-	int index_col=0;
+	int index_pos = 0;
+	int index_col = 0;
 	unsigned int counter = 0;
-	
+
+	bool input_aliasing;
+	string aliasing_answer;
+	cout << "Do you want to use antialiasing (y/n): ";
+	cin >> aliasing_answer;
+	if (aliasing_answer == "y") input_aliasing = true;
+	if (aliasing_answer == "n") input_aliasing = false;
 
 	for (int y = 0; y < RES_Y; y++)
 	{
 		for (int x = 0; x < RES_X; x++)
 		{
-			Color color; 
+			Color color;
+			Color cxy;
 			int n = 5; // defined by us to decide how much to split the pixel in
-			Ray ray;
-			ray.origin = scene->GetCamera()->PrimaryRay(Vector(0, 0, 0));
+
+			Vector pixel;  //viewport coordinates
+			pixel.x = x + 0.5f;
+			pixel.y = y + 0.5f;
+			// Jittering
+			/*
+			Color c = Color(0.0, 0.0, 0.0);
+			int n = 5; // defined by us to decide how much to split the pixel in
+			for (int p = 0; n - 1; p++)
+			{
+				for (int q = 0; n - 1; q++)
+				{
+					c = c + SOMETHING(pixel.x + (p + rand) / n, pixel.y + (q + rand) / n);
+				};
+			};
+			Color cij = c / pow(n, 2);
+			*/
 
 			// Antialiasing with jittering ... combined solution from book and https://www.scratchapixel.com/code.php?id=13&origin=/lessons/3d-basic-rendering/introduction-to-shading
-			
-			Color c = Color(0.0, 0.0, 0.0);
-			for (int p = 0; n - 1; p++){
-				for (int q = 0; n - 1; q++){
-					Vector pixel;  //viewport coordinates
-					srand(time(0)); //using current time as seed
-					pixel.x = x + 0.5f*((p + rand_int) / n);
-					pixel.y = y + 0.5f*((q + rand_int) / n);
-					ray.direction = scene->GetCamera()->PrimaryRay(pixel);
-					c = c + rayTracing(ray,1,1.0); 
+			if (input_aliasing == true) {
+				Color c = Color(0.0, 0.0, 0.0);
+				for (int p = 0; p <= n - 1; p++) {
+					for (int q = 0; q <= n - 1; q++) {
+						Vector pixel;  //viewport coordinates
+						srand(time(0)); //using current time as seed
+						pixel.x = x + 0.5f * ((p + rand_float()) / n);
+						pixel.y = y + 0.5f * ((q + rand_float()) / n);
+						Ray ray = scene->GetCamera()->PrimaryRay(pixel);
+						c = c + rayTracing(ray, 1, 1.0);
+						cout << n;
+					};
 				};
-			};
-			Color cxy = c / pow(n, 2);
-			
-			
-
+				float nsqr = 1 / pow(n, 2);
+				cxy  = c * nsqr;
+			}
+			cout << "Coloring";
+			color = cxy;
 			//YOUR 2 FUNCTIONS:
-			//Ray ray = scene->GetCamera()->PrimaryRay(pixel); ----> use it as parameter above
-			//color = rayTracing(ray, 1, 1.0);  ----> we take those parameters for the jittering method above and dont use this color function anymore
-		////////////////////////////////////////////////////77
+			/*Ray ray = scene->GetCamera()->PrimaryRay(pixel);
+			color = rayTracing(ray, 1, 1.0);
+			*/
 
-		// Antialiasing and soft shadows/////////////
-
-			Color c = Color(0.0, 0.0, 0.0);
-			for (int p = 0; n - 1; p++) {
-				for (int q = 0; n - 1; q++) {
-					Vector pixel;  //viewport coordinates
-					srand(time(0)); //using current time as seed
-					pixel.x = x + 0.5f * ((p + rand_int) / n);
-					pixel.y = y + 0.5f * ((q + rand_int) / n);
-					ray.direction = scene->GetCamera()->PrimaryRay(pixel);
-					c = c + rayTracing(ray, 1, 1.0);
-
-					int r[100];
-					int s[100];
-					for (int i = 0; i < std::size(r)) {
-						r[i] = c;
-						s[i] = c;
-					}
-					std::random_shuffle(s); //use shuffle routine from slides instead
-				};
-			};
 			
-			for (int p = 0; n - 1; p++) {
-					Vector pixel;  //viewport coordinates
-					srand(time(0)); //using current time as seed
-					pixel.x = x + r[p].x(); //whats the x() function?
-					pixel.y = y + r[p].y(); //whats the y() function?
-					ray.direction = scene->GetCamera()->PrimaryRay(pixel);
-					c = c + rayTracing(ray, s[p], 1.0);
-				};
-			};
-			Color cxy = c / n;
-			//////////////////////////////////////////////
 
-
-
-			color = scene->GetBackgroundColor(); //just for the template ---> maybe later also to be excluded
+			//color = scene->GetBackgroundColor(); //just for the template
 
 			img_Data[counter++] = u8fromfloat((float)color.r());
 			img_Data[counter++] = u8fromfloat((float)color.g());
@@ -426,7 +440,7 @@ void renderScene()
 
 				colors[index_col++] = (float)color.b();
 
-				
+
 				if (draw_mode == 0) {  // drawing point by point
 					drawPoints();
 					index_pos = 0;
@@ -442,8 +456,8 @@ void renderScene()
 	}
 	if (draw_mode == 2 && drawModeEnabled)        //full frame at once
 		drawPoints();
-		 
-	printf("Drawing finished!\n"); 	
+
+	printf("Drawing finished!\n");
 
 	if (saveImgFile("RT_Output.png") != IL_NO_ERROR) {
 		printf("Error saving Image file\n");
@@ -460,8 +474,8 @@ void cleanup()
 	destroyBufferObjects();
 }
 
-void ortho(float left, float right, float bottom, float top, 
-			float nearp, float farp)
+void ortho(float left, float right, float bottom, float top,
+	float nearp, float farp)
 {
 	m[0 * 4 + 0] = 2 / (right - left);
 	m[0 * 4 + 1] = 0.0;
@@ -483,7 +497,7 @@ void ortho(float left, float right, float bottom, float top,
 
 void reshape(int w, int h)
 {
-    glClear(GL_COLOR_BUFFER_BIT);
+	glClear(GL_COLOR_BUFFER_BIT);
 	glViewport(0, 0, w, h);
 	ortho(0, (float)RES_X, 0, (float)RES_Y, -1.0, 1.0);
 }
@@ -501,7 +515,7 @@ void processKeys(unsigned char key, int xx, int yy)
 
 /////////////////////////////////////////////////////////////////////// SETUP
 
-void setupCallbacks() 
+void setupCallbacks()
 {
 	glutKeyboardFunc(processKeys);
 	glutCloseFunc(cleanup);
@@ -511,34 +525,34 @@ void setupCallbacks()
 
 void setupGLEW() {
 	glewExperimental = GL_TRUE;
-	GLenum result = glewInit() ; 
-	if (result != GLEW_OK) { 
+	GLenum result = glewInit();
+	if (result != GLEW_OK) {
 		std::cerr << "ERROR glewInit: " << glewGetString(result) << std::endl;
 		exit(EXIT_FAILURE);
-	} 
+	}
 	GLenum err_code = glGetError();
-	printf ("Vendor: %s\n", glGetString (GL_VENDOR));
-	printf ("Renderer: %s\n", glGetString (GL_RENDERER));
-	printf ("Version: %s\n", glGetString (GL_VERSION));
-	printf ("GLSL: %s\n", glGetString (GL_SHADING_LANGUAGE_VERSION));
+	printf("Vendor: %s\n", glGetString(GL_VENDOR));
+	printf("Renderer: %s\n", glGetString(GL_RENDERER));
+	printf("Version: %s\n", glGetString(GL_VERSION));
+	printf("GLSL: %s\n", glGetString(GL_SHADING_LANGUAGE_VERSION));
 }
 
 void setupGLUT(int argc, char* argv[])
 {
 	glutInit(&argc, argv);
-	
+
 	glutInitContextVersion(4, 3);
 	glutInitContextFlags(GLUT_FORWARD_COMPATIBLE);
 	glutInitContextProfile(GLUT_CORE_PROFILE);
 
-	glutSetOption(GLUT_ACTION_ON_WINDOW_CLOSE,GLUT_ACTION_GLUTMAINLOOP_RETURNS);
-	
-	glutInitWindowPosition(640,100);
+	glutSetOption(GLUT_ACTION_ON_WINDOW_CLOSE, GLUT_ACTION_GLUTMAINLOOP_RETURNS);
+
+	glutInitWindowPosition(640, 100);
 	glutInitWindowSize(RES_X, RES_Y);
 	glutInitDisplayMode(GLUT_SINGLE | GLUT_RGBA);
 	glDisable(GL_DEPTH_TEST);
 	WindowHandle = glutCreateWindow(CAPTION);
-	if(WindowHandle < 1) {
+	if (WindowHandle < 1) {
 		std::cerr << "ERROR: Could not create a new rendering window." << std::endl;
 		exit(EXIT_FAILURE);
 	}
@@ -554,7 +568,7 @@ void init(int argc, char* argv[])
 	createShaderProgram();
 	createBufferObjects();
 	setupCallbacks();
-	
+
 }
 
 
@@ -585,7 +599,7 @@ void init_scene(void)
 	printf("\nResolutionX = %d  ResolutionY= %d.\n", RES_X, RES_Y);
 
 	// Pixel buffer to be used in the Save Image function
-	img_Data = (uint8_t*)malloc(3 * RES_X*RES_Y * sizeof(uint8_t));
+	img_Data = (uint8_t*)malloc(3 * RES_X * RES_Y * sizeof(uint8_t));
 	if (img_Data == NULL) exit(1);
 }
 
@@ -608,13 +622,13 @@ int main(int argc, char* argv[])
 			renderScene();  //Just creating an image file
 			auto timeEnd = std::chrono::high_resolution_clock::now();
 			auto passedTime = std::chrono::duration<double, std::milli>(timeEnd - timeStart).count();
-			printf("\nDone: %.2f (sec)\n", passedTime / F1000);
-		
+			printf("\nDone: %.2f (sec)\n", passedTime / 1000);
+
 			cout << "\nPress 'y' to render another image or another key to terminate!\n";
 			delete(scene);
 			free(img_Data);
 			ch = _getch();
-		} while((toupper(ch) == 'Y')) ;
+		} while ((toupper(ch) == 'Y'));
 	}
 
 	else {   //Use OpenGL to draw image in the screen
@@ -630,8 +644,8 @@ int main(int argc, char* argv[])
 			printf("DRAWING MODE: LINE BY LINE\n\n");
 		}
 		else if (draw_mode == 2) { // draw full frame at once
-			size_vertices = 2 * RES_X*RES_Y * sizeof(float);
-			size_colors = 3 * RES_X*RES_Y * sizeof(float);
+			size_vertices = 2 * RES_X * RES_Y * sizeof(float);
+			size_colors = 3 * RES_X * RES_Y * sizeof(float);
 			printf("DRAWING MODE: FULL IMAGE\n\n");
 		}
 		else {
@@ -643,7 +657,7 @@ int main(int argc, char* argv[])
 
 		colors = (float*)malloc(size_colors);
 		if (colors == NULL) exit(1);
-	   
+
 		/* Setup GLUT and GLEW */
 		init(argc, argv);
 		glutMainLoop();
