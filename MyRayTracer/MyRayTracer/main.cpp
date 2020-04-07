@@ -1,7 +1,7 @@
 ///////////////////////////////////////////////////////////////////////
 //
 // P3D Course
-// (c) 2019 by Joï¿½o Madeiras Pereira
+// (c) 2019 by João Madeiras Pereira
 //Ray Tracing P3F scenes and drawing points with Modern OpenGL
 //
 ///////////////////////////////////////////////////////////////////////
@@ -137,7 +137,8 @@ Color rayTracing(Ray ray, int depth, float ior_1)  //index of refraction of medi
 		
 
 		if (depth < MAX_DEPTH)   // if depth >= maxDepth
-		{
+		{	
+			// reflection
 			if (scene->getObject(hitIndex)->GetMaterial()->GetReflection() > 0)   // !! If reflective component is bigger than 0, means it is reflective?
 			{
 				Vector V = (ray.direction) * (-1);		// math from slides
@@ -149,32 +150,33 @@ Color rayTracing(Ray ray, int depth, float ior_1)  //index of refraction of medi
 
 			};
 			
-			
 			//refraction
 			if (scene->getObject(hitIndex)->GetMaterial()->GetTransmittance() > 0)  // !! Transmission > 0 means refractive?
 			{
-				Vector tr = (normal * ((ray.direction * (-1)) * normal) - (ray.direction * (-1)));  // math from slides
-				float angleIn = normal * (ray.direction * -1);
+
+				float angleSini = normal * (ray.direction * -1);
 				float ior_2 = scene->getObject(hitIndex)->GetMaterial()->GetRefrIndex();
-				float angleSint = (ior_1 / ior_2) * angleIn;
+				float angleSint = (ior_1 / ior_2) * angleSini;
 				float angleCost = sqrt(1 - (angleSint) * (angleSint));
-				float KR = 0;
-				if (angleSint >= 1){ //If total reflection
+				float KR = 1;
+				//fresnels
+				if (angleSint >= 1) { //If total reflection
 					float KR = 1;
 				}
 				else {
-					float angleCosi = sqrt(1 - (angleIn) * (angleIn));
+					float angleCosi = sqrt(1 - (angleSini) * (angleSini));
 					float Rp = pow((ior_1 * angleCosi - ior_2 * angleCost) / (ior_1 * angleCosi + ior_2 * angleCost), 2);
-					float Rs = pow((ior_1* angleCost - ior_2*angleCosi)/(ior_1*angleCost + ior_2 *angleCosi),2);
+					float Rs = pow((ior_1 * angleCost - ior_2 * angleCosi) / (ior_1 * angleCost + ior_2 * angleCosi), 2);
 					float KR = (Rs + Rp) * 0.5;
-					
 				}
+				float T = 1 - KR;
+			
+				Vector tr = (normal * ((ray.direction * (-1)) * normal) - (ray.direction * (-1)));  // math from slides
 				Vector rRefr = tr.normalize() * angleSint + normal * (-1) * angleCost;
 				Ray refrRay = Ray(phit + bias, rRefr);
-				Color refrColor = rayTracing(refrRay, depth, ior_1);		//tColor = trace(scene, point, tRay direction, depth + 1);   not sure about depth +1
-				refrColor = refrColor * scene->getObject(hitIndex)->GetMaterial()->GetTransmittance();// reduce tColor by the transmittance coefficient
+				Color refrColor = rayTracing(refrRay, depth + 1, ior_1);		//tColor = trace(scene, point, tRay direction, depth + 1);   not sure about depth +1
+				refrColor = refrColor * scene->getObject(hitIndex)->GetMaterial()->GetTransmittance() * T;// reduce tColor by the transmittance coefficient
 				finalColor += refrColor;	// add to color
-				float T = 1 - KR;
 			}
 		};
 		return (finalColor.clamp());
@@ -282,8 +284,8 @@ void createBufferObjects()
 	glGenBuffers(2, VboId);
 	glBindBuffer(GL_ARRAY_BUFFER, VboId[0]);
 
-	/* Sï¿½ se faz a alocaï¿½ï¿½o dos arrays glBufferData (NULL), e o envio dos pontos para a placa grï¿½fica
-	ï¿½ feito na drawPoints com GlBufferSubData em tempo de execuï¿½ï¿½o pois os arrays sï¿½o GL_DYNAMIC_DRAW */
+	/* Só se faz a alocação dos arrays glBufferData (NULL), e o envio dos pontos para a placa gráfica
+	é feito na drawPoints com GlBufferSubData em tempo de execução pois os arrays são GL_DYNAMIC_DRAW */
 	glBufferData(GL_ARRAY_BUFFER, size_vertices, NULL, GL_DYNAMIC_DRAW);
 	glEnableVertexAttribArray(VERTEX_COORD_ATTRIB);
 	glVertexAttribPointer(VERTEX_COORD_ATTRIB, 2, GL_FLOAT, 0, 0, 0);
@@ -365,17 +367,24 @@ void renderScene()
 	int index_col = 0;
 	unsigned int counter = 0;
 
+	bool input_aliasing;
+	string aliasing_answer;
+	cout << "Do you want to use antialiasing (y/n): ";
+	cin >> aliasing_answer;
+	if (aliasing_answer == "y") input_aliasing = true;
+	if (aliasing_answer == "n") input_aliasing = false;
 
 	for (int y = 0; y < RES_Y; y++)
 	{
 		for (int x = 0; x < RES_X; x++)
 		{
 			Color color;
+			Color cxy;
+			int n = 5; // defined by us to decide how much to split the pixel in
 
 			Vector pixel;  //viewport coordinates
 			pixel.x = x + 0.5f;
 			pixel.y = y + 0.5f;
-
 			// Jittering
 			/*
 			Color c = Color(0.0, 0.0, 0.0);
@@ -390,10 +399,31 @@ void renderScene()
 			Color cij = c / pow(n, 2);
 			*/
 
+			// Antialiasing with jittering ... combined solution from book and https://www.scratchapixel.com/code.php?id=13&origin=/lessons/3d-basic-rendering/introduction-to-shading
+			if (input_aliasing == true) {
+				Color c = Color(0.0, 0.0, 0.0);
+				for (int p = 0; p <= n - 1; p++) {
+					for (int q = 0; q <= n - 1; q++) {
+						Vector pixel;  //viewport coordinates
+						srand(time(0)); //using current time as seed
+						pixel.x = x + 0.5f * ((p + rand_float()) / n);
+						pixel.y = y + 0.5f * ((q + rand_float()) / n);
+						Ray ray = scene->GetCamera()->PrimaryRay(pixel);
+						c = c + rayTracing(ray, 1, 1.0);
+						cout << n;
+					};
+				};
+				float nsqr = 1 / pow(n, 2);
+				cxy  = c * nsqr;
+			}
+			cout << "Coloring";
+			color = cxy;
 			//YOUR 2 FUNCTIONS:
-			Ray ray = scene->GetCamera()->PrimaryRay(pixel);
+			/*Ray ray = scene->GetCamera()->PrimaryRay(pixel);
 			color = rayTracing(ray, 1, 1.0);
+			*/
 
+			
 
 			//color = scene->GetBackgroundColor(); //just for the template
 
