@@ -61,6 +61,9 @@ int RES_X, RES_Y;
 int WindowHandle = 0;
 
 
+// antialiasing bool
+bool antialiasing;
+
 Color rayTracing(Ray ray, int depth, float ior_1)  //index of refraction of medium 1 where the ray is travelling
 {
 	// Variables: Ray (includes origin and direction, depth and index of refraction
@@ -95,7 +98,27 @@ Color rayTracing(Ray ray, int depth, float ior_1)  //index of refraction of medi
 		// LOOP THROUGH LIGHTS
 		for (int i = 0; i < scene->getNumLights(); i += 1)  // for every i, starting from 0, to the amount of lights (-1 for correct indexing), stepping 1 index per loop
 		{
-			// cout << "Lights";
+			/*if (antialiasing)
+			{
+				int n = 5;
+				for (int p = 0; p <= n - 1; p++) {
+					for (int q = 0; q <= n - 1; q++) {
+						srand(time(0)); //using current time as seed
+
+						Vector r = c + a * rand_float() + b * rand_float();
+
+
+					};
+				};
+			}
+			else
+			{
+				
+			};*/
+
+
+			// HARD SHADOWS
+			
 			Vector lightsource = scene->getLight(i)->position;
 			Vector L = (lightsource - phit);		// unit light vector from hit point to light source
 			float shadowDist = L.length();
@@ -110,13 +133,10 @@ Color rayTracing(Ray ray, int depth, float ior_1)  //index of refraction of medi
 
 			if (intensity > 0)  // intensity of light
 			{
-				
-			//	cout << "L normal > 0";
 				for (int sobj_i = 0; sobj_i < scene->getNumObjects(); sobj_i += 1)  //Looping through all objects to check if there is an intersection
 				{
 					if (scene->getObject(sobj_i)->intercepts(shadowRay, ts) == true && ts < shadowDist)  //check if ray towards source light is intercepting object
 					{
-					
 						shadow = true;
 						break;
 					};
@@ -130,54 +150,127 @@ Color rayTracing(Ray ray, int depth, float ior_1)  //index of refraction of medi
 				float Ks = scene->getObject(hitIndex)->GetMaterial()->GetSpecular();
 				float spec = pow(NH, scene->getObject(hitIndex)->GetMaterial()->GetShine());
 				Color specular_color = scene->getObject(hitIndex)->GetMaterial()->GetSpecColor() * Ks * spec;  // Calculate specular
-				Color specDiffColor = diffuse_color +specular_color;  //combine colors
+				Color specDiffColor = diffuse_color + specular_color;  //combine colors
 				finalColor += specDiffColor;
 			}
 		}
-		
 
-		if (depth < MAX_DEPTH)   // if depth >= maxDepth
+		if (depth < MAX_DEPTH) 
 		{	
+			Color reflColor;
+			Color refrColor;
+			float KR = 1;  // defining as 1 to make sure that 100% reflectance is used in case there is no refractivity
+
 			// reflection
 			if (scene->getObject(hitIndex)->GetMaterial()->GetReflection() > 0)   // !! If reflective component is bigger than 0, means it is reflective?
 			{
 				Vector V = (ray.direction) * (-1);		// math from slides
 				Vector rRefl = normal * 2 * (V * normal) - V;
-				Ray reflRay = Ray(phit + bias, rRefl);
+				/*bool outside = rRefl * normal < 0;
+				Vector reflectionOrigin = outside ? phit - bias : phit + bias;*/
+				Vector reflectionOrigin = phit + bias;
+				Ray reflRay = Ray(reflectionOrigin, rRefl.normalize());
 				Color reflColor = rayTracing(reflRay, depth + 1, ior_1); //iteration
-				reflColor = reflColor * scene->getObject(hitIndex)->GetMaterial()->GetReflection(); //  reduce rColor by the specular reflection coefficient
-				finalColor += reflColor;  // add to color;
-
+				reflColor = reflColor * scene->getObject(hitIndex)->GetMaterial()->GetReflection(); //  reduce rColor by the specular reflection coefficient	
+				finalColor += reflColor;
 			};
+
+			/*float eta = ior_1;
 			
 			//refraction
-			if (scene->getObject(hitIndex)->GetMaterial()->GetTransmittance() > 0)  // !! Transmission > 0 means refractive?
+			if (scene->getObject(hitIndex)->GetMaterial()->GetTransmittance() > 0.0f)
 			{
-
-				float angleSini = normal * (ray.direction * -1);
+				Vector v = (ray.direction) * (-1);
+				Vector vt = normal * (v * normal) - v;
+				float sinI = (vt).length();
 				float ior_2 = scene->getObject(hitIndex)->GetMaterial()->GetRefrIndex();
-				float angleSint = (ior_1 / ior_2) * angleSini;
-				float angleCost = sqrt(1 - (angleSint) * (angleSint));
-				float KR = 1;
+				float sinT = (ior_1 / ior_2) * sinI;
+				float cosT = sqrt(1 - (sinT) * (sinT));
+
 				//fresnels
-				if (angleSint >= 1) { //If total reflection
+				if (sinT >= 1) { //If total reflection
 					float KR = 1;
 				}
 				else {
-					float angleCosi = sqrt(1 - (angleSini) * (angleSini));
-					float Rp = pow((ior_1 * angleCosi - ior_2 * angleCost) / (ior_1 * angleCosi + ior_2 * angleCost), 2);
-					float Rs = pow((ior_1 * angleCost - ior_2 * angleCosi) / (ior_1 * angleCost + ior_2 * angleCosi), 2);
+					float cosI = sqrt(1 - (sinI) * (sinI));
+					float Rp = pow((ior_1 * cosI - ior_2 * cosT) / (ior_1 * cosI + ior_2 * cosT), 2);
+					float Rs = pow((ior_1 * cosT - ior_2 * cosI) / (ior_1 * cosT + ior_2 * cosI), 2);
 					float KR = (Rs + Rp) * 0.5;
-				}
-				float T = 1 - KR;
-			
-				Vector tr = (normal * ((ray.direction * (-1)) * normal) - (ray.direction * (-1)));  // math from slides
-				Vector rRefr = tr.normalize() * angleSint + normal * (-1) * angleCost;
+				};
+
+				Vector tr = vt * (1 / vt.length());  // math from slides
+				Vector rRefr = tr * sinT + normal * (-1) * cosT;
 				Ray refrRay = Ray(phit + bias, rRefr);
-				Color refrColor = rayTracing(refrRay, depth + 1, ior_1);		//tColor = trace(scene, point, tRay direction, depth + 1);   not sure about depth +1
-				refrColor = refrColor * scene->getObject(hitIndex)->GetMaterial()->GetTransmittance() * T;// reduce tColor by the transmittance coefficient
-				finalColor += refrColor;	// add to color
+				bool inside = rRefr * normal > 0;
+				if (!inside)
+				{
+					float eta = 1.0f / scene->getObject(hitIndex)->GetMaterial()->GetRefrIndex();
+				}
+				else
+				{
+					float eta = scene->getObject(hitIndex)->GetMaterial()->GetRefrIndex();
+				};
+				Color refrColor = rayTracing(refrRay, depth + 1, eta); //tColor = trace(scene, point, tRay direction, depth + 1);   not sure about depth +1
+				refrColor = refrColor * scene->getObject(hitIndex)->GetMaterial()->GetTransmittance();// reduce tColor by the transmittance coefficient
+			};
+			*/
+			
+
+			// refraction (som på scratch)
+			if (scene->getObject(hitIndex)->GetMaterial()->GetTransmittance() > 0.0f)
+			{
+				float NdotI = normal * ray.direction;
+				float cosi = clamp(NdotI, -1, 1);
+				float etai = ior_1, etat = scene->getObject(hitIndex)->GetMaterial()->GetRefrIndex();
+				Vector n = normal;
+				if (cosi < 0) {
+					cosi = -cosi;
+				}
+				else
+				{
+					std::swap(etai, etat);
+					n = normal * (-1);
+				}
+				float eta = etai / etat;
+				float k = 1 - eta * eta * (1 - cosi * cosi);  // 1- n1^2/n2^2*sini^2 = 1- sint^= cost^2
+
+				float sint = (etai / etat) * sqrtf(1 - cosi * cosi);
+
+				if (sint >= 1) {
+					KR = 1;
+				}
+				else {
+					float cost = sqrtf(1 - sint * sint);
+					cosi = fabsf(cosi);
+					float Rs = ((etat * cosi) - (etai * cost)) / ((etat * cosi) + (etai * cost));
+					float Rp = ((etai * cosi) - (etat * cost)) / ((etai * cosi) + (etat * cost));
+					KR = (Rs * Rs + Rp * Rp) / 2;
+				}
+
+				// Total internal reflection
+				if (KR < 1)
+				{
+					Vector refractionDir = (ray.direction * eta + normal * (eta * NdotI - sqrtf(k))).normalize();
+					bool outside = refractionDir * normal < 0;
+					Vector refractionOrigin = outside ? phit + bias : phit - bias;
+					if (outside)
+					{
+						eta = 1.0f / scene->getObject(hitIndex)->GetMaterial()->GetRefrIndex();
+					}
+					else
+					{
+						eta = scene->getObject(hitIndex)->GetMaterial()->GetRefrIndex();
+					};
+
+					Ray refractiveRay = Ray(refractionOrigin, refractionDir);
+					refrColor = rayTracing(refractiveRay, depth + 1, eta);
+
+
+					finalColor += refrColor * (1 - KR) + reflColor * KR;
+
+				}
 			}
+						
 		};
 		return (finalColor.clamp());
 	}
@@ -367,12 +460,12 @@ void renderScene()
 	int index_col = 0;
 	unsigned int counter = 0;
 
-	bool input_aliasing;
-	string aliasing_answer;
+	bool antialiasing;
+	string antialiasing_answer;
 	cout << "Do you want to use antialiasing (y/n): ";
-	cin >> aliasing_answer;
-	if (aliasing_answer == "y") input_aliasing = true;
-	if (aliasing_answer == "n") input_aliasing = false;
+	cin >> antialiasing_answer;
+	if (antialiasing_answer == "y") antialiasing = true;
+	else antialiasing = false;
 
 	for (int y = 0; y < RES_Y; y++)
 	{
@@ -385,22 +478,9 @@ void renderScene()
 			Vector pixel;  //viewport coordinates
 			pixel.x = x + 0.5f;
 			pixel.y = y + 0.5f;
-			// Jittering
-			/*
-			Color c = Color(0.0, 0.0, 0.0);
-			int n = 5; // defined by us to decide how much to split the pixel in
-			for (int p = 0; n - 1; p++)
-			{
-				for (int q = 0; n - 1; q++)
-				{
-					c = c + SOMETHING(pixel.x + (p + rand) / n, pixel.y + (q + rand) / n);
-				};
-			};
-			Color cij = c / pow(n, 2);
-			*/
 
 			// Antialiasing with jittering ... combined solution from book and https://www.scratchapixel.com/code.php?id=13&origin=/lessons/3d-basic-rendering/introduction-to-shading
-			if (input_aliasing == true) {
+			if (antialiasing == true) {
 				Color c = Color(0.0, 0.0, 0.0);
 				for (int p = 0; p <= n - 1; p++) {
 					for (int q = 0; q <= n - 1; q++) {
@@ -410,18 +490,18 @@ void renderScene()
 						pixel.y = y + 0.5f * ((q + rand_float()) / n);
 						Ray ray = scene->GetCamera()->PrimaryRay(pixel);
 						c = c + rayTracing(ray, 1, 1.0);
-						cout << n;
 					};
 				};
 				float nsqr = 1 / pow(n, 2);
-				cxy  = c * nsqr;
+				color = c * nsqr;
 			}
-			cout << "Coloring";
-			color = cxy;
-			//YOUR 2 FUNCTIONS:
-			/*Ray ray = scene->GetCamera()->PrimaryRay(pixel);
-			color = rayTracing(ray, 1, 1.0);
-			*/
+
+			else {
+				//YOUR 2 FUNCTIONS:
+				Ray ray = scene->GetCamera()->PrimaryRay(pixel);
+				color = rayTracing(ray, 1, 1.0);
+
+			};
 
 			
 
