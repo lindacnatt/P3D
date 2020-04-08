@@ -219,57 +219,69 @@ Color rayTracing(Ray ray, int depth, float ior_1)  //index of refraction of medi
 			// refraction (som på scratch)
 			if (scene->getObject(hitIndex)->GetMaterial()->GetTransmittance() > 0.0f)
 			{
+				Vector refractionDir;
 				float NdotI = normal * ray.direction;
 				float cosi = clamp(NdotI, -1, 1);
-				float etai = ior_1, etat = scene->getObject(hitIndex)->GetMaterial()->GetRefrIndex();
+				//float cosi = NdotI;
+				// float etai = ior_1, etat = scene->getObject(hitIndex)->GetMaterial()->GetRefrIndex();
+				float etai = 1, etat = ior_1;
 				Vector n = normal;
-				if (cosi < 0) {
+
+				
+				if (cosi < 0) {  // if the ray is inside the object, swap the indices and invert the normal to get the correct result
 					cosi = -cosi;
+					std::swap(etai, etat);
+					n = n * (-1);
+				}
+
+				float eta = etai / etat;
+				float k = 1 - eta * eta * (1 - cosi * cosi);  // 1- n1^2/n2^2*sini^2 = 1- sint^= cost^2
+				
+				if (k > 0)
+				{
+					float sint = (etai / etat) * sqrtf(1 - cosi * cosi);
+
+					if (sint >= 1) {
+						KR = 1;
+					}
+					else {
+						float cost = sqrtf(1 - sint * sint);
+						cosi = fabsf(cosi);
+						float Rs = ((etat * cosi) - (etai * cost)) / ((etat * cosi) + (etai * cost));
+						float Rp = ((etai * cosi) - (etat * cost)) / ((etai * cosi) + (etat * cost));
+						KR = (Rs * Rs + Rp * Rp) / 2;
+					};
+
+					if (KR < 1)		// Not total internal reflection
+					{
+						Vector refractionDir = I * eta + n * (eta * cosi - sqrtf(k));
+					}
 				}
 				else
 				{
-					std::swap(etai, etat);
-					n = normal * (-1);
+					Vector refractionDir = Vector(1, 0, 0);
 				}
-				float eta = etai / etat;
-				float k = 1 - eta * eta * (1 - cosi * cosi);  // 1- n1^2/n2^2*sini^2 = 1- sint^= cost^2
-
-				float sint = (etai / etat) * sqrtf(1 - cosi * cosi);
-
-				if (sint >= 1) {
-					KR = 1;
-				}
-				else {
-					float cost = sqrtf(1 - sint * sint);
-					cosi = fabsf(cosi);
-					float Rs = ((etat * cosi) - (etai * cost)) / ((etat * cosi) + (etai * cost));
-					float Rp = ((etai * cosi) - (etat * cost)) / ((etai * cosi) + (etat * cost));
-					KR = (Rs * Rs + Rp * Rp) / 2;
-				}
-
-				// Total internal reflection
-				if (KR < 1)
+				
+				refractionDir.normalize();
+				bool outside = refractionDir * normal < 0;
+				Vector refractionOrigin = outside ? phit - bias : phit + bias;
+				if (outside)
 				{
-					Vector refractionDir = (ray.direction * eta + normal * (eta * NdotI - sqrtf(k))).normalize();
-					bool outside = refractionDir * normal < 0;
-					Vector refractionOrigin = outside ? phit + bias : phit - bias;
-					if (outside)
-					{
-						eta = 1.0f / scene->getObject(hitIndex)->GetMaterial()->GetRefrIndex();
-					}
-					else
-					{
-						eta = scene->getObject(hitIndex)->GetMaterial()->GetRefrIndex();
-					};
-
-					Ray refractiveRay = Ray(refractionOrigin, refractionDir);
-					refrColor = rayTracing(refractiveRay, depth + 1, eta);
-
-
-					finalColor += refrColor * (1 - KR) + reflColor * KR;
-
+					eta = 1.0f / scene->getObject(hitIndex)->GetMaterial()->GetRefrIndex();
 				}
+				else
+				{
+					eta = scene->getObject(hitIndex)->GetMaterial()->GetRefrIndex();
+				};
+				
+
+				Ray refractiveRay = Ray(refractionOrigin, refractionDir);
+				refrColor = rayTracing(refractiveRay, depth + 1, eta);
+
+				//finalColor += refrColor;
+				
 			}
+			finalColor += refrColor * (1 - KR) + reflColor * KR;
 						
 		};
 		return (finalColor.clamp());
