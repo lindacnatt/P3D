@@ -24,6 +24,8 @@
 #include "grid.h"
 #include "maths.h"
 #include "sampler.h"
+#include <functional>
+#include <algorithm> 
 
 #define CAPTION "Whitted Ray-Tracer"
 
@@ -379,45 +381,53 @@ void renderScene()
 		for (int x = 0; x < RES_X; x++)
 		{
 			Color color;
-			Color cxy;
 			int n = 5; // defined by us to decide how much to split the pixel in
-
+			float nsqr = 1 / pow(n, 2);
 			Vector pixel;  //viewport coordinates
 			pixel.x = x + 0.5f;
 			pixel.y = y + 0.5f;
-			// Jittering
-			/*
-			Color c = Color(0.0, 0.0, 0.0);
-			int n = 5; // defined by us to decide how much to split the pixel in
-			for (int p = 0; n - 1; p++)
-			{
-				for (int q = 0; n - 1; q++)
-				{
-					c = c + SOMETHING(pixel.x + (p + rand) / n, pixel.y + (q + rand) / n);
-				};
-			};
-			Color cij = c / pow(n, 2);
-			*/
-
+	
 			// Antialiasing with jittering ... combined solution from book and https://www.scratchapixel.com/code.php?id=13&origin=/lessons/3d-basic-rendering/introduction-to-shading
 			if (input_aliasing == true) {
-				Color c = Color(0.0, 0.0, 0.0);
+				color = Color(0.0, 0.0, 0.0);
 				for (int p = 0; p <= n - 1; p++) {
 					for (int q = 0; q <= n - 1; q++) {
-						Vector pixel;  //viewport coordinates
 						srand(time(0)); //using current time as seed
-						pixel.x = x + 0.5f * ((p + rand_float()) / n);
-						pixel.y = y + 0.5f * ((q + rand_float()) / n);
+						pixel.x = pixel.x * ((p + rand_float()) / n);
+						pixel.y = pixel.y * ((q + rand_float()) / n);
 						Ray ray = scene->GetCamera()->PrimaryRay(pixel);
-						c = c + rayTracing(ray, 1, 1.0);
+						color = color + rayTracing(ray, 1, 1.0);
 						cout << n;
 					};
 				};
-				float nsqr = 1 / pow(n, 2);
-				cxy  = c * nsqr;
+				
+				float c[100][100]; //is it a float?
+				c[x][y] = color/*divide*/nsqr;//how to divide color with float?
+				//std::transform(color,nsqr,c[x][y],std::divides<float>()); 
 			}
-			cout << "Coloring";
-			color = cxy;
+
+			// Antialiasing and soft shadows/////////////
+			color = Color(0.0, 0.0, 0.0);
+			int r[pow(n, 2)];
+			int s[pow(n, 2)];
+			for (int i = 0; i < std::size(r)) {
+				r[i] = c[x][y];
+				s[i] = c[x][y];
+			}
+			//shuffling array s
+			for (int i = pow(n, 2); i > 1; i--) {
+				int j = rand() % i;
+				std::swap(s[i], s[j]);
+			}
+			int r[pow(n,2)] = c[x][y];
+			int s[pow(n,2)] = c[x][y];
+			for (int p = 0; pow(n, 2) - 1; p++) {
+				color = color + rayTracing(pixel.x + r[p].x(), pixel.y + r[p].y(),s[p]);
+			}
+			c[x][y] = color /**/ nsqr;
+			
+		//////////////////////////////////////////////
+
 			//YOUR 2 FUNCTIONS:
 			/*Ray ray = scene->GetCamera()->PrimaryRay(pixel);
 			color = rayTracing(ray, 1, 1.0);
