@@ -177,59 +177,20 @@ Color rayTracing(Ray ray, int depth, float ior_1)  //index of refraction of medi
 				finalColor += reflColor;
 			};
 
-			/*float eta = ior_1;
-			
-			//refraction
-			if (scene->getObject(hitIndex)->GetMaterial()->GetTransmittance() > 0.0f)
-			{
-				Vector v = (ray.direction) * (-1);
-				Vector vt = normal * (v * normal) - v;
-				float sinI = (vt).length();
-				float ior_2 = scene->getObject(hitIndex)->GetMaterial()->GetRefrIndex();
-				float sinT = (ior_1 / ior_2) * sinI;
-				float cosT = sqrt(1 - (sinT) * (sinT));
-
-				//fresnels
-				if (sinT >= 1) { //If total reflection
-					float KR = 1;
-				}
-				else {
-					float cosI = sqrt(1 - (sinI) * (sinI));
-					float Rp = pow((ior_1 * cosI - ior_2 * cosT) / (ior_1 * cosI + ior_2 * cosT), 2);
-					float Rs = pow((ior_1 * cosT - ior_2 * cosI) / (ior_1 * cosT + ior_2 * cosI), 2);
-					float KR = (Rs + Rp) * 0.5;
-				};
-
-				Vector tr = vt * (1 / vt.length());  // math from slides
-				Vector rRefr = tr * sinT + normal * (-1) * cosT;
-				Ray refrRay = Ray(phit + bias, rRefr);
-				bool inside = rRefr * normal > 0;
-				if (!inside)
-				{
-					float eta = 1.0f / scene->getObject(hitIndex)->GetMaterial()->GetRefrIndex();
-				}
-				else
-				{
-					float eta = scene->getObject(hitIndex)->GetMaterial()->GetRefrIndex();
-				};
-				Color refrColor = rayTracing(refrRay, depth + 1, eta); //tColor = trace(scene, point, tRay direction, depth + 1);   not sure about depth +1
-				refrColor = refrColor * scene->getObject(hitIndex)->GetMaterial()->GetTransmittance();// reduce tColor by the transmittance coefficient
-			};
-			*/
-			
-
 			// refraction (som på scratch)
 			if (scene->getObject(hitIndex)->GetMaterial()->GetTransmittance() > 0.0f)
 			{
 			
-				Vector refrDir;
+				//Vector refrDir;
 
-				float cosi = - std::fmax(-1.f, std::fmin(1.f, ray.direction * normal));  // minus from other example, what does it mean?
+				float cosi =  std::fmax(-1.f, std::fmin(1.f, ray.direction * normal));  // minus from other example, what does it mean?
 				float etai = 1, etat = ior_1;
 				Vector n = normal;
 
 				if (cosi < 0) { // if the ray is inside the object, swap the indices and invert the normal to get the correct result
 					cosi = -cosi;
+				}
+				else{
 					std::swap(etai, etat); n = normal * (-1);
 				}
 
@@ -237,19 +198,22 @@ Color rayTracing(Ray ray, int depth, float ior_1)  //index of refraction of medi
 				float eta = etai / etat;
 				float k = 1 - eta * eta * (1 - cosi * cosi);
 
-				if (k < 0) {
+				/*if (k < 0) {
 					Vector refrDir = Vector(1, 0, 0);
 				}
-				else {
+				else {*/
 					Vector refrDir = ray.direction * eta + n * (eta * cosi - sqrtf(k));
-				}
+					refrDir.normalize();
+				//}
 
 				//  Fresnels
-				/*Vector v = (ray.direction) * (-1);
+				/* 
+				Vector v = (ray.direction) * (-1);
 				Vector vt = normal * (v * normal) - v;
-				float sini = (vt).length();
+				// float sini = (vt).length();
+				float sini = sqrt(k);
 				float sint = (etai / etat) * sini;
-				float cost = sqrt(1 - (sint) * (sint));
+				float cost = k;//sqrt(1 - (sint) * (sint));
 
 				if (sint >= 1) { //If total reflection
 					float KR = 1;
@@ -264,7 +228,7 @@ Color rayTracing(Ray ray, int depth, float ior_1)  //index of refraction of medi
 
 				bool outside = refrDir * normal < 0;
 				Vector refrOrig = outside ? phit - bias : phit + bias;
-				/*
+				
 				if (outside)
 				{
 					float eta = 1.0f / scene->getObject(hitIndex)->GetMaterial()->GetRefrIndex();
@@ -273,9 +237,11 @@ Color rayTracing(Ray ray, int depth, float ior_1)  //index of refraction of medi
 				{
 					float eta = scene->getObject(hitIndex)->GetMaterial()->GetRefrIndex();
 				};
-				*/
+				
+				//Vector refrOrig = phit + bias;
+
 				Ray refractiveRay = Ray(refrOrig, refrDir);
-				refrColor = rayTracing(refractiveRay, depth + 1, scene->getObject(hitIndex)->GetMaterial()->GetRefrIndex()) * scene->getObject(hitIndex)->GetMaterial()->GetTransmittance();
+				refrColor = rayTracing(refractiveRay, depth + 1, eta) * scene->getObject(hitIndex)->GetMaterial()->GetTransmittance();
 
 				finalColor += refrColor;
 
