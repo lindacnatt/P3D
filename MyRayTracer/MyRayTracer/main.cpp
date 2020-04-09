@@ -26,6 +26,9 @@
 #include "sampler.h"
 #include <functional>
 #include <algorithm> 
+#include <vector>
+#include <stack>
+#include <array>
 
 #define CAPTION "Whitted Ray-Tracer"
 
@@ -381,12 +384,13 @@ void renderScene()
 		for (int x = 0; x < RES_X; x++)
 		{
 			Color color;
+			Color c; // either with Color or array[][] --> which fits better?
 			int n = 5; // defined by us to decide how much to split the pixel in
-			float nsqr = 1 / pow(n, 2);
+			float nsqr = pow(n, 2);
 			Vector pixel;  //viewport coordinates
 			pixel.x = x + 0.5f;
 			pixel.y = y + 0.5f;
-	
+
 			// Antialiasing with jittering ... combined solution from book and https://www.scratchapixel.com/code.php?id=13&origin=/lessons/3d-basic-rendering/introduction-to-shading
 			if (input_aliasing == true) {
 				color = Color(0.0, 0.0, 0.0);
@@ -400,31 +404,35 @@ void renderScene()
 						cout << n;
 					};
 				};
-				
-				float c[100][100]; //is it a float?
-				c[x][y] = color/*divide*/nsqr;//how to divide color with float?
-				//std::transform(color,nsqr,c[x][y],std::divides<float>()); 
-			}
 
-			// Antialiasing and soft shadows/////////////
-			color = Color(0.0, 0.0, 0.0);
-			int r[pow(n, 2)];
-			int s[pow(n, 2)];
-			for (int i = 0; i < std::size(r)) {
-				r[i] = c[x][y];
-				s[i] = c[x][y];
+				float cnsqr = 1 / nsqr;
+				c = color.operator*(nsqr);
+
+				// Soft shadows/////////////
+				//color = Color(0.0, 0.0, 0.0);
+				std::array<float, 25> r; //nsqr = 25 ... should it be vector array like std::vector instead of std:array?
+				int r_size = r.size();
+				std:array<int, 25> s;
+				int s_size = s.size();
+				for (int i = 0; i < r_size; i++) {
+					r[i] = c.r, c.g, c.b; // how to save vector values in array structure?
+					s[i] = c.r, c.g, c.b;
+				}
+				//shuffling array s
+				for (int i = pow(n, 2); i > 1; i--) {
+					int j = rand() % i;
+					std::swap(s[i], s[j]);
+				}
+				
+				
+				for (int p = 0; pow(n, 2) - 1; p++) {
+					color = color + rayTracing(pixel.x + r[p].x(), pixel.y + r[p].y(), s[p]); //whats the x() and y() function
+				}
+				c = color.operator*(cnsqr);
+
 			}
-			//shuffling array s
-			for (int i = pow(n, 2); i > 1; i--) {
-				int j = rand() % i;
-				std::swap(s[i], s[j]);
-			}
-			int r[pow(n,2)] = c[x][y];
-			int s[pow(n,2)] = c[x][y];
-			for (int p = 0; pow(n, 2) - 1; p++) {
-				color = color + rayTracing(pixel.x + r[p].x(), pixel.y + r[p].y(),s[p]);
-			}
-			c[x][y] = color /**/ nsqr;
+		
+
 			
 		//////////////////////////////////////////////
 
