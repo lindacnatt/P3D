@@ -166,8 +166,10 @@ Color rayTracing(Ray ray, int depth, float ior_1)  //index of refraction of medi
 			{
 				Vector V = (ray.direction) * (-1);		// math from slides
 				Vector rRefl = normal * 2 * (V * normal) - V;
+
 				/*bool outside = rRefl * normal < 0;
 				Vector reflectionOrigin = outside ? phit - bias : phit + bias;*/
+
 				Vector reflectionOrigin = phit + bias;
 				Ray reflRay = Ray(reflectionOrigin, rRefl.normalize());
 				Color reflColor = rayTracing(reflRay, depth + 1, ior_1); //iteration
@@ -219,69 +221,67 @@ Color rayTracing(Ray ray, int depth, float ior_1)  //index of refraction of medi
 			// refraction (som på scratch)
 			if (scene->getObject(hitIndex)->GetMaterial()->GetTransmittance() > 0.0f)
 			{
-				Vector refractionDir;
-				float NdotI = normal * ray.direction;
-				float cosi = clamp(NdotI, -1, 1);
-				//float cosi = NdotI;
-				// float etai = ior_1, etat = scene->getObject(hitIndex)->GetMaterial()->GetRefrIndex();
+			
+				Vector refrDir;
+
+				float cosi = - std::fmax(-1.f, std::fmin(1.f, ray.direction * normal));  // minus from other example, what does it mean?
 				float etai = 1, etat = ior_1;
 				Vector n = normal;
 
-				
-				if (cosi < 0) {  // if the ray is inside the object, swap the indices and invert the normal to get the correct result
+				if (cosi < 0) { // if the ray is inside the object, swap the indices and invert the normal to get the correct result
 					cosi = -cosi;
-					std::swap(etai, etat);
-					n = n * (-1);
+					std::swap(etai, etat); n = normal * (-1);
 				}
 
+				// Snells law
 				float eta = etai / etat;
-				float k = 1 - eta * eta * (1 - cosi * cosi);  // 1- n1^2/n2^2*sini^2 = 1- sint^= cost^2
-				
-				if (k > 0)
-				{
-					float sint = (etai / etat) * sqrtf(1 - cosi * cosi);
+				float k = 1 - eta * eta * (1 - cosi * cosi);
 
-					if (sint >= 1) {
-						KR = 1;
-					}
-					else {
-						float cost = sqrtf(1 - sint * sint);
-						cosi = fabsf(cosi);
-						float Rs = ((etat * cosi) - (etai * cost)) / ((etat * cosi) + (etai * cost));
-						float Rp = ((etai * cosi) - (etat * cost)) / ((etai * cosi) + (etat * cost));
-						KR = (Rs * Rs + Rp * Rp) / 2;
-					};
+				if (k < 0) {
+					Vector refrDir = Vector(1, 0, 0);
+				}
+				else {
+					Vector refrDir = ray.direction * eta + n * (eta * cosi - sqrtf(k));
+				}
 
-					if (KR < 1)		// Not total internal reflection
-					{
-						Vector refractionDir = I * eta + n * (eta * cosi - sqrtf(k));
-					}
+				//  Fresnels
+				/*Vector v = (ray.direction) * (-1);
+				Vector vt = normal * (v * normal) - v;
+				float sini = (vt).length();
+				float sint = (etai / etat) * sini;
+				float cost = sqrt(1 - (sint) * (sint));
+
+				if (sint >= 1) { //If total reflection
+					float KR = 1;
 				}
-				else
-				{
-					Vector refractionDir = Vector(1, 0, 0);
-				}
-				
-				refractionDir.normalize();
-				bool outside = refractionDir * normal < 0;
-				Vector refractionOrigin = outside ? phit - bias : phit + bias;
+				else {
+					float cosI = sqrt(1 - (sini) * (sini));
+					float Rp = pow((etai * cosi - etat * cost) / (etai * cosi + etat * cost), 2);
+					float Rs = pow((etai * cost - etat * cosi) / (etai * cost + etat * cosi), 2);
+					float KR = (Rs + Rp) * 0.5;
+				};
+				*/
+
+				bool outside = refrDir * normal < 0;
+				Vector refrOrig = outside ? phit - bias : phit + bias;
+				/*
 				if (outside)
 				{
-					eta = 1.0f / scene->getObject(hitIndex)->GetMaterial()->GetRefrIndex();
+					float eta = 1.0f / scene->getObject(hitIndex)->GetMaterial()->GetRefrIndex();
 				}
 				else
 				{
-					eta = scene->getObject(hitIndex)->GetMaterial()->GetRefrIndex();
+					float eta = scene->getObject(hitIndex)->GetMaterial()->GetRefrIndex();
 				};
-				
+				*/
+				Ray refractiveRay = Ray(refrOrig, refrDir);
+				refrColor = rayTracing(refractiveRay, depth + 1, scene->getObject(hitIndex)->GetMaterial()->GetRefrIndex()) * scene->getObject(hitIndex)->GetMaterial()->GetTransmittance();
 
-				Ray refractiveRay = Ray(refractionOrigin, refractionDir);
-				refrColor = rayTracing(refractiveRay, depth + 1, eta);
+				finalColor += refrColor;
 
-				//finalColor += refrColor;
-				
+				//finalColor += refrColor * (1 - KR) + reflColor * KR;
 			}
-			finalColor += refrColor * (1 - KR) + reflColor * KR;
+			
 						
 		};
 		return (finalColor.clamp());
@@ -474,8 +474,8 @@ void renderScene()
 
 	bool antialiasing;
 	string antialiasing_answer;
-	cout << "Do you want to use antialiasing (y/n): ";
-	cin >> antialiasing_answer;
+	/*cout << "Do you want to use antialiasing (y/n): ";
+	cin >> antialiasing_answer;*/
 	if (antialiasing_answer == "y") antialiasing = true;
 	else antialiasing = false;
 
