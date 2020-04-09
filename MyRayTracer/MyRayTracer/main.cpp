@@ -184,7 +184,8 @@ Color rayTracing(Ray ray, int depth, float ior_1)  //index of refraction of medi
 				//Vector refrDir;
 
 				float cosi =  std::fmax(-1.f, std::fmin(1.f, ray.direction * normal));  // minus from other example, what does it mean?
-				float etai = 1, etat = ior_1;
+				// float etai = 1, etat = ior_1;
+				float etai = ior_1, etat = scene->getObject(hitIndex)->GetMaterial()->GetRefrIndex();
 				Vector n = normal;
 
 				if (cosi < 0) { // if the ray is inside the object, swap the indices and invert the normal to get the correct result
@@ -231,7 +232,7 @@ Color rayTracing(Ray ray, int depth, float ior_1)  //index of refraction of medi
 				
 				if (outside)
 				{
-					float eta = 1.0f / scene->getObject(hitIndex)->GetMaterial()->GetRefrIndex();
+					float eta = 1.0f; // scene->getObject(hitIndex)->GetMaterial()->GetRefrIndex();
 				}
 				else
 				{
