@@ -25,6 +25,10 @@
 #include "maths.h"
 #include "sampler.h"
 
+#include <algorithm>
+#include <vector>
+#include <cmath>
+
 #define CAPTION "Whitted Ray-Tracer"
 
 #define VERTEX_COORD_ATTRIB 0
@@ -98,25 +102,7 @@ Color rayTracing(Ray ray, int depth, float ior_1)  //index of refraction of medi
 		// LOOP THROUGH LIGHTS
 		for (int i = 0; i < scene->getNumLights(); i += 1)  // for every i, starting from 0, to the amount of lights (-1 for correct indexing), stepping 1 index per loop
 		{
-			/*if (antialiasing)
-			{
-				int n = 5;
-				for (int p = 0; p <= n - 1; p++) {
-					for (int q = 0; q <= n - 1; q++) {
-						srand(time(0)); //using current time as seed
-
-						Vector r = c + a * rand_float() + b * rand_float();
-
-
-					};
-				};
-			}
-			else
-			{
-				
-			};*/
-
-
+		
 			// HARD SHADOWS
 			
 			Vector lightsource = scene->getLight(i)->position;
@@ -183,9 +169,8 @@ Color rayTracing(Ray ray, int depth, float ior_1)  //index of refraction of medi
 			
 				//Vector refrDir;
 
-				float cosi =  std::fmax(-1.f, std::fmin(1.f, ray.direction * normal));  // minus from other example, what does it mean?
-				// float etai = 1, etat = ior_1;
-				float etai = ior_1, etat = scene->getObject(hitIndex)->GetMaterial()->GetRefrIndex();
+				float cosi =  clamp(-1,1, ray.direction * normal);  // minus from other example, what does it mean?
+				float etai = 1, etat = ior_1;
 				Vector n = normal;
 
 				if (cosi < 0) { // if the ray is inside the object, swap the indices and invert the normal to get the correct result
@@ -198,55 +183,53 @@ Color rayTracing(Ray ray, int depth, float ior_1)  //index of refraction of medi
 				// Snells law
 				float eta = etai / etat;
 				float k = 1 - eta * eta * (1 - cosi * cosi);
+				Vector refrDir;
 
-				/*if (k < 0) {
-					Vector refrDir = Vector(1, 0, 0);
-				}
-				else {*/
-					Vector refrDir = ray.direction * eta + n * (eta * cosi - sqrtf(k));
-					refrDir.normalize();
-				//}
+				if (k < 0) {
+					refrDir = Vector(0,0,0);
+					}
+				else {
+					refrDir = (ray.direction.operator*(eta)) + (n.operator*(eta * cosi - sqrtf(k)));
+					}
 
 				//  Fresnels
-				/* 
+				if (cosi > 0) {
+					std::swap(etai, etat);
+				}
 				Vector v = (ray.direction) * (-1);
 				Vector vt = normal * (v * normal) - v;
 				// float sini = (vt).length();
-				float sini = sqrt(k);
-				float sint = (etai / etat) * sini;
-				float cost = k;//sqrt(1 - (sint) * (sint));
-
+				float sint = etai / etat * sqrtf(std::max(0.f, 1 - cosi * cosi));
+				
 				if (sint >= 1) { //If total reflection
 					float KR = 1;
 				}
 				else {
-					float cosI = sqrt(1 - (sini) * (sini));
-					float Rp = pow((etai * cosi - etat * cost) / (etai * cosi + etat * cost), 2);
-					float Rs = pow((etai * cost - etat * cosi) / (etai * cost + etat * cosi), 2);
-					float KR = (Rs + Rp) * 0.5;
+					float cost = sqrtf(std::max(0.f, 1 - sint * sint));
+					float cosI = fabsf(cosi);
+					float Rs = ((etat * cosi) - (etai * cost)) / ((etat * cosi) + (etai * cost));
+					float Rp = ((etai * cosi) - (etat * cost)) / ((etai * cosi) + (etat * cost));
+					KR = (Rs * Rs + Rp * Rp) / 2;
 				};
-				*/
+				
 
 				bool outside = refrDir * normal < 0;
-				Vector refrOrig = outside ? phit - bias : phit + bias;
 				
-				if (outside)
-				{
-					float eta = 1.0f; // scene->getObject(hitIndex)->GetMaterial()->GetRefrIndex();
+				if (KR < 1) {
+					refrDir = refrDir.normalize();
+					Vector refrOrig = outside ? phit - bias : phit + bias;
+					Ray refractiveRay = Ray(refrOrig, refrDir);
+					refrColor = rayTracing(refractiveRay, depth + 1, eta) * scene->getObject(hitIndex)->GetMaterial()->GetTransmittance();
 				}
-				else
-				{
-					float eta = scene->getObject(hitIndex)->GetMaterial()->GetRefrIndex();
-				};
-				
-				//Vector refrOrig = phit + bias;
+				else {
+					refrDir = refrDir.normalize();
+					Vector refrOrig = outside ? phit + bias : phit - bias;
+					Ray refractiveRay = Ray(refrOrig, refrDir);
+					refrColor = rayTracing(refractiveRay, depth + 1, eta) * scene->getObject(hitIndex)->GetMaterial()->GetTransmittance();
+					}
+				//mix refraction and reflection
+				finalColor += reflColor*KR + refrColor*(1-KR);
 
-				Ray refractiveRay = Ray(refrOrig, refrDir);
-				refrColor = rayTracing(refractiveRay, depth + 1, eta) * scene->getObject(hitIndex)->GetMaterial()->GetTransmittance();
-
-				finalColor += refrColor;
-
-				//finalColor += refrColor * (1 - KR) + reflColor * KR;
 			}
 			
 						
