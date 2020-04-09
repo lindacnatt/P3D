@@ -183,7 +183,92 @@ AABB aaBox::GetBoundingBox() {
 
 bool aaBox::intercepts(Ray& ray, float& t)
 {
-	return (false);
+	double X0 = min.x;
+	double X1 = max.x;
+	double Y0 = min.y;
+	double Y1 = max.y;
+	double Z0 = min.z;
+	double Z1 = max.z;
+
+	double ox = ray.origin.x; double oy = ray.origin.y; double oz = ray.origin.z;
+	double dx = ray.direction.x; double dy = ray.direction.y; double dz = ray.direction.z;
+	
+	double tx_min, ty_min, tz_min;
+	double tx_max, ty_max, tz_max;
+
+	double a = 1.0 / dx;
+	if (a >= 0) {
+		tx_min = (X0 - ox) * a;
+		tx_max = (X1 - ox) * a;
+	}
+	else {
+		tx_min = (X1 - ox) * a;
+		tx_max = (X0 - ox) * a;
+	}
+
+	double b = 1.0 / dy;
+	if (b >= 0) {
+		ty_min = (Y0 - oy) * b;
+		ty_max = (Y1 - oy) * b;
+	}
+	else {
+		ty_min = (Y1 - oy) * b;
+		ty_max = (Y0 - oy) * b;
+	}
+
+	double c = 1.0 / dz;
+	if (c >= 0) {
+		tz_min = (Z0 - oz) * c;
+		tz_max = (Z1 - oz) * c;
+	}
+	else {
+		tz_min = (Z1 - oz) * c;
+		tz_max = (Z0 - oz) * c;
+	}
+
+	float t0,t1;
+	Vector face_in, face_out; // normals
+	// Largest entering t-value
+	if (tx_min > ty_min) {
+		t0 = tx_min;
+		face_in = (a >= 0.0) ? Vector(-1,0,0):Vector(1,0,0);
+	}
+	else {
+		t0 = ty_min;
+		face_in = (b >= 0.0) ? Vector(0,-1,0): Vector(0,1,0);
+	}
+	if (tz_min > t0){
+		t0 = tz_min;
+		face_in = (c >= 0.0) ? Vector(0,0,-1) : Vector(0,0,1);
+	}
+	// Smallest exiting t-value
+	if (tx_max < ty_max) {
+		t1 = tx_max;
+		face_out = (a >= 0.0) ? Vector(1, 0, 0) : Vector(1, 0, 0);
+	}
+	else {
+		t1 = ty_max;
+		face_out= (b >= 0.0) ? Vector(0, 1, 0) : Vector(0, 1, 0);
+	}
+	if (tz_max < t1){
+		t1 = tz_max;
+		face_out = (c >= 0.0) ? Vector(0, 0, 1) : Vector(0, 0, 1);
+	}
+	//condition for a hit
+	if (t0 < t1 && t1 > 0) { 
+		if (t0 > 0) {
+			t = t0; // ray hits outside surface
+			Normal = face_in;
+		}
+		else {
+			t = t1; // ray hits inside surface
+			Normal = face_out;
+		}
+	return (true);
+	}
+	else {
+		return (false);
+	}
 }
 
 Vector aaBox::getNormal(Vector point)
