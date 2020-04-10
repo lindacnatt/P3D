@@ -99,7 +99,7 @@ Color rayTracing(Ray ray, int depth, float ior_1)  //index of refraction of medi
 
 		// LOOP THROUGH LIGHTS
 		for (int i = 0; i < scene->getNumLights(); i += 1)  // for every i, starting from 0, to the amount of lights (-1 for correct indexing), stepping 1 index per loop
-		{
+		
 			// cout << "Lights";
 			Vector lightsource = scene->getLight(i)->position;
 			Vector L = (lightsource - phit);		// unit light vector from hit point to light source
@@ -432,6 +432,52 @@ void renderScene()
 
 			}
 		
+		// Depth of field (DOF) effect : Lens simulated by random distribution of N samples on unit squares or unit disks
+		
+		//Hints Joao:
+		//aperture defined by scene->GetCamera()->GetAperture();
+		// not forget to open p3f files and change aperture and the focal parameter in themM otherwise just check DOF is working by dof.p3f file
+		// grid data structure does not deal with infinite planes, we have to replace them by triangles;
+			
+			//bool computePixelCoordinatesconst() from https://www.scratchapixel.com/code.php?id=24&origin=/lessons/3d-basic-rendering/3d-viewing-pinhole-camera
+			// Compute 2D pixel coordinates of a viewplane; if the 2D pixel point of the viewplane lies within the image the bool visible is to true, false otherwise.
+
+			const float bottom = scene->GetCamera()->up.z;
+			const float left = -1*(scene->GetCamera()->up.x);
+			const float top = scene->GetCamera()->up.y;
+			const float right = scene->GetCamera()->up.x;
+			const float near_1 = scene->GetCamera()->vnear;
+			const float imageWidth = scene->GetCamera()->w;
+			const float imageHeight = scene->GetCamera()->h;
+			
+
+			Vector pCamera;
+			Vector pWorld = scene->GetCamera()->eye; //equal to 'from' Vector
+			float worldToCamera[4][4] = { 0 };  //since Matrix33f is equal to data[4 * 4] = 0  
+			float worldToCamera = pWorld*pCamera; //worldToCamera.multVecMatrix(pWorld, pCamera); worldtocamera sollte eig Vectormatrize aus vektoren sein, mit pWorld als x und pCamera als y vektoren
+			Vector pScreen;
+			
+			pScreen.x = pCamera.x / ((-1)*pCamera.z*near_1);
+			pScreen.y = pCamera.y / ((-1)*pCamera.z*near_1);
+			pScreen.z = 0;
+
+			Vector pNDC;
+			pNDC.x = (pScreen.x + right) / (2 * right); 
+			pNDC.y = (pScreen.y + top) / (2 * top);
+			pNDC.z = 0;
+
+			Vector pRaster;
+			pRaster.x = (int)(pNDC.x * imageWidth);
+			pRaster.y = (int)((1-pNDC.y) * imageHeight);
+			pRaster.z = 0;
+
+			bool visible = true;
+			if (pScreen.x < left || pScreen.x > right || pScreen.y < bottom || pScreen.y > top) {
+				visible = false;
+			}
+
+			//Replace grid data structure with triangles, project triangles vertices onto plane; To be done ...
+
 
 			
 		//////////////////////////////////////////////
