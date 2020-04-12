@@ -29,6 +29,9 @@
 #include <vector>
 #include <stack>
 #include <array>
+#include <list>
+#include <iterator>
+#include <cstdio>
 
 #define CAPTION "Whitted Ray-Tracer"
 
@@ -410,23 +413,32 @@ void renderScene()
 
 				// Soft shadows/////////////
 				//color = Color(0.0, 0.0, 0.0);
-				std::array<float, 25> r; //nsqr = 25 ... should it be vector array like std::vector instead of std:array?
+				//std::array<float, 25> r; //nsqr = 25 ... should it be vector array like std::vector instead of std:array?
+				
+				vector<vector<float>> r; //2d vector of colors with float values
 				int r_size = r.size();
-				std:array<int, 25> s;
+				vector <vector<float>> s;
 				int s_size = s.size();
 				for (int i = 0; i < r_size; i++) {
-					r[i] = c.r, c.g, c.b; // how to save vector values in array structure?
-					s[i] = c.r, c.g, c.b;
+					r.push_back({c.r,c.g,c.b});
+					s.push_back({c.r,c.g,c.b});
 				}
 				//shuffling array s
 				for (int i = pow(n, 2); i > 1; i--) {
 					int j = rand() % i;
-					std::swap(s[i], s[j]);
+					//std::swap(s[i], s[j]);
+					auto first = std::next(s.begin(), i);
+					auto second = std::next(s.begin(), j);
+					std::swap(first, second);
 				}
 				
 				
 				for (int p = 0; pow(n, 2) - 1; p++) {
-					color = color + rayTracing(pixel.x + r[p].x(), pixel.y + r[p].y(), s[p]); //whats the x() and y() function
+				
+					pixel.x = pixel.x + r[p][0]; //  x value
+					pixel.y = pixel.y + r[p][1]; //  y value
+					Ray ray = scene->GetCamera()->PrimaryRay(pixel);
+					color = color + rayTracing(ray,s[p][0],1.0); // s[p] should be an int! but its actually a float from Colors atm
 				}
 				c = color.operator*(cnsqr);
 
