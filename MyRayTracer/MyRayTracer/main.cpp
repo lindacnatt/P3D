@@ -30,7 +30,7 @@
 #define VERTEX_COORD_ATTRIB 0
 #define COLOR_ATTRIB 1
 
-#define MAX_DEPTH 4
+#define MAX_DEPTH 6
 
 //Enable OpenGL drawing.  
 bool drawModeEnabled = true;
@@ -63,6 +63,7 @@ int WindowHandle = 0;
 
 // antialiasing bool
 bool antialiasing;
+bool softshadows = false;
 
 Color rayTracing(Ray ray, int depth, float ior_1)  //index of refraction of medium 1 where the ray is travelling
 {
@@ -74,13 +75,13 @@ Color rayTracing(Ray ray, int depth, float ior_1)  //index of refraction of medi
 	int hitIndex = -1;
 	Vector phit;
 	Vector normal;
-	for (int obj_i = 0; obj_i < scene->getNumObjects() ; obj_i += 1)  //Looping through all objects to check if there is an intersection
+	for (int obj_i = 0; obj_i < scene->getNumObjects(); obj_i += 1)  //Looping through all objects to check if there is an intersection
 	{
 		if (scene->getObject(obj_i)->intercepts(ray, dist) == true && dist < tNear)					//check if ray is intercepting object, put obj_i in list of hitObjects; t in intercepts function checks that it is the closest t
 		{
 			tNear = dist;	// continues to make tNear smaller
 			hitIndex = obj_i;	// stores index for future uses when the object is needed
-			
+
 		};
 	};
 	if (hitIndex < 0)
@@ -113,45 +114,101 @@ Color rayTracing(Ray ray, int depth, float ior_1)  //index of refraction of medi
 			}
 			else
 			{
-				
+
 			};*/
-
-
-			// HARD SHADOWS
-			
-			Vector lightsource = scene->getLight(i)->position;
-			Vector L = (lightsource - phit);		// unit light vector from hit point to light source
-			float shadowDist = L.length();
-			L.normalize();
-			bool shadow = false;
-			float ts;
-			float intensity = L.normalize() * normal;
-			Vector H = (L + I).normalize();  //Half-Vector from Blinn model
-			float NH = normal * H;
-			if (NH < 0) NH = 0;
-			Ray shadowRay = Ray((phit + bias), L);
-
-			if (intensity > 0)  // intensity of light
+			// SOFT SHADOWS (not antialiasing
+			if (softshadows && !antialiasing)
 			{
-				for (int sobj_i = 0; sobj_i < scene->getNumObjects(); sobj_i += 1)  //Looping through all objects to check if there is an intersection
+
+				Vector lsOrigin = scene->getLight(i)->position;
+				Vector areaLightpoint;
+				int areashadow = 0;
+				double areaLsize = 9;
+				float a = sqrt(areaLsize);
+				float b = sqrt(areaLsize);
+
+				for (int xa = 0; xa < a; xa++)
 				{
-					if (scene->getObject(sobj_i)->intercepts(shadowRay, ts) == true && ts < shadowDist)  //check if ray towards source light is intercepting object
+					for (int yb = 0; yb < b; yb++)
 					{
-						shadow = true;
-						break;
-					};
+						areaLightpoint.x = lsOrigin.x + xa;
+						areaLightpoint.y = lsOrigin.y + yb;
+						Vector shadowDir = areaLightpoint - phit;
+						float shadowDist = shadowDir.length();
+						shadowDir.normalize();
+						float ts;
+						float intensity = shadowDir.normalize() * normal;
+						/*Vector H = (shadowDir + I).normalize();  //Half-Vector from Blinn model
+						float NH = normal * H;
+						if (NH < 0) NH = 0;*/
+						Ray shadowRay = Ray((phit + bias), shadowDir);
+
+						if (intensity > 0)  // intensity of light
+						{
+							for (int sobj_i = 0; sobj_i < scene->getNumObjects(); sobj_i += 1)  //Looping through all objects to check if there is an intersection
+							{
+								if (scene->getObject(sobj_i)->intercepts(shadowRay, ts) == true && ts < shadowDist)  //check if ray towards source light is intercepting object
+								{
+									areashadow += 1;
+									break;
+								};
+							}
+						}
+					}
 				}
-			}
-			if (!shadow) //if no object is blocking source light
-			{
-				// calculate inner product between light vector and normal
+				Vector H = (lsOrigin - phit + I).normalize();  //Half-Vector from Blinn model
+				float NH = normal * H;
+				if (NH < 0) NH = 0;
+				float intensity = (lsOrigin - phit).normalize() * normal;
+
+				int lightIntensity = 1 / (1 - areashadow);
+
 				float Kd = scene->getObject(hitIndex)->GetMaterial()->GetDiffuse();
 				Color diffuse_color = scene->getObject(hitIndex)->GetMaterial()->GetDiffColor() * Kd * intensity; // Calculate diffuse
 				float Ks = scene->getObject(hitIndex)->GetMaterial()->GetSpecular();
 				float spec = pow(NH, scene->getObject(hitIndex)->GetMaterial()->GetShine());
 				Color specular_color = scene->getObject(hitIndex)->GetMaterial()->GetSpecColor() * Ks * spec;  // Calculate specular
 				Color specDiffColor = diffuse_color + specular_color;  //combine colors
-				finalColor += specDiffColor;
+				finalColor += specDiffColor * lightIntensity;
+
+
+			}
+			// HARD SHADOWS
+			if (!softshadows)
+			{
+				Vector lightsource = scene->getLight(i)->position;
+				Vector L = (lightsource - phit);		// unit light vector from hit point to light source
+				float shadowDist = L.length();
+				L.normalize();
+				bool shadow = false;
+				float ts;
+				float intensity = L.normalize() * normal;
+				Vector H = (L + I).normalize();  //Half-Vector from Blinn model
+				float NH = normal * H;
+				if (NH < 0) NH = 0;
+				Ray shadowRay = Ray((phit + bias), L);
+
+				if (intensity > 0)  // intensity of light
+				{
+					for (int sobj_i = 0; sobj_i < scene->getNumObjects(); sobj_i += 1)  //Looping through all objects to check if there is an intersection
+					{
+						if (scene->getObject(sobj_i)->intercepts(shadowRay, ts) == true && ts < shadowDist)  //check if ray towards source light is intercepting object
+						{
+							shadow = true;
+							break;
+						};
+					}
+				}
+				if (!shadow) //if no object is blocking source light
+				{
+					float Kd = scene->getObject(hitIndex)->GetMaterial()->GetDiffuse();
+					Color diffuse_color = scene->getObject(hitIndex)->GetMaterial()->GetDiffColor() * Kd * intensity; // Calculate diffuse
+					float Ks = scene->getObject(hitIndex)->GetMaterial()->GetSpecular();
+					float spec = pow(NH, scene->getObject(hitIndex)->GetMaterial()->GetShine());
+					Color specular_color = scene->getObject(hitIndex)->GetMaterial()->GetSpecColor() * Ks * spec;  // Calculate specular
+					Color specDiffColor = diffuse_color + specular_color;  //combine colors
+					finalColor += specDiffColor;
+				}
 			}
 		}
 
@@ -167,8 +224,10 @@ Color rayTracing(Ray ray, int depth, float ior_1)  //index of refraction of medi
 				Vector V = (ray.direction) * (-1);		// math from slides
 				Vector rRefl = normal * 2 * (V * normal) - V;
 
-				/*bool outside = rRefl * normal < 0;
-				Vector reflectionOrigin = outside ? phit - bias : phit + bias;*/
+				/*  // checking if it is inside or outside, and adjusting the direction of the bias accordingly
+				bool outside = rRefl * normal < 0;
+				Vector reflectionOrigin = outside ? phit - bias : phit + bias;
+				*/
 
 				Vector reflectionOrigin = phit + bias;
 				Ray reflRay = Ray(reflectionOrigin, rRefl.normalize());
@@ -180,19 +239,23 @@ Color rayTracing(Ray ray, int depth, float ior_1)  //index of refraction of medi
 			// refraction (som på scratch)
 			if (scene->getObject(hitIndex)->GetMaterial()->GetTransmittance() > 0.0f)
 			{
-			
-				//Vector refrDir;
-
-				float cosi =  std::fmax(-1.f, std::fmin(1.f, ray.direction * normal));  // minus from other example, what does it mean?
-				// float etai = 1, etat = ior_1;
-				float etai = ior_1, etat = scene->getObject(hitIndex)->GetMaterial()->GetRefrIndex();
+				float cosi = std::fmax(-1.f, std::fmin(1.f, ray.direction * normal));  // minus from other example, what does it mean?
+				
+				//float etai = 1, etat = ior_1;  // like on scratch a pixel, always compares to air and not using ior of hit object
+				float etai = ior_1, etat = scene->getObject(hitIndex)->GetMaterial()->GetRefrIndex();  // comparing ior of hit object with ior of "previous" object (or air depending on what happened earlier
+				
 				Vector n = normal;
+				bool outside;
 
-				if (cosi < 0) { // if the ray is inside the object, swap the indices and invert the normal to get the correct result
-					cosi = -cosi;
+				if (cosi < 0) {
+					cosi = (-1) * cosi;
+					outside = true;
 				}
 				else{
-					std::swap(etai, etat); n = normal * (-1);
+					outside = false;
+					etat = 1.0;
+					// std::swap(etai, etat); 
+					n = normal * (-1);  // if the ray is inside the object, swap the indices and invert the normal to get the correct result
 				}
 
 				// Snells law
@@ -202,52 +265,61 @@ Color rayTracing(Ray ray, int depth, float ior_1)  //index of refraction of medi
 				/*if (k < 0) {
 					Vector refrDir = Vector(1, 0, 0);
 				}
-				else {*/
+				else {
+
 					Vector refrDir = ray.direction * eta + n * (eta * cosi - sqrtf(k));
 					refrDir.normalize();
-				//}
+
+				}*/
+			//	Vector refrDir = ray.direction * eta + n * (eta * cosi - sqrtf(k));
+				//refrDir.normalize();
+				Vector refrDir;
 
 				//  Fresnels
-				/* 
-				Vector v = (ray.direction) * (-1);
-				Vector vt = normal * (v * normal) - v;
-				// float sini = (vt).length();
-				float sini = sqrt(k);
-				float sint = (etai / etat) * sini;
-				float cost = k;//sqrt(1 - (sint) * (sint));
-
-				if (sint >= 1) { //If total reflection
-					float KR = 1;
-				}
-				else {
-					float cosI = sqrt(1 - (sini) * (sini));
-					float Rp = pow((etai * cosi - etat * cost) / (etai * cosi + etat * cost), 2);
-					float Rs = pow((etai * cost - etat * cosi) / (etai * cost + etat * cosi), 2);
-					float KR = (Rs + Rp) * 0.5;
-				};
-				*/
-
-				bool outside = refrDir * normal < 0;
-				Vector refrOrig = outside ? phit - bias : phit + bias;
 				
-				if (outside)
+				Vector v = (ray.direction) * (-1);
+				Vector vt = n * (v * n) - v;
+				float sini = (vt).length();
+				float sint = (etai / etat) * sini;
+
+				if (sint*sint <= 1) { //If not total reflection
+				
+					float cost = sqrt(1 - (sint) * (sint));
+					vt.normalize();
+					refrDir = vt * sint - n * cost;
+					Vector refrOrig = outside ? phit - bias : phit + bias;  // direction of usage of bias depends on whether or not point is outside or inside object
+
+				/*if (outside)
 				{
+					// if outside send index of refraction = 1
 					float eta = 1.0f; // scene->getObject(hitIndex)->GetMaterial()->GetRefrIndex();
 				}
 				else
 				{
+					// if inside send index of refraction = from the object
 					float eta = scene->getObject(hitIndex)->GetMaterial()->GetRefrIndex();
-				};
+				};*/
+
+					Ray refractiveRay = Ray(refrOrig, refrDir);
+					refrColor = rayTracing(refractiveRay, depth + 1, etat);
+
+					//finalColor += refrColor* scene->getObject(hitIndex)->GetMaterial()->GetTransmittance();
 				
-				//Vector refrOrig = phit + bias;
+					cosi = fabsf(cosi);
+					float Rp = pow((etai * cosi - etat * cost) / (etai * cosi + etat * cost), 2);
+					float Rs = pow((etai * cost - etat * cosi) / (etai * cost + etat * cosi), 2);
+					float KR = (Rs + Rp) * 0.5;
 
-				Ray refractiveRay = Ray(refrOrig, refrDir);
-				refrColor = rayTracing(refractiveRay, depth + 1, eta) * scene->getObject(hitIndex)->GetMaterial()->GetTransmittance();
+					finalColor += refrColor * (1 - KR);
 
-				finalColor += refrColor;
+				};
 
-				//finalColor += refrColor * (1 - KR) + reflColor * KR;
+				
+
+
+				
 			}
+			
 			
 						
 		};
