@@ -25,12 +25,14 @@
 #include "maths.h"
 #include "sampler.h"
 
+#include <array>
+
 #define CAPTION "Whitted Ray-Tracer"
 
 #define VERTEX_COORD_ATTRIB 0
 #define COLOR_ATTRIB 1
 
-#define MAX_DEPTH 6
+#define MAX_DEPTH 4
 
 //Enable OpenGL drawing.  
 bool drawModeEnabled = true;
@@ -62,8 +64,9 @@ int WindowHandle = 0;
 
 
 // antialiasing bool
-bool antialiasing;
+bool antialiasing = true;
 bool softshadows = false;
+bool depthoffield = true;
 
 Color rayTracing(Ray ray, int depth, float ior_1)  //index of refraction of medium 1 where the ray is travelling
 {
@@ -99,80 +102,6 @@ Color rayTracing(Ray ray, int depth, float ior_1)  //index of refraction of medi
 		// LOOP THROUGH LIGHTS
 		for (int i = 0; i < scene->getNumLights(); i += 1)  // for every i, starting from 0, to the amount of lights (-1 for correct indexing), stepping 1 index per loop
 		{
-			/*if (antialiasing)
-			{
-				int n = 5;
-				for (int p = 0; p <= n - 1; p++) {
-					for (int q = 0; q <= n - 1; q++) {
-						srand(time(0)); //using current time as seed
-
-						Vector r = c + a * rand_float() + b * rand_float();
-
-
-					};
-				};
-			}
-			else
-			{
-
-			};*/
-			// SOFT SHADOWS (not antialiasing
-			if (softshadows && !antialiasing)
-			{
-
-				Vector lsOrigin = scene->getLight(i)->position;
-				Vector areaLightpoint;
-				int areashadow = 0;
-				double areaLsize = 9;
-				float a = sqrt(areaLsize);
-				float b = sqrt(areaLsize);
-
-				for (int xa = 0; xa < a; xa++)
-				{
-					for (int yb = 0; yb < b; yb++)
-					{
-						areaLightpoint.x = lsOrigin.x + xa;
-						areaLightpoint.y = lsOrigin.y + yb;
-						Vector shadowDir = areaLightpoint - phit;
-						float shadowDist = shadowDir.length();
-						shadowDir.normalize();
-						float ts;
-						float intensity = shadowDir.normalize() * normal;
-						/*Vector H = (shadowDir + I).normalize();  //Half-Vector from Blinn model
-						float NH = normal * H;
-						if (NH < 0) NH = 0;*/
-						Ray shadowRay = Ray((phit + bias), shadowDir);
-
-						if (intensity > 0)  // intensity of light
-						{
-							for (int sobj_i = 0; sobj_i < scene->getNumObjects(); sobj_i += 1)  //Looping through all objects to check if there is an intersection
-							{
-								if (scene->getObject(sobj_i)->intercepts(shadowRay, ts) == true && ts < shadowDist)  //check if ray towards source light is intercepting object
-								{
-									areashadow += 1;
-									break;
-								};
-							}
-						}
-					}
-				}
-				Vector H = (lsOrigin - phit + I).normalize();  //Half-Vector from Blinn model
-				float NH = normal * H;
-				if (NH < 0) NH = 0;
-				float intensity = (lsOrigin - phit).normalize() * normal;
-
-				int lightIntensity = 1 / (1 - areashadow);
-
-				float Kd = scene->getObject(hitIndex)->GetMaterial()->GetDiffuse();
-				Color diffuse_color = scene->getObject(hitIndex)->GetMaterial()->GetDiffColor() * Kd * intensity; // Calculate diffuse
-				float Ks = scene->getObject(hitIndex)->GetMaterial()->GetSpecular();
-				float spec = pow(NH, scene->getObject(hitIndex)->GetMaterial()->GetShine());
-				Color specular_color = scene->getObject(hitIndex)->GetMaterial()->GetSpecColor() * Ks * spec;  // Calculate specular
-				Color specDiffColor = diffuse_color + specular_color;  //combine colors
-				finalColor += specDiffColor * lightIntensity;
-
-
-			}
 			// HARD SHADOWS
 			if (!softshadows)
 			{
@@ -214,21 +143,11 @@ Color rayTracing(Ray ray, int depth, float ior_1)  //index of refraction of medi
 
 		if (depth < MAX_DEPTH) 
 		{	
-			Color reflColor;
-			Color refrColor;
-			float KR = 1;  // defining as 1 to make sure that 100% reflectance is used in case there is no refractivity
-
 			// reflection
 			if (scene->getObject(hitIndex)->GetMaterial()->GetReflection() > 0)   // !! If reflective component is bigger than 0, means it is reflective?
 			{
 				Vector V = (ray.direction) * (-1);		// math from slides
 				Vector rRefl = normal * 2 * (V * normal) - V;
-
-				/*  // checking if it is inside or outside, and adjusting the direction of the bias accordingly
-				bool outside = rRefl * normal < 0;
-				Vector reflectionOrigin = outside ? phit - bias : phit + bias;
-				*/
-
 				Vector reflectionOrigin = phit + bias;
 				Ray reflRay = Ray(reflectionOrigin, rRefl.normalize());
 				Color reflColor = rayTracing(reflRay, depth + 1, ior_1); //iteration
@@ -240,8 +159,6 @@ Color rayTracing(Ray ray, int depth, float ior_1)  //index of refraction of medi
 			if (scene->getObject(hitIndex)->GetMaterial()->GetTransmittance() > 0.0f)
 			{
 				float cosi = std::fmax(-1.f, std::fmin(1.f, ray.direction * normal));  // minus from other example, what does it mean?
-				
-				//float etai = 1, etat = ior_1;  // like on scratch a pixel, always compares to air and not using ior of hit object
 				float etai = ior_1, etat = scene->getObject(hitIndex)->GetMaterial()->GetRefrIndex();  // comparing ior of hit object with ior of "previous" object (or air depending on what happened earlier
 				
 				Vector n = normal;
@@ -254,29 +171,10 @@ Color rayTracing(Ray ray, int depth, float ior_1)  //index of refraction of medi
 				else{
 					outside = false;
 					etat = 1.0;
-					// std::swap(etai, etat); 
 					n = normal * (-1);  // if the ray is inside the object, swap the indices and invert the normal to get the correct result
 				}
 
-				// Snells law
-				float eta = etai / etat;
-				float k = 1 - eta * eta * (1 - cosi * cosi);
-
-				/*if (k < 0) {
-					Vector refrDir = Vector(1, 0, 0);
-				}
-				else {
-
-					Vector refrDir = ray.direction * eta + n * (eta * cosi - sqrtf(k));
-					refrDir.normalize();
-
-				}*/
-			//	Vector refrDir = ray.direction * eta + n * (eta * cosi - sqrtf(k));
-				//refrDir.normalize();
-				Vector refrDir;
-
 				//  Fresnels
-				
 				Vector v = (ray.direction) * (-1);
 				Vector vt = n * (v * n) - v;
 				float sini = (vt).length();
@@ -286,24 +184,11 @@ Color rayTracing(Ray ray, int depth, float ior_1)  //index of refraction of medi
 				
 					float cost = sqrt(1 - (sint) * (sint));
 					vt.normalize();
-					refrDir = vt * sint - n * cost;
+					Vector refrDir = vt * sint - n * cost;
 					Vector refrOrig = outside ? phit - bias : phit + bias;  // direction of usage of bias depends on whether or not point is outside or inside object
 
-				/*if (outside)
-				{
-					// if outside send index of refraction = 1
-					float eta = 1.0f; // scene->getObject(hitIndex)->GetMaterial()->GetRefrIndex();
-				}
-				else
-				{
-					// if inside send index of refraction = from the object
-					float eta = scene->getObject(hitIndex)->GetMaterial()->GetRefrIndex();
-				};*/
-
 					Ray refractiveRay = Ray(refrOrig, refrDir);
-					refrColor = rayTracing(refractiveRay, depth + 1, etat);
-
-					//finalColor += refrColor* scene->getObject(hitIndex)->GetMaterial()->GetTransmittance();
+					Color refrColor = rayTracing(refractiveRay, depth + 1, etat);
 				
 					cosi = fabsf(cosi);
 					float Rp = pow((etai * cosi - etat * cost) / (etai * cosi + etat * cost), 2);
@@ -311,17 +196,8 @@ Color rayTracing(Ray ray, int depth, float ior_1)  //index of refraction of medi
 					float KR = (Rs + Rp) * 0.5;
 
 					finalColor += refrColor * (1 - KR);
-
 				};
-
-				
-
-
-				
-			}
-			
-			
-						
+			}				
 		};
 		return (finalColor.clamp());
 	}
@@ -511,21 +387,14 @@ void renderScene()
 	int index_col = 0;
 	unsigned int counter = 0;
 
-	bool antialiasing;
-	string antialiasing_answer;
-	/*cout << "Do you want to use antialiasing (y/n): ";
-	cin >> antialiasing_answer;*/
-	if (antialiasing_answer == "y") antialiasing = true;
-	else antialiasing = false;
-
 	for (int y = 0; y < RES_Y; y++)
 	{
 		for (int x = 0; x < RES_X; x++)
 		{
 			Color color;
-			Color cxy;
 			int n = 5; // defined by us to decide how much to split the pixel in
-
+			float nsqr = 1 / pow(n, 2);
+			float cnsqr = 1 / nsqr;
 			Vector pixel;  //viewport coordinates
 			pixel.x = x + 0.5f;
 			pixel.y = y + 0.5f;
@@ -540,22 +409,90 @@ void renderScene()
 						pixel.x = x + 0.5f * ((p + rand_float()) / n);
 						pixel.y = y + 0.5f * ((q + rand_float()) / n);
 						Ray ray = scene->GetCamera()->PrimaryRay(pixel);
-						c = c + rayTracing(ray, 1, 1.0);
+						color = color + rayTracing(ray, 1, 1.0);
+						c = color.operator*(nsqr);
+						cout << n;
+
+						//DOF
+						if (depthoffield) {
+							Vector lens_sample = sample_unit_disk() * scene->GetCamera()->GetAperture();
+							Ray ray = scene->GetCamera()->PrimaryRay(pixel, lens_sample);
+							c = c + rayTracing(ray, 1, 1.0);
+						}
+						else
+						{
+							Ray ray = scene->GetCamera()->PrimaryRay(pixel);
+							c = c + rayTracing(ray, 1, 1.0);
+						}
+
+						//Soft shadows for antialiasing
+						vector<vector<float>> r; //2d vector of colors with float values
+						int r_size = r.size();
+						vector <vector<float>> s;
+						int s_size = s.size();
+						for (int i = 0; i < r_size; i++) {
+							r.push_back({ c.r,c.g,c.b });
+							s.push_back({ c.r,c.g,c.b });
+						}
+						//shuffling array s
+						for (int i = pow(n, 2); i > 1; i--) {
+							int j = rand() % i;
+							//std::swap(s[i], s[j]);
+							auto first = std::next(s.begin(), i);
+							auto second = std::next(s.begin(), j);
+							std::swap(first, second);
+						}
+
+						for (int p = 0; pow(n, 2) - 1; p++) {
+
+							pixel.x = pixel.x + r[p][0]; //  x value
+							pixel.y = pixel.y + r[p][1]; //  y value
+							Ray ray = scene->GetCamera()->PrimaryRay(pixel);
+							color = color + rayTracing(ray, s[p][0], 1.0); // s[p] should be an int! but its actually a float from Colors atm
+						}
+						c = color.operator*(cnsqr);
+
 					};
 				};
-				float nsqr = 1 / pow(n, 2);
 				color = c * nsqr;
 			}
 
 			else {
-				//YOUR 2 FUNCTIONS:
-				Ray ray = scene->GetCamera()->PrimaryRay(pixel);
+				//Not using antialiasing
+				Vector lens_sample = sample_unit_disk() * scene->GetCamera()->GetAperture();
+				 Ray ray = scene->GetCamera()->PrimaryRay(pixel, lens_sample);
+				//Ray ray = scene->GetCamera()->PrimaryRay(pixel);
 				color = rayTracing(ray, 1, 1.0);
 
-			};
+				//Soft shadow (without antialiasing)
+				Color c = Color(0.0, 0.0,0.0);
+				vector<vector<float>> r; //2d vector of colors with float values
+				int r_size = r.size();
+				vector <vector<float>> s;
+				int s_size = s.size();
+				for (int i = 0; i < r_size; i++) {
+					r.push_back({ c.r,c.g,c.b });
+					s.push_back({ c.r,c.g,c.b });
+				}
+				//shuffling array s
+				for (int i = pow(n, 2); i > 1; i--) {
+					int j = rand() % i;
+					//std::swap(s[i], s[j]);
+					auto first = std::next(s.begin(), i);
+					auto second = std::next(s.begin(), j);
+					std::swap(first, second);
+				}
 
-			
+				for (int p = 0; pow(n, 2) - 1; p++) {
 
+					pixel.x = pixel.x + r[p][0]; //  x value
+					pixel.y = pixel.y + r[p][1]; //  y value
+					Ray ray = scene->GetCamera()->PrimaryRay(pixel);
+					color = color + rayTracing(ray, s[p][0], 1.0); // s[p] should be an int! but its actually a float from Colors atm
+				}
+				c = color.operator*(cnsqr);
+
+			}
 			//color = scene->GetBackgroundColor(); //just for the template
 
 			img_Data[counter++] = u8fromfloat((float)color.r());
@@ -597,6 +534,7 @@ void renderScene()
 	printf("Image file created\n");
 	glFlush();
 }
+
 
 // Callback function for glutCloseFunc
 void cleanup()

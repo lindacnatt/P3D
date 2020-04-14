@@ -44,10 +44,10 @@ public:
         // set the camera frame uvn
         n = ( eye - at );
         plane_dist = n.length();
-	    n = n / plane_dist;
+	    n = n / plane_dist;  // normalized
 
 	    u = up % n;
-	    u = u / u.length();
+	    u = u / u.length();  // normalized
 
 	    v = n % u;
 
@@ -74,12 +74,21 @@ public:
 
 	Ray PrimaryRay(const Vector& lens_sample, const Vector& pixel_sample) // DOF: Rays cast from  a thin lens sample to a pixel sample
 	{
-		Vector eye_offset = eye + u * lens_sample.x + v * lens_sample.y;
-		Vector p;
-		p.x = pixel_sample.x * focal_ratio / plane_dist;
-		p.y = pixel_sample.y * focal_ratio / plane_dist;
+		Vector ls = lens_sample;		// multiplied with aperture in main;
+		Vector ps;
+		ps.z =  (-plane_dist);
+		ps.y =  h * (pixel_sample.y / res_y - 0.5f);
+		ps.x =  w * (pixel_sample.x / res_x - 0.5f);
+		//Vector ps = (ray_dirz + ray_diry + ray_dirx).normalize();
 
-		Vector ray_dir = u * (p.x - eye_offset.x) + v * (p.y - eye_offset.y) - n * focal_ratio;
+		Vector p;
+		p.x =  ps.x * focal_ratio;
+		p.y =  ps.y * focal_ratio;
+		p.z = ps.z * focal_ratio;
+
+		Vector ray_dir = u * (p.x - ls.x) + v * (p.y - ls.y) + n * p.z;
+		Vector eye_offset = eye + u * ls.x + v * ls.y;
+
 		ray_dir.normalize();
 		return Ray(eye_offset, ray_dir);
 	}
