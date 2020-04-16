@@ -392,7 +392,7 @@ void renderScene()
 		for (int x = 0; x < RES_X; x++)
 		{
 			Color color;
-			int n = 5; // defined by us to decide how much to split the pixel in
+			int n = 2; // defined by us to decide how much to split the pixel in
 			float nsqr = 1 / pow(n, 2);
 			float cnsqr = 1 / nsqr;
 			Vector pixel;  //viewport coordinates
@@ -416,7 +416,7 @@ void renderScene()
 						//DOF
 						if (depthoffield) {
 							Vector lens_sample = sample_unit_disk() * scene->GetCamera()->GetAperture();
-							Ray ray = scene->GetCamera()->PrimaryRay(pixel, lens_sample);
+							Ray ray = scene->GetCamera()->PrimaryRay(lens_sample, pixel);
 							c = c + rayTracing(ray, 1, 1.0);
 						}
 						else
@@ -448,7 +448,7 @@ void renderScene()
 							pixel.x = pixel.x + r[p][0]; //  x value
 							pixel.y = pixel.y + r[p][1]; //  y value
 							Ray ray = scene->GetCamera()->PrimaryRay(pixel);
-							color = color + rayTracing(ray, s[p][0], 1.0); // s[p] should be an int! but its actually a float from Colors atm
+							color = color + rayTracing(ray, 1, 1.0,); // s[p] should be an int! but its actually a float from Colors atm
 						}
 						c = color.operator*(cnsqr);
 
@@ -494,6 +494,10 @@ void renderScene()
 
 			}
 			//color = scene->GetBackgroundColor(); //just for the template
+
+			// Grid function 
+			
+
 
 			img_Data[counter++] = u8fromfloat((float)color.r());
 			img_Data[counter++] = u8fromfloat((float)color.g());

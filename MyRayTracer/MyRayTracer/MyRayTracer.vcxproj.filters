@@ -30,6 +30,9 @@
     <ClCompile Include="vector.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="grid.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ray.h">

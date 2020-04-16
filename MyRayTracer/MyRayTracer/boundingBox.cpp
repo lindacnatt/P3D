@@ -4,20 +4,20 @@
 #include "vector.h"
 #include "boundingBox.h"
 
-//-------------------------------------------------------------------- - default constructor
+//-------------------------------------------------------------------- - default constructor // here the Vectors get initialized
 AABB::AABB(void) 
 {
 	min = Vector(-1.0f, -1.0f, -1.0f);
 	max = Vector(1.0f, 1.0f, 1.0f);
 }
 
-// --------------------------------------------------------------------- constructor
+// --------------------------------------------------------------------- constructor // the incoming Vector min and max parameter are saved to the Vectors defined above
 AABB::AABB(const Vector& v0, const Vector& v1)
 {
 	min = v0; max = v1;
 }
 
-// --------------------------------------------------------------------- copy constructor
+// --------------------------------------------------------------------- copy constructor // save in/max Vector values from above for bbox
 AABB::AABB(const AABB& bbox) 
 {
 	min = bbox.min; max = bbox.max;
