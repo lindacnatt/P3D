@@ -1,10 +1,11 @@
 
+#include <iostream>
+#include <cfloat>
 #include <vector>
 #include <cmath>
 #include "scene.h"
 #include "grid.h"
 #include "maths.h"
-
 
 using namespace std;
 
@@ -18,6 +19,7 @@ void Grid::addObject(Object* o) {
 Object* getObject(unsigned int index) {
 	//to be done
 };
+
 
 void Grid::Build(void) {
 	// set up grid cells
@@ -124,16 +126,15 @@ void Grid::Build(void) {
 };
 
 
+
 	
-bool Traverse(Ray & ray, Object * *hitobject, Vector & hitpoint);  //(const Ray& ray, double& tmin, ShadeRec& sr)
+//(const Ray& ray, double& tmin, ShadeRec& sr)
 bool Traverse(Ray & ray);  //Traverse for shadow ray
 
 
 
+			//Setup function for Grid traversal --> privtae in the grid.h file, doesnt have to be implemented
+bool Init_Traverse(Ray & ray, int& ix, int& iy, int& iz, double& dtx, double& dty, double& dtz, double& tx_next, double& ty_next, double& tz_next,
+int& ix_step, int& iy_step, int& iz_step, int& ix_stop, int& iy_stop, int& iz_stop);
 
-	//Setup function for Grid traversal
-	bool Init_Traverse(Ray & ray, int& ix, int& iy, int& iz, double& dtx, double& dty, double& dtz, double& tx_next, double& ty_next, double& tz_next,
-		int& ix_step, int& iy_step, int& iz_step, int& ix_stop, int& iy_stop, int& iz_stop);
-
-	// use Amantides and Woo Algo
-
+		// use Amantides and Woo Algo
