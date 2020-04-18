@@ -1,3 +1,4 @@
+//below two statements are for the h. file and implemented class
 #ifndef GRID_H
 #define GRID_H
 
@@ -21,19 +22,21 @@ public:
 
 	int getNumObjects();
 	void addObject(Object* o);
-	Object* getObject(unsigned int index);
+	Object* getObject(unsigned int index) {};
 
 	void Build(void);   // set up grid cells --> expanded in the grid.cpp file
 
 	// bool Traverse(Ray& ray, Object** hitobject, Vector& hitpoint);  //(const Ray& ray, double& tmin, ShadeRec& sr)
 
-	bool Traverse(Ray& ray, Object** hitobject, Vector& hitpoint) {
-		//Does not have to be changed i guess, just the way how we should use it in the RayTracer Code?
+	bool Traverse(Ray& ray, Object** hitobject, Vector& hitpoint) {//(const Ray& ray, double& tmin, ShadeRec& sr) 
+		//Does not have to be changed I guess, just the way how we should use it in the RayTracer Code?
 		// 
 	};
+	//shall we implement it in our RayTracer with bool Traverse(Ray& ray, Object** hitobject, Vector& hitindex) or as bool Traverse(const Ray& ray, double& tmin) without ShadeRec& sr since only in book and not in our RT 
+
 
 	// Don't get it why we should use a Bool for this? In the Original Algo they also return a list;
-	std::vector<Vector> Traverse(Ray& ray) {  //Traverse for shadow ray; Code based on https://github.com/francisengelmann/fast_voxel_traversal
+	std::vector<Vector> Traverse(Ray& ray) {  //Traverse for shadow ray and return found intersected Object (?); Code based on https://github.com/francisengelmann/fast_voxel_traversal
 		std::vector<Vector> visited_voxels;
 		Vector ray_start = ray.origin;
 		Vector ray_end = ray.direction;
@@ -82,7 +85,7 @@ public:
 
 
 
-		while !(std::equal(last_voxel,current_voxel)) {
+		while !(std::equal(last_voxel, current_voxel)) {
 			if (tMaxX < tMaxY) {
 				if (tMaxX < tMaxZ) {
 					current_voxel.x += stepX;

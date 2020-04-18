@@ -16,10 +16,11 @@ void Grid::addObject(Object* o) {
 	objects.push_back(o);
 };
 
-Object* getObject(unsigned int index) {
-	//to be done
+Object* Grid::getObject(unsigned int index) {
+	if (index >= 0 && index < objects.size())
+		return objects[index];
+	return NULL;
 };
-
 
 void Grid::Build(void) {
 	// set up grid cells
@@ -126,9 +127,8 @@ void Grid::Build(void) {
 };
 
 
-
 	
-//(const Ray& ray, double& tmin, ShadeRec& sr)
+bool Traverse(Ray & ray, Object * *hitobject, Vector & hitpoint);//(const Ray& ray, double& tmin, ShadeRec& sr)
 bool Traverse(Ray & ray);  //Traverse for shadow ray
 
 
