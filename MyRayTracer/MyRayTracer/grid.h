@@ -28,11 +28,21 @@ public:
 
 	// bool Traverse(Ray& ray, Object** hitobject, Vector& hitpoint);  //(const Ray& ray, double& tmin, ShadeRec& sr)
 
-	bool Traverse(Ray& ray, Object** hitobject, Vector& hitpoint) {//(const Ray& ray, double& tmin, ShadeRec& sr) 
-		//Does not have to be changed I guess, just the way how we should use it in the RayTracer Code?
-		// 
+	ShadeRec Traverse(const Ray& ray, double& tmin, ShadeRec& sr) { 	//or shall we implement it in our RayTracer with bool Traverse(Ray& ray, Object** hitobject, Vector& hitindex)? alias hit_bare_bones_objects
+		//ShadeRec sr(*this); -> disappears because is a Parameter
+		double t;
+		//double tmin = 100000; // = kHugeValue -> disappears because is a Parameter
+		int num_objects = getNumObjects();
+
+		for (int j = 0; j < num_objects; j++) {
+			if (getObject(j).intercepts(ray, t, sr) && (t < tmin)) {
+				sr.hit_an_object = true;
+				tmin = t;
+				//sr.color = objects[j]->get_color(); TBD -> can we take Set_Material()
+			}
+			return sr; // SR-Object saves Informations on how to shade ray-object at the hitting point
+		}
 	};
-	//shall we implement it in our RayTracer with bool Traverse(Ray& ray, Object** hitobject, Vector& hitindex) or as bool Traverse(const Ray& ray, double& tmin) without ShadeRec& sr since only in book and not in our RT 
 
 
 	// Don't get it why we should use a Bool for this? In the Original Algo they also return a list;
@@ -85,7 +95,7 @@ public:
 
 
 
-		while !(std::equal(last_voxel, current_voxel)) {
+		while ((last_voxel != current_voxel)) {
 			if (tMaxX < tMaxY) {
 				if (tMaxX < tMaxZ) {
 					current_voxel.x += stepX;

@@ -4,6 +4,8 @@
 #include <vector>
 #include <cmath>
 #include <IL/il.h>
+
+
 using namespace std;
 
 #include "camera.h"
@@ -11,6 +13,7 @@ using namespace std;
 #include "vector.h"
 #include "ray.h"
 #include "boundingBox.h"
+#include "grid.h"
 
 #define MIN(a, b)		( ( a ) < ( b ) ? ( a ) : ( b ) )
 #define MAX(a, b)		( ( a ) > ( b ) ? ( a ) : ( b ) )
@@ -78,7 +81,7 @@ public:
 
 	Material* GetMaterial() { return m_Material; }
 	void SetMaterial( Material *a_Mat ) { m_Material = a_Mat; }
-	virtual bool intercepts( Ray& r, float& dist ) = 0;
+	virtual bool intercepts(const Ray& ray, float& t, ShadeRec& sr) = 0;
 	virtual Vector getNormal( Vector point ) = 0;
 	virtual AABB GetBoundingBox() { return AABB(); }
 
@@ -97,7 +100,7 @@ public:
 		 Plane		(Vector& PNc, float Dc);
 		 Plane		(Vector& P0, Vector& P1, Vector& P2);
 
-		 bool intercepts( Ray& r, float& dist );
+		 bool intercepts(const Ray& ray, float& t, ShadeRec& sr);
          Vector getNormal(Vector point);
 };
 
@@ -106,7 +109,7 @@ class Triangle : public Object
 	
 public:
 	Triangle	(Vector& P0, Vector& P1, Vector& P2);
-	bool intercepts( Ray& r, float& t);
+	bool intercepts(const Ray& ray, float& t, ShadeRec& sr);
 	Vector getNormal(Vector point);
 	AABB GetBoundingBox(void);
 	
@@ -124,7 +127,9 @@ public:
 		center( a_center ), SqRadius( a_radius * a_radius ), 
 		radius( a_radius ) {};
 
-	bool intercepts( Ray& r, float& t);
+
+
+	bool intercepts(const Ray& ray, float& t, ShadeRec& sr);
 	Vector getNormal(Vector point);
 	AABB GetBoundingBox(void);
 
@@ -138,7 +143,7 @@ class aaBox : public Object   //Axis aligned box: another geometric object
 public:
 	aaBox(Vector& minPoint, Vector& maxPoint);
 	AABB GetBoundingBox(void);
-	bool intercepts(Ray& r, float& t);
+	bool intercepts(const Ray& ray, float& t, ShadeRec& sr);
 	Vector getNormal(Vector point);
 
 private:
@@ -148,6 +153,22 @@ private:
 	Vector Normal;
 };
 
+// Sphere traverse
+virtual Sphere::Traverse(const Ray& ray) const {
+	ShadeRec sr(*scene_ptr); //not used
+	double t; //not used
+	//example for sphere object,
+	Sphere* sphere_ptr = new Sphere;
+	sphere_ptr({ 0,-25,0 }, 80);
+	
+	if (scene_ptr)
+		scene_ptr->sphere.intercepts(ray, t, sr)) {
+		return (Color(0,0,0)); // now this color has to be taken from where?
+	} else {
+		return (Color(1,1,1)); // this has to be original Materialcolor of the object when not enlightened by the ray?
+	}
+
+}
 
 class Scene
 {
@@ -192,5 +213,52 @@ private:
 	} skybox_img[6];
 
 };
+
+
+class ShadeRec {
+public:
+	bool hit_an_object;
+	Vector local_hit_point; //world coordinates of hit point
+	float normal; //normal at hit point
+	Color color;
+	Scene& w;
+
+	ShadeRec(Scene& wr); //constructor
+	ShadeRec(const ShadeRec& sr); //copy constructor
+	~ShadeRec(void); // destructor
+
+	ShadeRec& //assignment operator
+		operator= (const ShadeRec& rhs); 
+};
+
+ShadeRec::ShadeRec(Scene& wr)	//constructor
+	: hit_an_object(false),
+	local_hit_point(),
+	normal(),
+	color(0,0,0),
+	w(wr)
+{}
+
+class Tracer {
+public:
+	Tracer(void);
+	Tracer(Scene* s_ptr);
+	//virtual RGBColor; //A C++ virtual function is a member function in the base class that you redefine in a derived class. It is declared using the virtual keyword.
+	//It is used to tell the compiler to perform dynamic linkage or late binding on the function.
+	std::vector<Vector> Grid::Traverse(const Ray& ray) const;	//instead of trace_ray()
+
+protected:
+	Scene* scene_ptr;
+};
+
+ Tracer::Tracer(void)
+	: scene_ptr(NULL) {}
+
+ Tracer::Tracer(scene* s_ptr)
+	:scene_ptr(s_ptr) {}
+
+virtual Tracer::Traverse(const Ray& ray) const { //only virtual instead of RGBColor
+	return Color(0, 0, 0);
+}
 
 #endif

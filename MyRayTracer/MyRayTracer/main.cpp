@@ -67,6 +67,7 @@ int WindowHandle = 0;
 bool antialiasing = true;
 bool softshadows = false;
 bool depthoffield = true;
+bool using_grid = false;
 
 Color rayTracing(Ray ray, int depth, float ior_1)  //index of refraction of medium 1 where the ray is travelling
 {
@@ -78,9 +79,11 @@ Color rayTracing(Ray ray, int depth, float ior_1)  //index of refraction of medi
 	int hitIndex = -1;
 	Vector phit;
 	Vector normal;
+	ShadeRec sr(*scene); 
+
 	for (int obj_i = 0; obj_i < scene->getNumObjects(); obj_i += 1)  //Looping through all objects to check if there is an intersection
 	{
-		if (scene->getObject(obj_i)->intercepts(ray, dist) == true && dist < tNear)					//check if ray is intercepting object, put obj_i in list of hitObjects; t in intercepts function checks that it is the closest t
+		if (scene->getObject(obj_i)->intercepts(ray, dist,sr) == true && dist < tNear)					//check if ray is intercepting object, put obj_i in list of hitObjects; t in intercepts function checks that it is the closest t
 		{
 			tNear = dist;	// continues to make tNear smaller
 			hitIndex = obj_i;	// stores index for future uses when the object is needed
@@ -121,7 +124,7 @@ Color rayTracing(Ray ray, int depth, float ior_1)  //index of refraction of medi
 				{
 					for (int sobj_i = 0; sobj_i < scene->getNumObjects(); sobj_i += 1)  //Looping through all objects to check if there is an intersection
 					{
-						if (scene->getObject(sobj_i)->intercepts(shadowRay, ts) == true && ts < shadowDist)  //check if ray towards source light is intercepting object
+						if (scene->getObject(sobj_i)->intercepts(shadowRay, ts,sr) == true && ts < shadowDist)  //check if ray towards source light is intercepting object
 						{
 							shadow = true;
 							break;
@@ -141,8 +144,8 @@ Color rayTracing(Ray ray, int depth, float ior_1)  //index of refraction of medi
 			}
 		}
 
-		if (depth < MAX_DEPTH) 
-		{	
+		if (depth < MAX_DEPTH)
+		{
 			// reflection
 			if (scene->getObject(hitIndex)->GetMaterial()->GetReflection() > 0)   // !! If reflective component is bigger than 0, means it is reflective?
 			{
@@ -151,7 +154,7 @@ Color rayTracing(Ray ray, int depth, float ior_1)  //index of refraction of medi
 				Vector reflectionOrigin = phit + bias;
 				Ray reflRay = Ray(reflectionOrigin, rRefl.normalize());
 				Color reflColor = rayTracing(reflRay, depth + 1, ior_1); //iteration
-				reflColor = reflColor * scene->getObject(hitIndex)->GetMaterial()->GetReflection(); //  reduce rColor by the specular reflection coefficient	
+				reflColor = reflColor * scene->getObject(hitIndex)->GetMaterial()->GetReflection() * scene->getObject(hitIndex)->GetMaterial()->GetSpecColor(); //  reduce rColor by the specular reflection coefficient	
 				finalColor += reflColor;
 			};
 
@@ -160,7 +163,7 @@ Color rayTracing(Ray ray, int depth, float ior_1)  //index of refraction of medi
 			{
 				float cosi = std::fmax(-1.f, std::fmin(1.f, ray.direction * normal));  // minus from other example, what does it mean?
 				float etai = ior_1, etat = scene->getObject(hitIndex)->GetMaterial()->GetRefrIndex();  // comparing ior of hit object with ior of "previous" object (or air depending on what happened earlier
-				
+
 				Vector n = normal;
 				bool outside;
 
@@ -168,7 +171,7 @@ Color rayTracing(Ray ray, int depth, float ior_1)  //index of refraction of medi
 					cosi = (-1) * cosi;
 					outside = true;
 				}
-				else{
+				else {
 					outside = false;
 					etat = 1.0;
 					n = normal * (-1);  // if the ray is inside the object, swap the indices and invert the normal to get the correct result
@@ -180,8 +183,8 @@ Color rayTracing(Ray ray, int depth, float ior_1)  //index of refraction of medi
 				float sini = (vt).length();
 				float sint = (etai / etat) * sini;
 
-				if (sint*sint <= 1) { //If not total reflection
-				
+				if (sint * sint <= 1) { //If not total reflection
+
 					float cost = sqrt(1 - (sint) * (sint));
 					vt.normalize();
 					Vector refrDir = vt * sint - n * cost;
@@ -189,7 +192,7 @@ Color rayTracing(Ray ray, int depth, float ior_1)  //index of refraction of medi
 
 					Ray refractiveRay = Ray(refrOrig, refrDir);
 					Color refrColor = rayTracing(refractiveRay, depth + 1, etat);
-				
+
 					cosi = fabsf(cosi);
 					float Rp = pow((etai * cosi - etat * cost) / (etai * cosi + etat * cost), 2);
 					float Rs = pow((etai * cost - etat * cosi) / (etai * cost + etat * cosi), 2);
@@ -197,7 +200,7 @@ Color rayTracing(Ray ray, int depth, float ior_1)  //index of refraction of medi
 
 					finalColor += refrColor * (1 - KR);
 				};
-			}				
+			}
 		};
 		return (finalColor.clamp());
 	}
@@ -398,6 +401,7 @@ void renderScene()
 			Vector pixel;  //viewport coordinates
 			pixel.x = x + 0.5f;
 			pixel.y = y + 0.5f;
+			Tracer tracer_ptr; // is this right?
 
 			// Antialiasing with jittering ... combined solution from book and https://www.scratchapixel.com/code.php?id=13&origin=/lessons/3d-basic-rendering/introduction-to-shading
 			if (antialiasing == true) {
@@ -448,14 +452,18 @@ void renderScene()
 							pixel.x = pixel.x + r[p][0]; //  x value
 							pixel.y = pixel.y + r[p][1]; //  y value
 							Ray ray = scene->GetCamera()->PrimaryRay(pixel);
-							color = color + rayTracing(ray, 1, 1.0,); // s[p] should be an int! but its actually a float from Colors atm
+							color = color + rayTracing(ray, 1, 1.0); // s[p] should be an int! but its actually a float from Colors atm
 						}
 						c = color.operator*(cnsqr);
+						std::vector<Vector> pixel_color = tracer_ptr.Traverse(ray); // final color from grid traversal
+						display_pixel(p, q, pixel_color); // which function do we use for display pixel?
 
+						
 					};
 				};
 				color = c * nsqr;
 			}
+
 
 			else {
 				//Not using antialiasing

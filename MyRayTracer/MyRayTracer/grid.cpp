@@ -22,6 +22,7 @@ Object* Grid::getObject(unsigned int index) {
 	return NULL;
 };
 
+
 void Grid::Build(void) {
 	// set up grid cells
 
@@ -87,8 +88,8 @@ void Grid::Build(void) {
 					for (int ix = ixmin; ix <= ixmax; ix++) { //cells in x direction
 						index = ix + nx * iy + nx * ny * iz;
 
-						if (counts[index] == 0){
-							cells[index] = objects[j];
+						/*if (counts[index] == 0){
+							cells[index] = getObject(j);
 							counts[index] += 1; //index = 1
 						}
 						else {
@@ -98,16 +99,16 @@ void Grid::Build(void) {
 								// add the object already in cell
 								compound_ptr->addObject(cells[index]);
 								//add the new project
-								compound_ptr->addObject(objects[j]);
+								compound_ptr->addObject(getObject(j));
 
 								// store compound in current cell
 								cells[index] = compound_ptr;
 								// index 2
 								counts[index] += 1;
-							}
-							else { //counts[index] > 1
+							}*/
+							 //counts[index] > 1			// maybe only use this one
 								// just add current object
-								cells[index]->addObject(objects[j]);
+							cells[index]->addObject(getObject(j));
 								
 
 								//for statistics only
@@ -128,7 +129,7 @@ void Grid::Build(void) {
 
 
 	
-bool Traverse(Ray & ray, Object * *hitobject, Vector & hitpoint);//(const Ray& ray, double& tmin, ShadeRec& sr)
+bool Traverse(Ray & ray, Object * *hitobject, Vector & hitpoint);//(const Ray& ray, double& tmin, ShadeRec& sr) alias hit_bare_bones_objects()
 bool Traverse(Ray & ray);  //Traverse for shadow ray
 
 

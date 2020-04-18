@@ -5,6 +5,7 @@
 
 #include "maths.h"
 #include "scene.h"
+#include "grid.h"
 
 
 Triangle::Triangle(Vector& P0, Vector& P1, Vector& P2)
@@ -39,7 +40,7 @@ Vector Triangle::getNormal(Vector point)
 // Ray/Triangle intersection test using Tomas Moller-Ben Trumbore algorithm.
 //
 
-bool Triangle::intercepts(Ray& r, float& t) {
+bool Triangle::intercepts(Ray& r, float& t, ShadeRec& rs) {
 	cout << "checking triangle";
 	Vector P0P1 = points[1] - points[0];
 	Vector P0P2 = points[2] - points[0];
@@ -64,7 +65,7 @@ bool Triangle::intercepts(Ray& r, float& t) {
 	cout << "TRIANGLE";
 	return true;
 
-}
+};
 
 Plane::Plane(Vector& a_PN, float a_D)
 	: PN(a_PN), D(a_D)
@@ -94,7 +95,7 @@ Plane::Plane(Vector& P0, Vector& P1, Vector& P2)
 // Ray/Plane intersection test.
 //
 
-bool Plane::intercepts(Ray& r, float& t)
+bool Plane::intercepts(const Ray& r, float& t, ShadeRec& sr)
 {
 	float PNxRd;
 	PNxRd = PN * r.direction;
@@ -133,7 +134,7 @@ bool solveQuadratic(const float& a, const float& b, const float& c, float& x0, f
 }
 */
 
-bool Sphere::intercepts(Ray& r, float& t)
+bool Sphere::intercepts(const Ray& r, float& t, ShadeRec& sr)
 {
 	Vector OC = center - r.origin;
 	float SqOC = OC * OC;
@@ -158,7 +159,6 @@ bool Sphere::intercepts(Ray& r, float& t)
 }
 
 
-
 Vector Sphere::getNormal(Vector point)
 {
 	Vector normal = point - center;
@@ -181,7 +181,7 @@ AABB aaBox::GetBoundingBox() {
 	return(AABB(min, max));
 }
 
-bool aaBox::intercepts(Ray& ray, float& t)
+bool aaBox::intercepts(Ray& ray, float& t, ShadeRec& sr)
 {
 	return (false);
 }
@@ -373,7 +373,7 @@ Color Scene::GetSkyboxColor(Ray& r) {
 	return(Color(red, green, blue));
 }
 
-
+ShadeRec Scene::
 
 
 ////////////////////////////////////////////////////////////////////////////////
