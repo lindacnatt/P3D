@@ -63,11 +63,13 @@ int RES_X, RES_Y;
 int WindowHandle = 0;
 
 
-// antialiasing bool
-bool antialiasing = true;
-bool softshadows = false;
-bool depthoffield = true;
-bool using_grid = false;
+// bools and global values
+bool antialiasing = false;
+bool softshadows = true;
+float softshadowsample_1;
+float softshadowsample_2;
+bool depthoffield = false;
+bool grid = false;
 
 Color rayTracing(Ray ray, int depth, float ior_1)  //index of refraction of medium 1 where the ray is travelling
 {
@@ -79,7 +81,16 @@ Color rayTracing(Ray ray, int depth, float ior_1)  //index of refraction of medi
 	int hitIndex = -1;
 	Vector phit;
 	Vector normal;
-	ShadeRec sr(*scene); 
+	ShadeRec sr(scene_ptr->Grid::Traverse(const Ray & ray);
+
+	if (grid == true) {
+		if (sr.hit_an_object) {
+			return (sr.color);
+		}
+		else {
+			return scene_ptr->GetBackgroundColor();
+		};
+	}:
 
 	for (int obj_i = 0; obj_i < scene->getNumObjects(); obj_i += 1)  //Looping through all objects to check if there is an intersection
 	{
@@ -87,7 +98,6 @@ Color rayTracing(Ray ray, int depth, float ior_1)  //index of refraction of medi
 		{
 			tNear = dist;	// continues to make tNear smaller
 			hitIndex = obj_i;	// stores index for future uses when the object is needed
-
 		};
 	};
 	if (hitIndex < 0)
@@ -105,10 +115,82 @@ Color rayTracing(Ray ray, int depth, float ior_1)  //index of refraction of medi
 		// LOOP THROUGH LIGHTS
 		for (int i = 0; i < scene->getNumLights(); i += 1)  // for every i, starting from 0, to the amount of lights (-1 for correct indexing), stepping 1 index per loop
 		{
-			// HARD SHADOWS
-			if (!softshadows)
+			// SOFT SHADOWS, not anti aliasing  (NOT WORKING CORRECTLY)
+			if (softshadows && !antialiasing)
+			{
+				Color sum;
+				Vector lightsource = scene->getLight(i)->position;
+				//Vector arealightx = lightsource + Vector(1, 0, 0);
+				//Vector arealighty = lightsource + Vector(0, 1, 0);
+				bool shadow = false;
+
+				int shadownum = 0;
+				int sample_size = 4;		// number of points in the area light that shall be checked
+				Color lightcolor = scene->getLight(i)->color;
+				for (int alx = 0; alx < sqrt(sample_size); alx++)
+				{
+					for (int aly = 0; aly < sqrt(sample_size); aly++)  //loop through the points of the light, it is defined as a square so sqrt(number of points) in each direction
+					{
+						//defining points in each area light
+						Vector arealightpoint = lightsource + Vector(1, 0, 0) * alx * 0.0001f + Vector(0, 1, 0) * aly * 0.0001f;
+
+						//Same as in hard shadows, needed to calculate blinn phong
+						Vector L = (arealightpoint - phit);
+						float shadowDist = L.length();
+						L.normalize();
+						float ts;
+						float intensity = L.normalize() * normal;
+						Vector H = (L + I).normalize();  //Half-Vector from Blinn model
+						float NH = normal * H;
+						if (NH < 0) NH = 0;
+						Ray shadowRay = Ray((phit + bias), L);
+
+
+						if (intensity > 0)  // intensity of light
+						{
+							for (int sobj_i = 0; sobj_i < scene->getNumObjects(); sobj_i += 1)  //Looping through all objects to check if there is an intersection
+							{
+								if (scene->getObject(sobj_i)->intercepts(shadowRay, ts,sr) == true && ts < shadowDist)  //check if ray towards source light is intercepting object
+								{
+									shadownum += 1;
+									shadow = true;
+									break;
+								};
+							}
+						}
+
+						if (!shadow) //if no object is blocking source light
+						{
+							float Kd = scene->getObject(hitIndex)->GetMaterial()->GetDiffuse();
+							Color diffuse_color = scene->getObject(hitIndex)->GetMaterial()->GetDiffColor() * Kd * intensity * lightcolor; // Calculate diffuse
+							float Ks = scene->getObject(hitIndex)->GetMaterial()->GetSpecular();
+							float spec = pow(NH, scene->getObject(hitIndex)->GetMaterial()->GetShine());
+							Color specular_color = scene->getObject(hitIndex)->GetMaterial()->GetSpecColor() * Ks * spec * lightcolor;  // Calculate specular
+							Color specDiffColor = (diffuse_color + specular_color);  //combine colors
+							//finalColor += specDiffColor;
+							sum += specDiffColor;
+						};
+
+					}
+				}
+				if (shadow)
+				{
+					finalColor = finalColor * (1 / shadownum);
+				}
+				finalColor = sum * ((sample_size - shadownum) / sample_size);
+			}
+
+
+			// HARD SHADOWS or Antialiased softshadows
+			else
 			{
 				Vector lightsource = scene->getLight(i)->position;
+				if (softshadows && antialiasing)		// If antialiased and softshadows is activated, use the randomized sample to find a different point on the area light 
+				{
+					Vector lb = Vector(1, 0, 0);
+					Vector la = Vector(0, 1, 0);
+					lightsource = lightsource + lb * softshadowsample_1 + la * softshadowsample_2;  // r = c + eps1a + eps2b
+				}
 				Vector L = (lightsource - phit);		// unit light vector from hit point to light source
 				float shadowDist = L.length();
 				L.normalize();
@@ -134,14 +216,16 @@ Color rayTracing(Ray ray, int depth, float ior_1)  //index of refraction of medi
 				if (!shadow) //if no object is blocking source light
 				{
 					float Kd = scene->getObject(hitIndex)->GetMaterial()->GetDiffuse();
-					Color diffuse_color = scene->getObject(hitIndex)->GetMaterial()->GetDiffColor() * Kd * intensity; // Calculate diffuse
+					Color diffuse_color = scene->getObject(hitIndex)->GetMaterial()->GetDiffColor() * Kd * intensity * scene->getLight(i)->color; // Calculate diffuse
 					float Ks = scene->getObject(hitIndex)->GetMaterial()->GetSpecular();
 					float spec = pow(NH, scene->getObject(hitIndex)->GetMaterial()->GetShine());
-					Color specular_color = scene->getObject(hitIndex)->GetMaterial()->GetSpecColor() * Ks * spec;  // Calculate specular
+					Color specular_color = scene->getObject(hitIndex)->GetMaterial()->GetSpecColor() * Ks * spec * scene->getLight(i)->color;  // Calculate specular
 					Color specDiffColor = diffuse_color + specular_color;  //combine colors
 					finalColor += specDiffColor;
 				}
 			}
+
+
 		}
 
 		if (depth < MAX_DEPTH)
@@ -389,122 +473,87 @@ void renderScene()
 	int index_pos = 0;
 	int index_col = 0;
 	unsigned int counter = 0;
+	srand(time(0)); //using current time as seed
 
 	for (int y = 0; y < RES_Y; y++)
 	{
 		for (int x = 0; x < RES_X; x++)
 		{
 			Color color;
-			int n = 2; // defined by us to decide how much to split the pixel in
-			float nsqr = 1 / pow(n, 2);
-			float cnsqr = 1 / nsqr;
+			const int n = 5; // defined by us to decide how much to split the pixel in
 			Vector pixel;  //viewport coordinates
-			pixel.x = x + 0.5f;
-			pixel.y = y + 0.5f;
-			Tracer tracer_ptr; // is this right?
+			float r[n * n];		// define array s and r
+			float s[n * n];
+			Ray ray;
+			double zw = 100.0;
+			Object tracer_ptr = new Object(this);
+
+			//depthoffield = false;
+			//antialiasing = false;
+			//grid = false;
+			
+			if (grid == true) {
+				double x_value = Grid::Build().s *(x - 0.5*(Grid::Build().wx -1.0)); //how to access build variables?also possible without return statment?
+				double y_value = Grid::Build().s *(y - 0.5)*(Grid::Build().wy - 1.0);
+				Vector ray_orig = Vector(x_value, y_value, zw);
+				color = tracer_ptr->Grid::Traverse(ray);
+				//display_pixel function not needed from book
+			};
 
 			// Antialiasing with jittering ... combined solution from book and https://www.scratchapixel.com/code.php?id=13&origin=/lessons/3d-basic-rendering/introduction-to-shading
 			if (antialiasing == true) {
 				Color c = Color(0.0, 0.0, 0.0);
 				for (int p = 0; p <= n - 1; p++) {
 					for (int q = 0; q <= n - 1; q++) {
-						Vector pixel;  //viewport coordinates
-						srand(time(0)); //using current time as seed
-						pixel.x = x + 0.5f * ((p + rand_float()) / n);
-						pixel.y = y + 0.5f * ((q + rand_float()) / n);
-						Ray ray = scene->GetCamera()->PrimaryRay(pixel);
-						color = color + rayTracing(ray, 1, 1.0);
-						c = color.operator*(nsqr);
-						cout << n;
+						// Vector pixel;  //viewport coordinates
+						pixel.x = x + (p + rand_float()) / float(n);
+						pixel.y = y + (q + rand_float()) / float(n);
 
-						//DOF
 						if (depthoffield) {
-							Vector lens_sample = sample_unit_disk() * scene->GetCamera()->GetAperture();
+							Vector lens_sample = sample_unit_disk() * scene->GetCamera()->GetAperture() / 2.0f;
 							Ray ray = scene->GetCamera()->PrimaryRay(lens_sample, pixel);
 							c = c + rayTracing(ray, 1, 1.0);
 						}
 						else
 						{
+							if (softshadows)
+							{
+								for (int i = 0; i < n; i++) {		// create n number of randomized numbers and store in array r and s
+									float rand_rf = rand_float();
+									float rand_sf = rand_float();
+									r[i] = rand_rf;
+									s[i] = rand_sf;
+								}
+								//shuffling array s
+								for (int i = pow(n, 2); i > 1; i--) {
+									int j = rand() % i;
+									std::swap(s[j], s[i]);
+								}
+								// set softshadowsamples (global variables) to values from r and s, to be used in raytracing for randomizing a point on the area light
+								// this could also be done by including r and s as values that could be optional parameters in raytracer, but only necessary to avoid using global variables
+								softshadowsample_1 = s[p];
+								softshadowsample_2 = r[q];
+								// softshadowsample_1 = rand_float();		// used to get a good balls_low but doesn't work very well... and is not like in the book
+								// softshadowsample_2 = rand_float();
+							}
 							Ray ray = scene->GetCamera()->PrimaryRay(pixel);
 							c = c + rayTracing(ray, 1, 1.0);
 						}
-
-						//Soft shadows for antialiasing
-						vector<vector<float>> r; //2d vector of colors with float values
-						int r_size = r.size();
-						vector <vector<float>> s;
-						int s_size = s.size();
-						for (int i = 0; i < r_size; i++) {
-							r.push_back({ c.r,c.g,c.b });
-							s.push_back({ c.r,c.g,c.b });
-						}
-						//shuffling array s
-						for (int i = pow(n, 2); i > 1; i--) {
-							int j = rand() % i;
-							//std::swap(s[i], s[j]);
-							auto first = std::next(s.begin(), i);
-							auto second = std::next(s.begin(), j);
-							std::swap(first, second);
-						}
-
-						for (int p = 0; pow(n, 2) - 1; p++) {
-
-							pixel.x = pixel.x + r[p][0]; //  x value
-							pixel.y = pixel.y + r[p][1]; //  y value
-							Ray ray = scene->GetCamera()->PrimaryRay(pixel);
-							color = color + rayTracing(ray, 1, 1.0); // s[p] should be an int! but its actually a float from Colors atm
-						}
-						c = color.operator*(cnsqr);
-						std::vector<Vector> pixel_color = tracer_ptr.Traverse(ray); // final color from grid traversal
-						display_pixel(p, q, pixel_color); // which function do we use for display pixel?
-
-						
 					};
 				};
+				float nsqr = 1 / pow(n, 2);
 				color = c * nsqr;
 			}
 
 
 			else {
 				//Not using antialiasing
-				Vector lens_sample = sample_unit_disk() * scene->GetCamera()->GetAperture();
-				 Ray ray = scene->GetCamera()->PrimaryRay(pixel, lens_sample);
-				//Ray ray = scene->GetCamera()->PrimaryRay(pixel);
+				pixel.x = x + 0.5f;
+				pixel.y = y + 0.5f;
+				Ray ray = scene->GetCamera()->PrimaryRay(pixel);
 				color = rayTracing(ray, 1, 1.0);
-
-				//Soft shadow (without antialiasing)
-				Color c = Color(0.0, 0.0,0.0);
-				vector<vector<float>> r; //2d vector of colors with float values
-				int r_size = r.size();
-				vector <vector<float>> s;
-				int s_size = s.size();
-				for (int i = 0; i < r_size; i++) {
-					r.push_back({ c.r,c.g,c.b });
-					s.push_back({ c.r,c.g,c.b });
-				}
-				//shuffling array s
-				for (int i = pow(n, 2); i > 1; i--) {
-					int j = rand() % i;
-					//std::swap(s[i], s[j]);
-					auto first = std::next(s.begin(), i);
-					auto second = std::next(s.begin(), j);
-					std::swap(first, second);
-				}
-
-				for (int p = 0; pow(n, 2) - 1; p++) {
-
-					pixel.x = pixel.x + r[p][0]; //  x value
-					pixel.y = pixel.y + r[p][1]; //  y value
-					Ray ray = scene->GetCamera()->PrimaryRay(pixel);
-					color = color + rayTracing(ray, s[p][0], 1.0); // s[p] should be an int! but its actually a float from Colors atm
-				}
-				c = color.operator*(cnsqr);
-
 			}
-			//color = scene->GetBackgroundColor(); //just for the template
-
-			// Grid function 
-			
+			//color = scene->GetBackgroundColor(); //just for the template			
 
 
 			img_Data[counter++] = u8fromfloat((float)color.r());
@@ -699,6 +748,7 @@ int main(int argc, char* argv[])
 
 		do {
 			init_scene();
+			Grid::Build(); //included from us to build the grid cells
 			auto timeStart = std::chrono::high_resolution_clock::now();
 			renderScene();  //Just creating an image file
 			auto timeEnd = std::chrono::high_resolution_clock::now();

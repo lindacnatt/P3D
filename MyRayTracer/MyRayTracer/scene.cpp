@@ -7,7 +7,6 @@
 #include "scene.h"
 #include "grid.h"
 
-
 Triangle::Triangle(Vector& P0, Vector& P1, Vector& P2)
 {
 	points[0] = P0; points[1] = P1; points[2] = P2;

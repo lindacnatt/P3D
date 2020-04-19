@@ -161,8 +161,7 @@ virtual Sphere::Traverse(const Ray& ray) const {
 	Sphere* sphere_ptr = new Sphere;
 	sphere_ptr({ 0,-25,0 }, 80);
 	
-	if (scene_ptr)
-		scene_ptr->sphere.intercepts(ray, t, sr)) {
+	if (scene_ptr->sphere.intercepts(ray, t, sr)) {
 		return (Color(0,0,0)); // now this color has to be taken from where?
 	} else {
 		return (Color(1,1,1)); // this has to be original Materialcolor of the object when not enlightened by the ray?

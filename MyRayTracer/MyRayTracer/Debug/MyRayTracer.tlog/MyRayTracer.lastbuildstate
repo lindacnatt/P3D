@@ -1,2 +1,2 @@
-#TargetFrameworkVersion=v4.0:PlatformToolSet=v142:EnableManagedIncrementalBuild=false:VCToolArchitecture=Native32Bit:WindowsTargetPlatformVersion=10.0
-Debug|Win32|C:\Users\Ivo\Desktop\Master\Semester\10. Semester\3d programing\Exercise 1 Git\P3D\MyRayTracer\|
+PlatformToolSet=v142:VCToolArchitecture=Native32Bit:VCToolsVersion=14.25.28610:TargetPlatformVersion=10.0.18362.0:
+Debug|Win32|C:\Users\Ivo\Desktop\Master\Semester\10. Semester\3d programing\2ter Teil, Jittering\P3D\MyRayTracer\|

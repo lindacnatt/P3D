@@ -24,7 +24,7 @@ Object* Grid::getObject(unsigned int index) {
 
 
 void Grid::Build(void) {
-	// set up grid cells
+		// set up grid cells
 
 		//find the minimum and maximum coordinates of the grid
 		Vector p0 = find_min_bounds();
@@ -41,7 +41,7 @@ void Grid::Build(void) {
 		float wz = p1.z - p0.z; //grid-extent in z-direction
 		float multiplier = 2.0; // 8 times more cells than objects (m=2)
 		
-		float s = pow(wx * wy * wz / getNumObjects(), 0.3333333);
+		float s = pow(wx * wy * wz / getNumObjects(), 0.3333333); //Pixel size
 		int nx = multiplier * wx / s + 1;
 		int ny = multiplier * wy / s + 1;
 		int nz = multiplier * wz / s + 1;
@@ -52,7 +52,7 @@ void Grid::Build(void) {
 		cells.reserve(getNumObjects());
 
 		for (int j = 0; j < num_cells; j++) {
-			cells.push_back({NULL}); // are {} needed?
+			cells.push_back(NULL); // are {} needed?
 		};
 
 		//set up a temporary array to hold the number of objects stored in each cell
@@ -61,7 +61,7 @@ void Grid::Build(void) {
 		counts.reserve(num_cells);
 
 		for (int j = 0; j < num_cells; j++) {
-			cells.push_back({0}); //are {} needed ?
+			cells.push_back(0); //are {} needed ?
 		};
 
 		// put objects into the cells 
@@ -123,8 +123,9 @@ void Grid::Build(void) {
 				objects.erase(objects.begin(), objects.end());
 				//erase temporary counts vector
 				counts.erase(counts.begin(), counts.end());
+				return s, wx, wy;
 			};
-
+			
 };
 
 

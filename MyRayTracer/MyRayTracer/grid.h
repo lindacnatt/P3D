@@ -33,12 +33,13 @@ public:
 		double t;
 		//double tmin = 100000; // = kHugeValue -> disappears because is a Parameter
 		int num_objects = getNumObjects();
-
+		
 		for (int j = 0; j < num_objects; j++) {
 			if (getObject(j).intercepts(ray, t, sr) && (t < tmin)) {
 				sr.hit_an_object = true;
 				tmin = t;
-				//sr.color = objects[j]->get_color(); TBD -> can we take Set_Material()
+				sr.color = objects[j]->GetDiffColor();
+					//->get_color(); TBD -> can we take Set_Material()
 			}
 			return sr; // SR-Object saves Informations on how to shade ray-object at the hitting point
 		}
@@ -92,7 +93,6 @@ public:
 			current_voxel + diff;
 			visited_voxels.push_back(current_voxel);
 		};
-
 
 
 		while ((last_voxel != current_voxel)) {
