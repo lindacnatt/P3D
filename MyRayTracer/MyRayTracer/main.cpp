@@ -97,7 +97,7 @@ Color rayTracing(Ray ray, int depth, float ior_1)  //index of refraction of medi
 		if (scene->getObject(obj_i)->intercepts(ray, dist,sr) == true && dist < tNear)					//check if ray is intercepting object, put obj_i in list of hitObjects; t in intercepts function checks that it is the closest t
 		{
 			tNear = dist;	// continues to make tNear smaller
-			hitIndex = obj_i;	// stores index for future uses when the object is needed
+			hitIndex = obj_i;	// stores index for future uses when the found nearest object is needed
 		};
 	};
 	if (hitIndex < 0)
@@ -242,7 +242,7 @@ Color rayTracing(Ray ray, int depth, float ior_1)  //index of refraction of medi
 				finalColor += reflColor;
 			};
 
-			// refraction (som på scratch)
+			// refraction (som på scratch) (if object is transparent) 
 			if (scene->getObject(hitIndex)->GetMaterial()->GetTransmittance() > 0.0f)
 			{
 				float cosi = std::fmax(-1.f, std::fmin(1.f, ray.direction * normal));  // minus from other example, what does it mean?
