@@ -12,8 +12,8 @@ Triangle::Triangle(Vector& P0, Vector& P1, Vector& P2)
 	points[0] = P0; points[1] = P1; points[2] = P2;
 
 	/* Calculate the normal */
-	// normal = (P2 - P1) % (P0 - P1);		// counter-clockwise vectorial product
-	normal = Vector(0, 0, 0);
+	normal = (P2 - P1) % (P0 - P1);		// counter-clockwise vectorial product
+	//normal = Vector(0, 0, 0);
 	normal.normalize();
 
 	//Calculate the Min and Max for bounding box
@@ -40,7 +40,6 @@ Vector Triangle::getNormal(Vector point)
 //
 
 bool Triangle::intercepts(Ray& r, float& t) {
-	cout << "checking triangle";
 	Vector P0P1 = points[1] - points[0];
 	Vector P0P2 = points[2] - points[0];
 	Vector pvec = r.direction % (P0P2);
@@ -54,16 +53,20 @@ bool Triangle::intercepts(Ray& r, float& t) {
 
 	Vector tvec = r.origin - points[0];
 	float u = tvec * (pvec)*invDet;
-	if (u < 0 || u > 1) return false;
+	if (u < 0 || u > 1)
+	{
+		return false;
+	};
 
 	Vector qvec = tvec % (P0P1);
 	float v = r.direction * (qvec)*invDet;
-	if (v < 0 || u + v > 1) return false;
+	if (v < 0 || u + v > 1) {
+		return false;
+	};
 
 	t = P0P2 * (qvec)*invDet;
-	cout << "TRIANGLE";
 	return true;
-
+	
 }
 
 Plane::Plane(Vector& a_PN, float a_D)
@@ -109,29 +112,6 @@ Vector Plane::getNormal(Vector point)
 {
 	return PN;
 }
-
-/*
-bool solveQuadratic(const float& a, const float& b, const float& c, float& x0, float& x1) {
-	float discr = b * b - 4 * a * c;
-	if (discr < 0) {
-		return false;
-	}
-	else if (discr == 0) {
-		x0 = x1 = -0.5 * b / a;
-	}
-	else {
-		float q = (b > 0) ?
-			-0.5 * (b + sqrt(discr)):
-			-0.5 * (b - sqrt(discr));
-		x0 = q / a;
-		x1 = c / q;
-	}
-	if (x0 > x1) {
-		std::swap(x0, x1);
-	}
-	return true;
-}
-*/
 
 bool Sphere::intercepts(Ray& r, float& t)
 {
@@ -183,11 +163,83 @@ AABB aaBox::GetBoundingBox() {
 
 bool aaBox::intercepts(Ray& ray, float& t)
 {
-	return (false);
+	double X0 = min.x;
+	double X1 = max.x;
+	double Y0 = min.y;
+	double Y1 = max.y;
+	double Z0 = min.z;
+	double Z1 = max.z;
+
+	double ox = ray.origin.x; double oy = ray.origin.y; double oz = ray.origin.z;
+	double dx = ray.direction.x; double dy = ray.direction.y; double dz = ray.direction.z;
+
+	double tx_min, ty_min, tz_min;
+	double tx_max, ty_max, tz_max;
+
+	double a = 1.0 / dx;
+	tx_min = (X0 - ox) * a;
+	tx_max = (X1 - ox) * a;
+	if (tx_min > tx_max) { swap(tx_min, tx_max); }
+	
+	double b = 1.0 / dy;
+	ty_min = (Y0 - oy) * b;
+	ty_max = (Y1 - oy) * b;
+	if (ty_min > ty_max) { swap(ty_min, ty_max); }
+
+	double c = 1.0 / dz;
+	tz_min = (Z0 - oz) * c;
+	tz_max = (Z1 - oz) * c;
+	if (tz_min > tz_max) { swap(tz_min, tz_max); }
+
+	float t0, t1;
+	Vector face_in, face_out; // normals
+
+	// Largest entering t-value
+	if (tx_min > ty_min) {
+		t0 = tx_min;
+		face_in = (a >= 0.0) ? Vector(-1, 0, 0) : Vector(1, 0, 0);
+	}
+	else {
+		t0 = ty_min;
+		face_in = (b >= 0.0) ? Vector(0, -1, 0) : Vector(0, 1, 0);
+	}
+	if (tz_min > t0) {
+		t0 = tz_min;
+		face_in = (c >= 0.0) ? Vector(0, 0, -1) : Vector(0, 0, 1);
+	}
+	// Smallest exiting t-value
+	if (tx_max < ty_max) {
+		t1 = tx_max;
+		face_out = (a >= 0.0) ? Vector(1, 0, 0) : Vector(-1, 0, 0);
+	}
+	else {
+		t1 = ty_max;
+		face_out = (b >= 0.0) ? Vector(0, 1, 0) : Vector(0, -1, 0);
+	}
+	if (tz_max < t1) {
+		t1 = tz_max;
+		face_out = (c >= 0.0) ? Vector(0, 0, 1) : Vector(0, 0, -1);
+	}
+	//condition for a hit
+	if (t0 < t1 && t1 > 0) {
+		if (t0 > 0) {
+			t = t0; // ray hits outside surface
+			Normal = face_in;
+		}
+		else {
+			t = t1; // ray hits inside surface
+			Normal = face_out;
+		}
+		return (true);
+	}
+	else {
+		return (false);
+	}
 }
 
 Vector aaBox::getNormal(Vector point)
 {
+	
 	return Normal;
 }
 
