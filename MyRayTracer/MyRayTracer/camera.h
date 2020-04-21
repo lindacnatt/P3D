@@ -79,14 +79,9 @@ public:
 		ps.x = w * (pixel_sample.x / res_x - 0.5f);
 		ps.y =  h * (pixel_sample.y / res_y - 0.5f);
 		ps.z = (-plane_dist);
-		
-		/*Vector psz = n * (-plane_dist);
-		Vector psy = v * h * (pixel_sample.y / res_y - 0.5f);
-		Vector psx = u * w * (pixel_sample.x / res_x - 0.5f);
-		ps = (psz + psy + psx).normalize();*/
 
 		Vector p;
-		p.x = ps.x * focal_ratio;
+		p.x = ps.x * focal_ratio;		// focal_ratio = f/d
 		p.y = ps.y * focal_ratio;
 		p.z = ps.z * focal_ratio;	
 

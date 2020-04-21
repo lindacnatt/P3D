@@ -130,14 +130,12 @@ bool Sphere::intercepts(Ray& r, float& t)
 	float delta = B * B - C;
 	if (delta <= 0) return false;    // if the value is negative the ray misses, if == 0 means tangent ray, also misses
 
-	if (C>0) t = B - sqrt(delta);
-	else  t = B + sqrt(delta);
+	if (C>0) t = B - sqrt(delta);		// origin outside
+	else  t = B + sqrt(delta);			// origin inside
 
 	return (t > 0 ? true : false);
 
 }
-
-
 
 Vector Sphere::getNormal(Vector point)
 {

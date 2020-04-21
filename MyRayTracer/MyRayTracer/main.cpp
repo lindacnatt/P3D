@@ -64,18 +64,17 @@ int WindowHandle = 0;
 
 
 // bools and global values
-bool antialiasing = false;
-bool softshadows = true;
+bool antialiasing = true;
+bool softshadows = false;
 float softshadowsample_1;
 float softshadowsample_2;
-bool depthoffield = false;
+bool depthoffield = true;
 bool gridon = false;
 Grid* grid = NULL;
 
 Color rayTracing(Ray ray, int depth, float ior_1)  //index of refraction of medium 1 where the ray is travelling
 {
 	// Variables: Ray (includes origin and direction, depth and index of refraction
-	//INSERT HERE YOUR CODE
 	//Calculate intersection  intercepts() functions returns true or false
 	float dist;
 	float tNear = INFINITY;
@@ -112,90 +111,11 @@ Color rayTracing(Ray ray, int depth, float ior_1)  //index of refraction of medi
 		Color finalColor;
 		Vector bias = normal * EPSILON; //To escape from self-intersections
 		Vector I = (ray.direction * (-1));  // symmetric of the incident ray direction
-
+		int shadownum = 0;
 		// LOOP THROUGH LIGHTS
 		for (int i = 0; i < scene->getNumLights(); i += 1)  // for every i, starting from 0, to the amount of lights (-1 for correct indexing), stepping 1 index per loop
 		{
-			// SOFT SHADOWS, not anti aliasing  (NOT WORKING CORRECTLY)
-			/*if (softshadows && !antialiasing)
-			{
-				Color sum;
-				Vector lightsource = scene->getLight(i)->position;
-				//Vector arealightx = lightsource + Vector(1, 0, 0);
-				//Vector arealighty = lightsource + Vector(0, 1, 0);
-
-				int shadownum = 0;
-				int sample_size = 4;		// number of points in the area light that shall be checked
-				Color lightcolor = scene->getLight(i)->color;
-				for (int alx = 0; alx < sqrt(sample_size); alx++)
-				{
-					for (int aly = 0; aly < sqrt(sample_size); aly++)  //loop through the points of the light, it is defined as a square so sqrt(number of points) in each direction
-					{
-						//defining points in each area light
-
-						Vector arealightpoint = lightsource;
-						arealightpoint.x += alx;
-						arealightpoint.y += aly;
-
-						//Same as in hard shadows, needed to calculate blinn phong
-						bool shadow = false;
-
-						Vector L = (arealightpoint - phit);
-						float shadowDist = L.length();
-						L.normalize();
-						float ts;
-						float intensity = L.normalize() * normal;
-						Vector H = (L + I).normalize();  //Half-Vector from Blinn model
-						float NH = normal * H;
-						if (NH < 0) NH = 0;
-						Ray shadowRay = Ray((phit + bias), L);
-
-						if (intensity > 0)  // intensity of light
-						{
-							if (gridon) {
-								// TRAVERSE GRID
-								//if hit, set shadow = true;
-							}
-							else {
-
-
-								for (int sobj_i = 0; sobj_i < scene->getNumObjects(); sobj_i += 1)  //Looping through all objects to check if there is an intersection
-								{
-									if (scene->getObject(sobj_i)->intercepts(shadowRay, ts) == true && ts < shadowDist)  //check if ray towards source light is intercepting object
-									{
-										shadownum += 1;
-										shadow = true;
-										break;
-									};
-								}
-							}
-						}
-
-						if (!shadow) //if no object is blocking source light
-						{
-							float Kd = scene->getObject(hitIndex)->GetMaterial()->GetDiffuse();
-							Color diffuse_color = scene->getObject(hitIndex)->GetMaterial()->GetDiffColor() * Kd * intensity * lightcolor; // Calculate diffuse
-							float Ks = scene->getObject(hitIndex)->GetMaterial()->GetSpecular();
-							float spec = pow(NH, scene->getObject(hitIndex)->GetMaterial()->GetShine());
-							Color specular_color = scene->getObject(hitIndex)->GetMaterial()->GetSpecColor() * Ks * spec * lightcolor;  // Calculate specular
-							Color specDiffColor = (diffuse_color + specular_color);  //combine colors
-							//finalColor += specDiffColor;
-							sum += specDiffColor;
-						};
-
-					}
-				}
-				if (shadow)
-				{
-					finalColor = finalColor * (1 / shadownum);
-				}
-				finalColor = sum * (1 / sample_size);
-			}
-
-
-			// HARD SHADOWS or Antialiased softshadows
-			else
-			{*/
+			// SHADOWING, including antialiasing and not
 			Vector lightsource = scene->getLight(i)->position;
 			if (softshadows && antialiasing)		// If antialiased and softshadows is activated, use the randomized sample to find a different point on the area light 
 			{
@@ -208,7 +128,7 @@ Color rayTracing(Ray ray, int depth, float ior_1)  //index of refraction of medi
 			L.normalize();
 			bool shadow = false;
 			float ts;
-			float intensity = L.normalize() * normal;
+			float intensity = L.normalize() * normal;  // angle between normal & light direction
 			Vector H = (L + I).normalize();  //Half-Vector from Blinn model
 			float NH = normal * H;
 			if (NH < 0) NH = 0;
@@ -226,6 +146,7 @@ Color rayTracing(Ray ray, int depth, float ior_1)  //index of refraction of medi
 						if (scene->getObject(sobj_i)->intercepts(shadowRay, ts) == true && ts < shadowDist)  //check if ray towards source light is intercepting object
 						{
 							shadow = true;
+							shadownum += 1;
 							break;
 						};
 					}
@@ -243,9 +164,7 @@ Color rayTracing(Ray ray, int depth, float ior_1)  //index of refraction of medi
 				finalColor += specDiffColor;
 				
 			}
-
 		}
-	
 
 		if (depth < MAX_DEPTH) 
 		{	
@@ -502,7 +421,7 @@ void renderScene()
 		for (int li = 0; li < num_lights; li++)		// for every light in the scene...
 		{
 			Light* light = scene->getLight(li);
-			double arealight_samples = 36;			// ...9 "new lights" are created...
+			double arealight_samples = 9;			// ...9 "new lights" are created...
 			for (float alx = 0; alx < sqrt(arealight_samples); alx++) {
 				for (float aly = 0; aly < sqrt(arealight_samples); aly++) {
 					Vector newpos = light->position + Vector(0.1f, 0, 0) * alx + Vector(0, 0.1f, 0) * aly;  // ... with a new position...
@@ -513,7 +432,7 @@ void renderScene()
 					}
 				}
 			}
-			//light->color = light->color * (1 / arealight_samples);
+			light->color = light->color * (1 / arealight_samples);  //  change color of original light
 		}
 	}
 
@@ -523,22 +442,21 @@ void renderScene()
 		{
 			Ray ray = Ray(Vector(), Vector());  // defined as blank ray, gets changed later
 			Color color;
-			const int n = 20; // defined by us to decide how much to split the pixel in
-			Vector pixel;  //viewport coordinates
-			float r[n*n];		// define array s and r
+			const int n = 2;	// defined by us to decide how much to split the pixel in (jittering samples)
+			Vector pixel;		//viewport coordinates
+			float r[n*n];		// define array s and r for soft shadows
 			float s[n*n];
 			//depthoffield = false;
 			//antialiasing = false;
 			
 			// Antialiasing with jittering ... combined solution from book and https://www.scratchapixel.com/code.php?id=13&origin=/lessons/3d-basic-rendering/introduction-to-shading
-			if (antialiasing == true) {
+			if (antialiasing) {
 				Color c = Color(0.0, 0.0, 0.0);
 				for (int p = 0; p <= n - 1; p++) {
 					for (int q = 0; q <= n - 1; q++) {
 						// Vector pixel;  //viewport coordinates
 						pixel.x = x + (p + rand_float()) / float(n);
 						pixel.y = y + (q + rand_float()) / float(n);
-
 
 						if (softshadows)
 						{
@@ -557,8 +475,7 @@ void renderScene()
 							// this could also be done by including r and s as values that could be optional parameters in raytracer, but only necessary to avoid using global variables
 							softshadowsample_1 = s[p];
 							softshadowsample_2 = r[q];
-							// softshadowsample_1 = rand_float();		// used to get a good balls_low but doesn't work very well... and is not like in the book
-							// softshadowsample_2 = rand_float();
+							
 						}
 						if (depthoffield) {
 							Vector lens_sample = sample_unit_disk() * scene->GetCamera()->GetAperture() / 2.0f;
@@ -566,11 +483,11 @@ void renderScene()
 						}
 						if (!depthoffield) { ray = scene->GetCamera()->PrimaryRay(pixel); }
 						c = c + rayTracing(ray, 1, 1.0);
-
+						
 					};
 				}
 				float nsqr = 1 / pow(n, 2);
-				color = c * nsqr;
+				color = c * nsqr;	// divide by n^2 to not overexpose each pixel due to jittering
 			}
 	
 			else {
