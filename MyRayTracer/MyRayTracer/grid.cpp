@@ -1,13 +1,15 @@
-
 #include <iostream>
 #include <cfloat>
 #include <vector>
 #include <cmath>
 #include "scene.h"
-#include "grid.h"
 #include "maths.h"
+#include "grid.h"
+
 
 using namespace std;
+
+
 
 int Grid::getNumObjects() {
 	objects.size();
@@ -20,6 +22,52 @@ Object* Grid::getObject(unsigned int index) {
 	if (index >= 0 && index < objects.size())
 		return objects[index];
 	return NULL;
+};
+
+Vector Grid::find_min_bounds(void) {
+	//AABB bbox; -> not needed to be initialised again after been declared on the ground
+	Vector pkHV;
+	int num_objects = objects.size();
+	for (int j = 0; j < num_objects; j++) {
+		bbox = objects[j]->GetBoundingBox();
+
+		if (bbox.min.x < pkHV.x); {
+			pkHV.x = bbox.min.x;
+		}
+		if (bbox.min.y < pkHV.y); {
+			pkHV.y = bbox.min.y;
+		}
+		if (bbox.min.y < pkHV.z); {
+			pkHV.z = bbox.min.z;
+		};
+	};
+
+	pkHV.x -= EPSILON; pkHV.y -= EPSILON; pkHV.z = EPSILON;
+
+	return (pkHV);
+};
+
+Vector Grid::find_max_bounds(void) {
+	//AABB bbox; -> not needed to be initialised again after been declared on the ground
+	Vector pkHV;
+	int num_objects = objects.size();
+	for (int j = 0; j < num_objects; j++) {
+		bbox = objects[j]->GetBoundingBox();
+
+		if (bbox.max.x > pkHV.x); {
+			pkHV.x = bbox.max.x;
+		}
+		if (bbox.max.y > pkHV.y); {
+			pkHV.y = bbox.max.y;
+		}
+		if (bbox.min.y > pkHV.z); {
+			pkHV.z = bbox.max.z;
+		};
+	};
+
+	pkHV.x -= EPSILON; pkHV.y -= EPSILON; pkHV.z = EPSILON;
+
+	return (pkHV);
 };
 
 
@@ -136,7 +184,7 @@ void Grid::Build(void) {
 					if (getObject(j)->intercepts(ray, t, sr) && (t < tmin)) {
 						sr.hit_an_object = true;
 						tmin = t;
-						sr.color = objects[j]; // eigentlich objects[j]->get_color() ; doch wie bekomme ich den Color von den Objekten
+						sr.color = objects[j]->GetMaterial()->GetDiffColor(); // eigentlich objects[j]->get_color() ; doch wie bekomme ich den Color von den Objekten
 							//->get_color(); TBD -> can we take Set_Material()
 					};
 					return sr; // SR-Object saves Informations on how to shade ray-object at the hitting point

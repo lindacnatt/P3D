@@ -21,7 +21,6 @@
 #include <IL/il.h>
 
 #include "scene.h"
-#include "grid.h"
 #include "maths.h"
 #include "sampler.h"
 
@@ -71,6 +70,7 @@ float softshadowsample_2;
 bool depthoffield = false;
 bool grid = false;
 
+
 Color rayTracing(Ray ray, int depth, float ior_1)  //index of refraction of medium 1 where the ray is travelling
 {
 	// Variables: Ray (includes origin and direction, depth and index of refraction
@@ -81,7 +81,7 @@ Color rayTracing(Ray ray, int depth, float ior_1)  //index of refraction of medi
 	int hitIndex = -1;
 	Vector phit;
 	Vector normal;
-	ShadeRec sr(scene_ptr->Grid::Traverse(const Ray& ray));
+	ShadeRec sr(scene_ptr->Grid::Traverse(const Ray & ray));
 
 	if (grid == true) {
 		if (sr.hit_an_object) {
@@ -494,8 +494,8 @@ void renderScene()
 			//grid = false;
 			
 			if (grid == true) {
-				double x_value = Grid::Build().s *(x - 0.5*(Grid::Build().wx -1.0)); //how to access build variables?also possible without return statment?
-				double y_value = Grid::Build().s *(y - 0.5)*(Grid::Build().wy - 1.0);
+				double x_value =  //Grid::Build().s *(x - 0.5*(Grid::Build().wx -1.0)); //how to access build variables?also possible without return statment?
+				double y_value = //Grid::Build().s *(y - 0.5)*(Grid::Build().wy - 1.0);
 				Vector ray_orig = Vector(x_value, y_value, zw);
 				color = tracer_ptr().Traverse(ray);
 				//display_pixel function not needed from book

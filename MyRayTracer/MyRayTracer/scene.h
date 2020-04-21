@@ -12,7 +12,9 @@ using namespace std;
 #include "color.h"
 #include "vector.h"
 #include "ray.h"
+#include "boundingBox.h"
 #include "grid.h"
+
 
 #define MIN(a, b)		( ( a ) < ( b ) ? ( a ) : ( b ) )
 #define MAX(a, b)		( ( a ) > ( b ) ? ( a ) : ( b ) )
@@ -211,9 +213,10 @@ private:
 
 };
 
-class AABB; //defined here to avoid C2061 error - circulalry including; only one #include header in 2 files, but classes from instantiated in both 2
+//AABB aabb; //defined here to avoid C2061 error - circulalry including; only one #include header in 2 files, but classes from instantiated in both 2
 
 class ShadeRec {
+
 public:
 	bool hit_an_object;
 	Vector local_hit_point; //world coordinates of hit point
@@ -227,6 +230,8 @@ public:
 
 	ShadeRec& //assignment operator
 		operator= (const ShadeRec& rhs); 
+
+	 
 };
 
 ShadeRec::ShadeRec(Scene& wr)	//constructor

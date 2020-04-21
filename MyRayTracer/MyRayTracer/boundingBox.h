@@ -1,7 +1,8 @@
+#ifndef boundingBox_H
+#define boundingBox_H
 
 #include "vector.h"
 #include "ray.h"
-#include "scene.h"
 class ShadeRec;
 
 class AABB
@@ -19,4 +20,5 @@ public:
 	bool isInside(const Vector& p);
 };
 
+#endif // !boundingBox_H
 
