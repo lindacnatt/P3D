@@ -2,6 +2,7 @@
 #include "vector.h"
 #include "ray.h"
 #include "scene.h"
+class ShadeRec;
 
 class AABB
 {
@@ -17,3 +18,5 @@ public:
 	bool intercepts(const Ray& r, float& t, ShadeRec& sr);
 	bool isInside(const Vector& p);
 };
+
+

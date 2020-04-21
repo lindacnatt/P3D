@@ -1,116 +1,204 @@
-﻿  grid.cpp
+﻿  boundingBox.cpp
 C:\Users\Ivo\Desktop\Master\Semester\10. Semester\3d programing\2ter Teil, Jittering\P3D\MyRayTracer\MyRayTracer\color.h(42,14): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
 C:\Users\Ivo\Desktop\Master\Semester\10. Semester\3d programing\2ter Teil, Jittering\P3D\MyRayTracer\MyRayTracer\color.h(41,14): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
 C:\Users\Ivo\Desktop\Master\Semester\10. Semester\3d programing\2ter Teil, Jittering\P3D\MyRayTracer\MyRayTracer\color.h(40,28): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
-C:\Users\Ivo\Desktop\Master\Semester\10. Semester\3d programing\2ter Teil, Jittering\P3D\MyRayTracer\MyRayTracer\grid.cpp(13,17): error C2653: 'Grid': is not a class or namespace name
-C:\Users\Ivo\Desktop\Master\Semester\10. Semester\3d programing\2ter Teil, Jittering\P3D\MyRayTracer\MyRayTracer\grid.cpp(17,15): error C3861: 'find_min_bounds': identifier not found
-C:\Users\Ivo\Desktop\Master\Semester\10. Semester\3d programing\2ter Teil, Jittering\P3D\MyRayTracer\MyRayTracer\grid.cpp(18,15): error C3861: 'find_max_bounds': identifier not found
-C:\Users\Ivo\Desktop\Master\Semester\10. Semester\3d programing\2ter Teil, Jittering\P3D\MyRayTracer\MyRayTracer\grid.cpp(30,21): error C2065: 'objects': undeclared identifier
-C:\Users\Ivo\Desktop\Master\Semester\10. Semester\3d programing\2ter Teil, Jittering\P3D\MyRayTracer\MyRayTracer\grid.cpp(31,11): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
-C:\Users\Ivo\Desktop\Master\Semester\10. Semester\3d programing\2ter Teil, Jittering\P3D\MyRayTracer\MyRayTracer\grid.cpp(32,3): error C2065: 'nx': undeclared identifier
-C:\Users\Ivo\Desktop\Master\Semester\10. Semester\3d programing\2ter Teil, Jittering\P3D\MyRayTracer\MyRayTracer\grid.cpp(33,3): error C2065: 'ny': undeclared identifier
-C:\Users\Ivo\Desktop\Master\Semester\10. Semester\3d programing\2ter Teil, Jittering\P3D\MyRayTracer\MyRayTracer\grid.cpp(34,3): error C2065: 'nz': undeclared identifier
-C:\Users\Ivo\Desktop\Master\Semester\10. Semester\3d programing\2ter Teil, Jittering\P3D\MyRayTracer\MyRayTracer\grid.cpp(38,19): error C2065: 'nx': undeclared identifier
-C:\Users\Ivo\Desktop\Master\Semester\10. Semester\3d programing\2ter Teil, Jittering\P3D\MyRayTracer\MyRayTracer\grid.cpp(38,24): error C2065: 'ny': undeclared identifier
-C:\Users\Ivo\Desktop\Master\Semester\10. Semester\3d programing\2ter Teil, Jittering\P3D\MyRayTracer\MyRayTracer\grid.cpp(38,29): error C2065: 'nz': undeclared identifier
-C:\Users\Ivo\Desktop\Master\Semester\10. Semester\3d programing\2ter Teil, Jittering\P3D\MyRayTracer\MyRayTracer\grid.cpp(39,3): error C2065: 'cells': undeclared identifier
-C:\Users\Ivo\Desktop\Master\Semester\10. Semester\3d programing\2ter Teil, Jittering\P3D\MyRayTracer\MyRayTracer\grid.cpp(42,4): error C2065: 'cells': undeclared identifier
-C:\Users\Ivo\Desktop\Master\Semester\10. Semester\3d programing\2ter Teil, Jittering\P3D\MyRayTracer\MyRayTracer\grid.cpp(51,4): error C2065: 'cells': undeclared identifier
-C:\Users\Ivo\Desktop\Master\Semester\10. Semester\3d programing\2ter Teil, Jittering\P3D\MyRayTracer\MyRayTracer\grid.cpp(60,14): error C2065: 'objects': undeclared identifier
-C:\Users\Ivo\Desktop\Master\Semester\10. Semester\3d programing\2ter Teil, Jittering\P3D\MyRayTracer\MyRayTracer\grid.cpp(63,47): error C2065: 'nx': undeclared identifier
-C:\Users\Ivo\Desktop\Master\Semester\10. Semester\3d programing\2ter Teil, Jittering\P3D\MyRayTracer\MyRayTracer\grid.cpp(63,70): error C2065: 'nx': undeclared identifier
-C:\Users\Ivo\Desktop\Master\Semester\10. Semester\3d programing\2ter Teil, Jittering\P3D\MyRayTracer\MyRayTracer\grid.cpp(63,76): error C2660: 'clamp': function does not take 2 arguments
-C:\Users\Ivo\Desktop\Master\Semester\10. Semester\3d programing\2ter Teil, Jittering\P3D\MyRayTracer\MyRayTracer\maths.h(47,1): message : see declaration of 'clamp'
-C:\Users\Ivo\Desktop\Master\Semester\10. Semester\3d programing\2ter Teil, Jittering\P3D\MyRayTracer\MyRayTracer\grid.cpp(64,47): error C2065: 'ny': undeclared identifier
-C:\Users\Ivo\Desktop\Master\Semester\10. Semester\3d programing\2ter Teil, Jittering\P3D\MyRayTracer\MyRayTracer\grid.cpp(64,70): error C2065: 'ny': undeclared identifier
-C:\Users\Ivo\Desktop\Master\Semester\10. Semester\3d programing\2ter Teil, Jittering\P3D\MyRayTracer\MyRayTracer\grid.cpp(64,76): error C2660: 'clamp': function does not take 2 arguments
-C:\Users\Ivo\Desktop\Master\Semester\10. Semester\3d programing\2ter Teil, Jittering\P3D\MyRayTracer\MyRayTracer\maths.h(47,1): message : see declaration of 'clamp'
-C:\Users\Ivo\Desktop\Master\Semester\10. Semester\3d programing\2ter Teil, Jittering\P3D\MyRayTracer\MyRayTracer\grid.cpp(65,47): error C2065: 'nz': undeclared identifier
-C:\Users\Ivo\Desktop\Master\Semester\10. Semester\3d programing\2ter Teil, Jittering\P3D\MyRayTracer\MyRayTracer\grid.cpp(65,70): error C2065: 'nz': undeclared identifier
-C:\Users\Ivo\Desktop\Master\Semester\10. Semester\3d programing\2ter Teil, Jittering\P3D\MyRayTracer\MyRayTracer\grid.cpp(65,76): error C2660: 'clamp': function does not take 2 arguments
-C:\Users\Ivo\Desktop\Master\Semester\10. Semester\3d programing\2ter Teil, Jittering\P3D\MyRayTracer\MyRayTracer\maths.h(47,1): message : see declaration of 'clamp'
-C:\Users\Ivo\Desktop\Master\Semester\10. Semester\3d programing\2ter Teil, Jittering\P3D\MyRayTracer\MyRayTracer\grid.cpp(67,47): error C2065: 'nx': undeclared identifier
-C:\Users\Ivo\Desktop\Master\Semester\10. Semester\3d programing\2ter Teil, Jittering\P3D\MyRayTracer\MyRayTracer\grid.cpp(67,70): error C2065: 'nx': undeclared identifier
-C:\Users\Ivo\Desktop\Master\Semester\10. Semester\3d programing\2ter Teil, Jittering\P3D\MyRayTracer\MyRayTracer\grid.cpp(67,76): error C2660: 'clamp': function does not take 2 arguments
-C:\Users\Ivo\Desktop\Master\Semester\10. Semester\3d programing\2ter Teil, Jittering\P3D\MyRayTracer\MyRayTracer\maths.h(47,1): message : see declaration of 'clamp'
-C:\Users\Ivo\Desktop\Master\Semester\10. Semester\3d programing\2ter Teil, Jittering\P3D\MyRayTracer\MyRayTracer\grid.cpp(68,47): error C2065: 'ny': undeclared identifier
-C:\Users\Ivo\Desktop\Master\Semester\10. Semester\3d programing\2ter Teil, Jittering\P3D\MyRayTracer\MyRayTracer\grid.cpp(68,70): error C2065: 'ny': undeclared identifier
-C:\Users\Ivo\Desktop\Master\Semester\10. Semester\3d programing\2ter Teil, Jittering\P3D\MyRayTracer\MyRayTracer\grid.cpp(68,76): error C2660: 'clamp': function does not take 2 arguments
-C:\Users\Ivo\Desktop\Master\Semester\10. Semester\3d programing\2ter Teil, Jittering\P3D\MyRayTracer\MyRayTracer\maths.h(47,1): message : see declaration of 'clamp'
-C:\Users\Ivo\Desktop\Master\Semester\10. Semester\3d programing\2ter Teil, Jittering\P3D\MyRayTracer\MyRayTracer\grid.cpp(69,47): error C2065: 'nz': undeclared identifier
-C:\Users\Ivo\Desktop\Master\Semester\10. Semester\3d programing\2ter Teil, Jittering\P3D\MyRayTracer\MyRayTracer\grid.cpp(69,70): error C2065: 'nz': undeclared identifier
-C:\Users\Ivo\Desktop\Master\Semester\10. Semester\3d programing\2ter Teil, Jittering\P3D\MyRayTracer\MyRayTracer\grid.cpp(69,76): error C2660: 'clamp': function does not take 2 arguments
-C:\Users\Ivo\Desktop\Master\Semester\10. Semester\3d programing\2ter Teil, Jittering\P3D\MyRayTracer\MyRayTracer\maths.h(47,1): message : see declaration of 'clamp'
-C:\Users\Ivo\Desktop\Master\Semester\10. Semester\3d programing\2ter Teil, Jittering\P3D\MyRayTracer\MyRayTracer\grid.cpp(76,20): error C2065: 'nx': undeclared identifier
-C:\Users\Ivo\Desktop\Master\Semester\10. Semester\3d programing\2ter Teil, Jittering\P3D\MyRayTracer\MyRayTracer\grid.cpp(76,30): error C2065: 'nx': undeclared identifier
-C:\Users\Ivo\Desktop\Master\Semester\10. Semester\3d programing\2ter Teil, Jittering\P3D\MyRayTracer\MyRayTracer\grid.cpp(76,35): error C2065: 'ny': undeclared identifier
-C:\Users\Ivo\Desktop\Master\Semester\10. Semester\3d programing\2ter Teil, Jittering\P3D\MyRayTracer\MyRayTracer\grid.cpp(80,8): error C2065: 'cells': undeclared identifier
-C:\Users\Ivo\Desktop\Master\Semester\10. Semester\3d programing\2ter Teil, Jittering\P3D\MyRayTracer\MyRayTracer\grid.cpp(80,23): error C2065: 'objects': undeclared identifier
-C:\Users\Ivo\Desktop\Master\Semester\10. Semester\3d programing\2ter Teil, Jittering\P3D\MyRayTracer\MyRayTracer\grid.cpp(83,7): error C2181: illegal else without matching if
-C:\Users\Ivo\Desktop\Master\Semester\10. Semester\3d programing\2ter Teil, Jittering\P3D\MyRayTracer\MyRayTracer\grid.cpp(86,9): error C2065: 'Compound': undeclared identifier
-C:\Users\Ivo\Desktop\Master\Semester\10. Semester\3d programing\2ter Teil, Jittering\P3D\MyRayTracer\MyRayTracer\grid.cpp(86,19): error C2065: 'compound_ptr': undeclared identifier
-C:\Users\Ivo\Desktop\Master\Semester\10. Semester\3d programing\2ter Teil, Jittering\P3D\MyRayTracer\MyRayTracer\grid.cpp(86,46): error C2061: syntax error: identifier 'Compound'
-C:\Users\Ivo\Desktop\Master\Semester\10. Semester\3d programing\2ter Teil, Jittering\P3D\MyRayTracer\MyRayTracer\grid.cpp(88,9): error C2065: 'compound_ptr': undeclared identifier
-C:\Users\Ivo\Desktop\Master\Semester\10. Semester\3d programing\2ter Teil, Jittering\P3D\MyRayTracer\MyRayTracer\grid.cpp(88,34): error C2065: 'cells': undeclared identifier
-C:\Users\Ivo\Desktop\Master\Semester\10. Semester\3d programing\2ter Teil, Jittering\P3D\MyRayTracer\MyRayTracer\grid.cpp(90,9): error C2065: 'compound_ptr': undeclared identifier
-C:\Users\Ivo\Desktop\Master\Semester\10. Semester\3d programing\2ter Teil, Jittering\P3D\MyRayTracer\MyRayTracer\grid.cpp(90,34): error C2065: 'objects': undeclared identifier
-C:\Users\Ivo\Desktop\Master\Semester\10. Semester\3d programing\2ter Teil, Jittering\P3D\MyRayTracer\MyRayTracer\grid.cpp(93,9): error C2065: 'cells': undeclared identifier
-C:\Users\Ivo\Desktop\Master\Semester\10. Semester\3d programing\2ter Teil, Jittering\P3D\MyRayTracer\MyRayTracer\grid.cpp(93,24): error C2065: 'compound_ptr': undeclared identifier
-C:\Users\Ivo\Desktop\Master\Semester\10. Semester\3d programing\2ter Teil, Jittering\P3D\MyRayTracer\MyRayTracer\grid.cpp(97,8): error C2181: illegal else without matching if
-C:\Users\Ivo\Desktop\Master\Semester\10. Semester\3d programing\2ter Teil, Jittering\P3D\MyRayTracer\MyRayTracer\grid.cpp(99,9): error C2065: 'cells': undeclared identifier
-C:\Users\Ivo\Desktop\Master\Semester\10. Semester\3d programing\2ter Teil, Jittering\P3D\MyRayTracer\MyRayTracer\grid.cpp(99,34): error C2065: 'objects': undeclared identifier
-C:\Users\Ivo\Desktop\Master\Semester\10. Semester\3d programing\2ter Teil, Jittering\P3D\MyRayTracer\MyRayTracer\grid.cpp(110,5): error C2065: 'objects': undeclared identifier
-C:\Users\Ivo\Desktop\Master\Semester\10. Semester\3d programing\2ter Teil, Jittering\P3D\MyRayTracer\MyRayTracer\grid.cpp(110,19): error C2065: 'objects': undeclared identifier
-C:\Users\Ivo\Desktop\Master\Semester\10. Semester\3d programing\2ter Teil, Jittering\P3D\MyRayTracer\MyRayTracer\grid.cpp(110,36): error C2065: 'objects': undeclared identifier
-C:\Users\Ivo\Desktop\Master\Semester\10. Semester\3d programing\2ter Teil, Jittering\P3D\MyRayTracer\MyRayTracer\grid.cpp(123,31): error C2601: 'find_min_bounds': local function definitions are illegal
-C:\Users\Ivo\Desktop\Master\Semester\10. Semester\3d programing\2ter Teil, Jittering\P3D\MyRayTracer\MyRayTracer\grid.cpp(13): message : this line contains a '{' which has not yet been matched
-C:\Users\Ivo\Desktop\Master\Semester\10. Semester\3d programing\2ter Teil, Jittering\P3D\MyRayTracer\MyRayTracer\grid.cpp(146,31): error C2601: 'find_max_bounds': local function definitions are illegal
-C:\Users\Ivo\Desktop\Master\Semester\10. Semester\3d programing\2ter Teil, Jittering\P3D\MyRayTracer\MyRayTracer\grid.cpp(13): message : this line contains a '{' which has not yet been matched
-C:\Users\Ivo\Desktop\Master\Semester\10. Semester\3d programing\2ter Teil, Jittering\P3D\MyRayTracer\MyRayTracer\grid.cpp(13): fatal error C1075: '{': no matching token found
+C:\Users\Ivo\Desktop\Master\Semester\10. Semester\3d programing\2ter Teil, Jittering\P3D\MyRayTracer\MyRayTracer\grid.h(10,10): warning C4067: unexpected tokens following preprocessor directive - expected a newline
+C:\Users\Ivo\Desktop\Master\Semester\10. Semester\3d programing\2ter Teil, Jittering\P3D\MyRayTracer\MyRayTracer\grid.h(51,1): warning C4267: 'initializing': conversion from 'size_t' to 'int', possible loss of data
+C:\Users\Ivo\Desktop\Master\Semester\10. Semester\3d programing\2ter Teil, Jittering\P3D\MyRayTracer\MyRayTracer\grid.h(53,1): error C2027: use of undefined type 'Object'
+C:\Users\Ivo\Desktop\Master\Semester\10. Semester\3d programing\2ter Teil, Jittering\P3D\MyRayTracer\MyRayTracer\grid.h(19): message : see declaration of 'Object'
+C:\Users\Ivo\Desktop\Master\Semester\10. Semester\3d programing\2ter Teil, Jittering\P3D\MyRayTracer\MyRayTracer\grid.h(55,28): warning C4390: ';': empty controlled statement found; is this the intent?
+C:\Users\Ivo\Desktop\Master\Semester\10. Semester\3d programing\2ter Teil, Jittering\P3D\MyRayTracer\MyRayTracer\grid.h(58,28): warning C4390: ';': empty controlled statement found; is this the intent?
+C:\Users\Ivo\Desktop\Master\Semester\10. Semester\3d programing\2ter Teil, Jittering\P3D\MyRayTracer\MyRayTracer\grid.h(61,28): warning C4390: ';': empty controlled statement found; is this the intent?
+C:\Users\Ivo\Desktop\Master\Semester\10. Semester\3d programing\2ter Teil, Jittering\P3D\MyRayTracer\MyRayTracer\grid.h(74,1): warning C4267: 'initializing': conversion from 'size_t' to 'int', possible loss of data
+C:\Users\Ivo\Desktop\Master\Semester\10. Semester\3d programing\2ter Teil, Jittering\P3D\MyRayTracer\MyRayTracer\grid.h(76,1): error C2027: use of undefined type 'Object'
+C:\Users\Ivo\Desktop\Master\Semester\10. Semester\3d programing\2ter Teil, Jittering\P3D\MyRayTracer\MyRayTracer\grid.h(19): message : see declaration of 'Object'
+C:\Users\Ivo\Desktop\Master\Semester\10. Semester\3d programing\2ter Teil, Jittering\P3D\MyRayTracer\MyRayTracer\grid.h(78,28): warning C4390: ';': empty controlled statement found; is this the intent?
+C:\Users\Ivo\Desktop\Master\Semester\10. Semester\3d programing\2ter Teil, Jittering\P3D\MyRayTracer\MyRayTracer\grid.h(81,28): warning C4390: ';': empty controlled statement found; is this the intent?
+C:\Users\Ivo\Desktop\Master\Semester\10. Semester\3d programing\2ter Teil, Jittering\P3D\MyRayTracer\MyRayTracer\grid.h(84,28): warning C4390: ';': empty controlled statement found; is this the intent?
+C:\Users\Ivo\Desktop\Master\Semester\10. Semester\3d programing\2ter Teil, Jittering\P3D\MyRayTracer\MyRayTracer\boundingBox.h(8,1): error C2011: 'AABB': 'class' type redefinition
+C:\Users\Ivo\Desktop\Master\Semester\10. Semester\3d programing\2ter Teil, Jittering\P3D\MyRayTracer\MyRayTracer\scene.h(214): message : see declaration of 'AABB'
+C:\Users\Ivo\Desktop\Master\Semester\10. Semester\3d programing\2ter Teil, Jittering\P3D\MyRayTracer\MyRayTracer\boundingBox.cpp(8,7): error C2027: use of undefined type 'AABB'
+C:\Users\Ivo\Desktop\Master\Semester\10. Semester\3d programing\2ter Teil, Jittering\P3D\MyRayTracer\MyRayTracer\scene.h(214): message : see declaration of 'AABB'
+C:\Users\Ivo\Desktop\Master\Semester\10. Semester\3d programing\2ter Teil, Jittering\P3D\MyRayTracer\MyRayTracer\boundingBox.cpp(9,1): error C4430: missing type specifier - int assumed. Note: C++ does not support default-int
+C:\Users\Ivo\Desktop\Master\Semester\10. Semester\3d programing\2ter Teil, Jittering\P3D\MyRayTracer\MyRayTracer\boundingBox.cpp(10,6): error C2659: '=': function as left operand
+C:\Users\Ivo\Desktop\Master\Semester\10. Semester\3d programing\2ter Teil, Jittering\P3D\MyRayTracer\MyRayTracer\boundingBox.cpp(11,6): error C2659: '=': function as left operand
+C:\Users\Ivo\Desktop\Master\Semester\10. Semester\3d programing\2ter Teil, Jittering\P3D\MyRayTracer\MyRayTracer\boundingBox.cpp(12,1): warning C4508: '{ctor}': function should return a value; 'void' return type assumed
+C:\Users\Ivo\Desktop\Master\Semester\10. Semester\3d programing\2ter Teil, Jittering\P3D\MyRayTracer\MyRayTracer\boundingBox.cpp(15,7): error C2027: use of undefined type 'AABB'
+C:\Users\Ivo\Desktop\Master\Semester\10. Semester\3d programing\2ter Teil, Jittering\P3D\MyRayTracer\MyRayTracer\scene.h(214): message : see declaration of 'AABB'
+C:\Users\Ivo\Desktop\Master\Semester\10. Semester\3d programing\2ter Teil, Jittering\P3D\MyRayTracer\MyRayTracer\boundingBox.cpp(16,1): error C4430: missing type specifier - int assumed. Note: C++ does not support default-int
+C:\Users\Ivo\Desktop\Master\Semester\10. Semester\3d programing\2ter Teil, Jittering\P3D\MyRayTracer\MyRayTracer\boundingBox.cpp(17,6): error C2659: '=': function as left operand
+C:\Users\Ivo\Desktop\Master\Semester\10. Semester\3d programing\2ter Teil, Jittering\P3D\MyRayTracer\MyRayTracer\boundingBox.cpp(17,16): error C2659: '=': function as left operand
+C:\Users\Ivo\Desktop\Master\Semester\10. Semester\3d programing\2ter Teil, Jittering\P3D\MyRayTracer\MyRayTracer\boundingBox.cpp(18,1): warning C4508: '{ctor}': function should return a value; 'void' return type assumed
+C:\Users\Ivo\Desktop\Master\Semester\10. Semester\3d programing\2ter Teil, Jittering\P3D\MyRayTracer\MyRayTracer\boundingBox.cpp(21,7): error C2027: use of undefined type 'AABB'
+C:\Users\Ivo\Desktop\Master\Semester\10. Semester\3d programing\2ter Teil, Jittering\P3D\MyRayTracer\MyRayTracer\scene.h(214): message : see declaration of 'AABB'
+C:\Users\Ivo\Desktop\Master\Semester\10. Semester\3d programing\2ter Teil, Jittering\P3D\MyRayTracer\MyRayTracer\boundingBox.cpp(22,1): error C4430: missing type specifier - int assumed. Note: C++ does not support default-int
+C:\Users\Ivo\Desktop\Master\Semester\10. Semester\3d programing\2ter Teil, Jittering\P3D\MyRayTracer\MyRayTracer\boundingBox.cpp(23,12): error C2027: use of undefined type 'AABB'
+C:\Users\Ivo\Desktop\Master\Semester\10. Semester\3d programing\2ter Teil, Jittering\P3D\MyRayTracer\MyRayTracer\scene.h(214): message : see declaration of 'AABB'
+C:\Users\Ivo\Desktop\Master\Semester\10. Semester\3d programing\2ter Teil, Jittering\P3D\MyRayTracer\MyRayTracer\boundingBox.cpp(23,28): error C2027: use of undefined type 'AABB'
+C:\Users\Ivo\Desktop\Master\Semester\10. Semester\3d programing\2ter Teil, Jittering\P3D\MyRayTracer\MyRayTracer\scene.h(214): message : see declaration of 'AABB'
+C:\Users\Ivo\Desktop\Master\Semester\10. Semester\3d programing\2ter Teil, Jittering\P3D\MyRayTracer\MyRayTracer\boundingBox.cpp(24,1): warning C4508: '{ctor}': function should return a value; 'void' return type assumed
+C:\Users\Ivo\Desktop\Master\Semester\10. Semester\3d programing\2ter Teil, Jittering\P3D\MyRayTracer\MyRayTracer\boundingBox.cpp(27,12): error C2027: use of undefined type 'AABB'
+C:\Users\Ivo\Desktop\Master\Semester\10. Semester\3d programing\2ter Teil, Jittering\P3D\MyRayTracer\MyRayTracer\scene.h(214): message : see declaration of 'AABB'
+C:\Users\Ivo\Desktop\Master\Semester\10. Semester\3d programing\2ter Teil, Jittering\P3D\MyRayTracer\MyRayTracer\boundingBox.cpp(27,40): error C2027: use of undefined type 'AABB'
+C:\Users\Ivo\Desktop\Master\Semester\10. Semester\3d programing\2ter Teil, Jittering\P3D\MyRayTracer\MyRayTracer\scene.h(214): message : see declaration of 'AABB'
+C:\Users\Ivo\Desktop\Master\Semester\10. Semester\3d programing\2ter Teil, Jittering\P3D\MyRayTracer\MyRayTracer\boundingBox.cpp(27,22): error C2027: use of undefined type 'AABB'
+C:\Users\Ivo\Desktop\Master\Semester\10. Semester\3d programing\2ter Teil, Jittering\P3D\MyRayTracer\MyRayTracer\scene.h(214): message : see declaration of 'AABB'
+C:\Users\Ivo\Desktop\Master\Semester\10. Semester\3d programing\2ter Teil, Jittering\P3D\MyRayTracer\MyRayTracer\boundingBox.cpp(28,5): error C2355: 'this': can only be referenced inside non-static member functions or non-static data member initializers
+C:\Users\Ivo\Desktop\Master\Semester\10. Semester\3d programing\2ter Teil, Jittering\P3D\MyRayTracer\MyRayTracer\boundingBox.cpp(29,12): error C2355: 'this': can only be referenced inside non-static member functions or non-static data member initializers
+C:\Users\Ivo\Desktop\Master\Semester\10. Semester\3d programing\2ter Teil, Jittering\P3D\MyRayTracer\MyRayTracer\boundingBox.cpp(30,11): error C2027: use of undefined type 'AABB'
+C:\Users\Ivo\Desktop\Master\Semester\10. Semester\3d programing\2ter Teil, Jittering\P3D\MyRayTracer\MyRayTracer\scene.h(214): message : see declaration of 'AABB'
+C:\Users\Ivo\Desktop\Master\Semester\10. Semester\3d programing\2ter Teil, Jittering\P3D\MyRayTracer\MyRayTracer\boundingBox.cpp(31,11): error C2027: use of undefined type 'AABB'
+C:\Users\Ivo\Desktop\Master\Semester\10. Semester\3d programing\2ter Teil, Jittering\P3D\MyRayTracer\MyRayTracer\scene.h(214): message : see declaration of 'AABB'
+C:\Users\Ivo\Desktop\Master\Semester\10. Semester\3d programing\2ter Teil, Jittering\P3D\MyRayTracer\MyRayTracer\boundingBox.cpp(32,11): error C2355: 'this': can only be referenced inside non-static member functions or non-static data member initializers
+C:\Users\Ivo\Desktop\Master\Semester\10. Semester\3d programing\2ter Teil, Jittering\P3D\MyRayTracer\MyRayTracer\boundingBox.cpp(36,8): error C2027: use of undefined type 'AABB'
+C:\Users\Ivo\Desktop\Master\Semester\10. Semester\3d programing\2ter Teil, Jittering\P3D\MyRayTracer\MyRayTracer\scene.h(214): message : see declaration of 'AABB'
+C:\Users\Ivo\Desktop\Master\Semester\10. Semester\3d programing\2ter Teil, Jittering\P3D\MyRayTracer\MyRayTracer\boundingBox.cpp(36,15): error C4430: missing type specifier - int assumed. Note: C++ does not support default-int
+C:\Users\Ivo\Desktop\Master\Semester\10. Semester\3d programing\2ter Teil, Jittering\P3D\MyRayTracer\MyRayTracer\boundingBox.cpp(36,16): warning C4508: '{dtor}': function should return a value; 'void' return type assumed
+C:\Users\Ivo\Desktop\Master\Semester\10. Semester\3d programing\2ter Teil, Jittering\P3D\MyRayTracer\MyRayTracer\boundingBox.cpp(41,12): error C2027: use of undefined type 'AABB'
+C:\Users\Ivo\Desktop\Master\Semester\10. Semester\3d programing\2ter Teil, Jittering\P3D\MyRayTracer\MyRayTracer\scene.h(214): message : see declaration of 'AABB'
+C:\Users\Ivo\Desktop\Master\Semester\10. Semester\3d programing\2ter Teil, Jittering\P3D\MyRayTracer\MyRayTracer\boundingBox.cpp(46,12): error C2027: use of undefined type 'AABB'
+C:\Users\Ivo\Desktop\Master\Semester\10. Semester\3d programing\2ter Teil, Jittering\P3D\MyRayTracer\MyRayTracer\scene.h(214): message : see declaration of 'AABB'
+  grid.cpp
+C:\Users\Ivo\Desktop\Master\Semester\10. Semester\3d programing\2ter Teil, Jittering\P3D\MyRayTracer\MyRayTracer\color.h(42,14): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
+C:\Users\Ivo\Desktop\Master\Semester\10. Semester\3d programing\2ter Teil, Jittering\P3D\MyRayTracer\MyRayTracer\color.h(41,14): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
+C:\Users\Ivo\Desktop\Master\Semester\10. Semester\3d programing\2ter Teil, Jittering\P3D\MyRayTracer\MyRayTracer\color.h(40,28): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
+C:\Users\Ivo\Desktop\Master\Semester\10. Semester\3d programing\2ter Teil, Jittering\P3D\MyRayTracer\MyRayTracer\grid.h(10,10): warning C4067: unexpected tokens following preprocessor directive - expected a newline
+C:\Users\Ivo\Desktop\Master\Semester\10. Semester\3d programing\2ter Teil, Jittering\P3D\MyRayTracer\MyRayTracer\grid.h(51,1): warning C4267: 'initializing': conversion from 'size_t' to 'int', possible loss of data
+C:\Users\Ivo\Desktop\Master\Semester\10. Semester\3d programing\2ter Teil, Jittering\P3D\MyRayTracer\MyRayTracer\grid.h(53,1): error C2027: use of undefined type 'Object'
+C:\Users\Ivo\Desktop\Master\Semester\10. Semester\3d programing\2ter Teil, Jittering\P3D\MyRayTracer\MyRayTracer\grid.h(19): message : see declaration of 'Object'
+C:\Users\Ivo\Desktop\Master\Semester\10. Semester\3d programing\2ter Teil, Jittering\P3D\MyRayTracer\MyRayTracer\grid.h(55,28): warning C4390: ';': empty controlled statement found; is this the intent?
+C:\Users\Ivo\Desktop\Master\Semester\10. Semester\3d programing\2ter Teil, Jittering\P3D\MyRayTracer\MyRayTracer\grid.h(58,28): warning C4390: ';': empty controlled statement found; is this the intent?
+C:\Users\Ivo\Desktop\Master\Semester\10. Semester\3d programing\2ter Teil, Jittering\P3D\MyRayTracer\MyRayTracer\grid.h(61,28): warning C4390: ';': empty controlled statement found; is this the intent?
+C:\Users\Ivo\Desktop\Master\Semester\10. Semester\3d programing\2ter Teil, Jittering\P3D\MyRayTracer\MyRayTracer\grid.h(74,1): warning C4267: 'initializing': conversion from 'size_t' to 'int', possible loss of data
+C:\Users\Ivo\Desktop\Master\Semester\10. Semester\3d programing\2ter Teil, Jittering\P3D\MyRayTracer\MyRayTracer\grid.h(76,1): error C2027: use of undefined type 'Object'
+C:\Users\Ivo\Desktop\Master\Semester\10. Semester\3d programing\2ter Teil, Jittering\P3D\MyRayTracer\MyRayTracer\grid.h(19): message : see declaration of 'Object'
+C:\Users\Ivo\Desktop\Master\Semester\10. Semester\3d programing\2ter Teil, Jittering\P3D\MyRayTracer\MyRayTracer\grid.h(78,28): warning C4390: ';': empty controlled statement found; is this the intent?
+C:\Users\Ivo\Desktop\Master\Semester\10. Semester\3d programing\2ter Teil, Jittering\P3D\MyRayTracer\MyRayTracer\grid.h(81,28): warning C4390: ';': empty controlled statement found; is this the intent?
+C:\Users\Ivo\Desktop\Master\Semester\10. Semester\3d programing\2ter Teil, Jittering\P3D\MyRayTracer\MyRayTracer\grid.h(84,28): warning C4390: ';': empty controlled statement found; is this the intent?
+C:\Users\Ivo\Desktop\Master\Semester\10. Semester\3d programing\2ter Teil, Jittering\P3D\MyRayTracer\MyRayTracer\grid.cpp(13,14): warning C4834: discarding return value of function with 'nodiscard' attribute
+C:\Users\Ivo\Desktop\Master\Semester\10. Semester\3d programing\2ter Teil, Jittering\P3D\MyRayTracer\MyRayTracer\grid.cpp(44,11): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
+C:\Users\Ivo\Desktop\Master\Semester\10. Semester\3d programing\2ter Teil, Jittering\P3D\MyRayTracer\MyRayTracer\grid.cpp(45,10): warning C4244: 'initializing': conversion from 'float' to 'int', possible loss of data
+C:\Users\Ivo\Desktop\Master\Semester\10. Semester\3d programing\2ter Teil, Jittering\P3D\MyRayTracer\MyRayTracer\grid.cpp(46,10): warning C4244: 'initializing': conversion from 'float' to 'int', possible loss of data
+C:\Users\Ivo\Desktop\Master\Semester\10. Semester\3d programing\2ter Teil, Jittering\P3D\MyRayTracer\MyRayTracer\grid.cpp(47,10): warning C4244: 'initializing': conversion from 'float' to 'int', possible loss of data
+C:\Users\Ivo\Desktop\Master\Semester\10. Semester\3d programing\2ter Teil, Jittering\P3D\MyRayTracer\MyRayTracer\grid.cpp(76,14): warning C4244: 'initializing': conversion from 'double' to 'int', possible loss of data
+C:\Users\Ivo\Desktop\Master\Semester\10. Semester\3d programing\2ter Teil, Jittering\P3D\MyRayTracer\MyRayTracer\grid.cpp(77,14): warning C4244: 'initializing': conversion from 'double' to 'int', possible loss of data
+C:\Users\Ivo\Desktop\Master\Semester\10. Semester\3d programing\2ter Teil, Jittering\P3D\MyRayTracer\MyRayTracer\grid.cpp(78,14): warning C4244: 'initializing': conversion from 'double' to 'int', possible loss of data
+C:\Users\Ivo\Desktop\Master\Semester\10. Semester\3d programing\2ter Teil, Jittering\P3D\MyRayTracer\MyRayTracer\grid.cpp(80,14): warning C4244: 'initializing': conversion from 'double' to 'int', possible loss of data
+C:\Users\Ivo\Desktop\Master\Semester\10. Semester\3d programing\2ter Teil, Jittering\P3D\MyRayTracer\MyRayTracer\grid.cpp(81,14): warning C4244: 'initializing': conversion from 'double' to 'int', possible loss of data
+C:\Users\Ivo\Desktop\Master\Semester\10. Semester\3d programing\2ter Teil, Jittering\P3D\MyRayTracer\MyRayTracer\grid.cpp(82,14): warning C4244: 'initializing': conversion from 'double' to 'int', possible loss of data
+C:\Users\Ivo\Desktop\Master\Semester\10. Semester\3d programing\2ter Teil, Jittering\P3D\MyRayTracer\MyRayTracer\grid.cpp(139,28): error C2679: binary '=': no operator found which takes a right-hand operand of type '_Ty' (or there is no acceptable conversion)
+          with
+          [
+              _Ty=Object *
+          ]
+C:\Users\Ivo\Desktop\Master\Semester\10. Semester\3d programing\2ter Teil, Jittering\P3D\MyRayTracer\MyRayTracer\color.h(66,1): message : could be 'Color &Color::operator =(Color &&)'
+C:\Users\Ivo\Desktop\Master\Semester\10. Semester\3d programing\2ter Teil, Jittering\P3D\MyRayTracer\MyRayTracer\color.h(66,1): message : or       'Color &Color::operator =(const Color &)'
+C:\Users\Ivo\Desktop\Master\Semester\10. Semester\3d programing\2ter Teil, Jittering\P3D\MyRayTracer\MyRayTracer\grid.cpp(139,28): message : while trying to match the argument list '(Color, _Ty)'
+          with
+          [
+              _Ty=Object *
+          ]
+C:\Users\Ivo\Desktop\Master\Semester\10. Semester\3d programing\2ter Teil, Jittering\P3D\MyRayTracer\MyRayTracer\grid.cpp(155,110): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
+C:\Users\Ivo\Desktop\Master\Semester\10. Semester\3d programing\2ter Teil, Jittering\P3D\MyRayTracer\MyRayTracer\grid.cpp(155,73): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
+C:\Users\Ivo\Desktop\Master\Semester\10. Semester\3d programing\2ter Teil, Jittering\P3D\MyRayTracer\MyRayTracer\grid.cpp(155,36): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
+C:\Users\Ivo\Desktop\Master\Semester\10. Semester\3d programing\2ter Teil, Jittering\P3D\MyRayTracer\MyRayTracer\grid.cpp(156,103): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
+C:\Users\Ivo\Desktop\Master\Semester\10. Semester\3d programing\2ter Teil, Jittering\P3D\MyRayTracer\MyRayTracer\grid.cpp(156,68): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
+C:\Users\Ivo\Desktop\Master\Semester\10. Semester\3d programing\2ter Teil, Jittering\P3D\MyRayTracer\MyRayTracer\grid.cpp(156,33): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
+C:\Users\Ivo\Desktop\Master\Semester\10. Semester\3d programing\2ter Teil, Jittering\P3D\MyRayTracer\MyRayTracer\grid.cpp(194,24): error C2676: binary '!=': 'Vector' does not define this operator or a conversion to a type acceptable to the predefined operator
+C:\Users\Ivo\Desktop\Master\Semester\10. Semester\3d programing\2ter Teil, Jittering\P3D\MyRayTracer\MyRayTracer\grid.cpp(197,32): warning C4244: '+=': conversion from 'double' to 'float', possible loss of data
+C:\Users\Ivo\Desktop\Master\Semester\10. Semester\3d programing\2ter Teil, Jittering\P3D\MyRayTracer\MyRayTracer\grid.cpp(201,32): warning C4244: '+=': conversion from 'double' to 'float', possible loss of data
+C:\Users\Ivo\Desktop\Master\Semester\10. Semester\3d programing\2ter Teil, Jittering\P3D\MyRayTracer\MyRayTracer\grid.cpp(207,32): warning C4244: '+=': conversion from 'double' to 'float', possible loss of data
+C:\Users\Ivo\Desktop\Master\Semester\10. Semester\3d programing\2ter Teil, Jittering\P3D\MyRayTracer\MyRayTracer\grid.cpp(211,32): warning C4244: '+=': conversion from 'double' to 'float', possible loss of data
   main.cpp
 C:\Users\Ivo\Desktop\Master\Semester\10. Semester\3d programing\2ter Teil, Jittering\P3D\MyRayTracer\MyRayTracer\color.h(42,14): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
 C:\Users\Ivo\Desktop\Master\Semester\10. Semester\3d programing\2ter Teil, Jittering\P3D\MyRayTracer\MyRayTracer\color.h(41,14): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
 C:\Users\Ivo\Desktop\Master\Semester\10. Semester\3d programing\2ter Teil, Jittering\P3D\MyRayTracer\MyRayTracer\color.h(40,28): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
-C:\Users\Ivo\Desktop\Master\Semester\10. Semester\3d programing\2ter Teil, Jittering\P3D\MyRayTracer\MyRayTracer\main.cpp(196,15): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
-C:\Users\Ivo\Desktop\Master\Semester\10. Semester\3d programing\2ter Teil, Jittering\P3D\MyRayTracer\MyRayTracer\main.cpp(396,15): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
-C:\Users\Ivo\Desktop\Master\Semester\10. Semester\3d programing\2ter Teil, Jittering\P3D\MyRayTracer\MyRayTracer\main.cpp(408,17): warning C4244: 'argument': conversion from 'time_t' to 'unsigned int', possible loss of data
-C:\Users\Ivo\Desktop\Master\Semester\10. Semester\3d programing\2ter Teil, Jittering\P3D\MyRayTracer\MyRayTracer\main.cpp(430,28): warning C4267: 'initializing': conversion from 'size_t' to 'int', possible loss of data
-C:\Users\Ivo\Desktop\Master\Semester\10. Semester\3d programing\2ter Teil, Jittering\P3D\MyRayTracer\MyRayTracer\main.cpp(432,28): warning C4267: 'initializing': conversion from 'size_t' to 'int', possible loss of data
-C:\Users\Ivo\Desktop\Master\Semester\10. Semester\3d programing\2ter Teil, Jittering\P3D\MyRayTracer\MyRayTracer\main.cpp(434,25): error C3867: 'Color::r': non-standard syntax; use '&' to create a pointer to member
-C:\Users\Ivo\Desktop\Master\Semester\10. Semester\3d programing\2ter Teil, Jittering\P3D\MyRayTracer\MyRayTracer\main.cpp(434,29): error C3867: 'Color::g': non-standard syntax; use '&' to create a pointer to member
-C:\Users\Ivo\Desktop\Master\Semester\10. Semester\3d programing\2ter Teil, Jittering\P3D\MyRayTracer\MyRayTracer\main.cpp(434,34): error C3867: 'Color::b': non-standard syntax; use '&' to create a pointer to member
-C:\Users\Ivo\Desktop\Master\Semester\10. Semester\3d programing\2ter Teil, Jittering\P3D\MyRayTracer\MyRayTracer\main.cpp(435,25): error C3867: 'Color::r': non-standard syntax; use '&' to create a pointer to member
-C:\Users\Ivo\Desktop\Master\Semester\10. Semester\3d programing\2ter Teil, Jittering\P3D\MyRayTracer\MyRayTracer\main.cpp(435,29): error C3867: 'Color::g': non-standard syntax; use '&' to create a pointer to member
-C:\Users\Ivo\Desktop\Master\Semester\10. Semester\3d programing\2ter Teil, Jittering\P3D\MyRayTracer\MyRayTracer\main.cpp(435,34): error C3867: 'Color::b': non-standard syntax; use '&' to create a pointer to member
-C:\Users\Ivo\Desktop\Master\Semester\10. Semester\3d programing\2ter Teil, Jittering\P3D\MyRayTracer\MyRayTracer\main.cpp(438,18): warning C4244: 'initializing': conversion from 'double' to 'int', possible loss of data
-C:\Users\Ivo\Desktop\Master\Semester\10. Semester\3d programing\2ter Teil, Jittering\P3D\MyRayTracer\MyRayTracer\main.cpp(451,47): error C2059: syntax error: ')'
-C:\Users\Ivo\Desktop\Master\Semester\10. Semester\3d programing\2ter Teil, Jittering\P3D\MyRayTracer\MyRayTracer\main.cpp(470,26): warning C4267: 'initializing': conversion from 'size_t' to 'int', possible loss of data
-C:\Users\Ivo\Desktop\Master\Semester\10. Semester\3d programing\2ter Teil, Jittering\P3D\MyRayTracer\MyRayTracer\main.cpp(472,26): warning C4267: 'initializing': conversion from 'size_t' to 'int', possible loss of data
-C:\Users\Ivo\Desktop\Master\Semester\10. Semester\3d programing\2ter Teil, Jittering\P3D\MyRayTracer\MyRayTracer\main.cpp(474,23): error C3867: 'Color::r': non-standard syntax; use '&' to create a pointer to member
-C:\Users\Ivo\Desktop\Master\Semester\10. Semester\3d programing\2ter Teil, Jittering\P3D\MyRayTracer\MyRayTracer\main.cpp(474,27): error C3867: 'Color::g': non-standard syntax; use '&' to create a pointer to member
-C:\Users\Ivo\Desktop\Master\Semester\10. Semester\3d programing\2ter Teil, Jittering\P3D\MyRayTracer\MyRayTracer\main.cpp(474,32): error C3867: 'Color::b': non-standard syntax; use '&' to create a pointer to member
-C:\Users\Ivo\Desktop\Master\Semester\10. Semester\3d programing\2ter Teil, Jittering\P3D\MyRayTracer\MyRayTracer\main.cpp(475,23): error C3867: 'Color::r': non-standard syntax; use '&' to create a pointer to member
-C:\Users\Ivo\Desktop\Master\Semester\10. Semester\3d programing\2ter Teil, Jittering\P3D\MyRayTracer\MyRayTracer\main.cpp(475,27): error C3867: 'Color::g': non-standard syntax; use '&' to create a pointer to member
-C:\Users\Ivo\Desktop\Master\Semester\10. Semester\3d programing\2ter Teil, Jittering\P3D\MyRayTracer\MyRayTracer\main.cpp(475,32): error C3867: 'Color::b': non-standard syntax; use '&' to create a pointer to member
-C:\Users\Ivo\Desktop\Master\Semester\10. Semester\3d programing\2ter Teil, Jittering\P3D\MyRayTracer\MyRayTracer\main.cpp(478,16): warning C4244: 'initializing': conversion from 'double' to 'int', possible loss of data
-C:\Users\Ivo\Desktop\Master\Semester\10. Semester\3d programing\2ter Teil, Jittering\P3D\MyRayTracer\MyRayTracer\main.cpp(491,44): warning C4244: 'argument': conversion from '_Ty' to 'int', possible loss of data
-          with
-          [
-              _Ty=float
-          ]
+C:\Users\Ivo\Desktop\Master\Semester\10. Semester\3d programing\2ter Teil, Jittering\P3D\MyRayTracer\MyRayTracer\grid.h(10,10): warning C4067: unexpected tokens following preprocessor directive - expected a newline
+C:\Users\Ivo\Desktop\Master\Semester\10. Semester\3d programing\2ter Teil, Jittering\P3D\MyRayTracer\MyRayTracer\grid.h(51,1): warning C4267: 'initializing': conversion from 'size_t' to 'int', possible loss of data
+C:\Users\Ivo\Desktop\Master\Semester\10. Semester\3d programing\2ter Teil, Jittering\P3D\MyRayTracer\MyRayTracer\grid.h(53,1): error C2027: use of undefined type 'Object'
+C:\Users\Ivo\Desktop\Master\Semester\10. Semester\3d programing\2ter Teil, Jittering\P3D\MyRayTracer\MyRayTracer\grid.h(19): message : see declaration of 'Object'
+C:\Users\Ivo\Desktop\Master\Semester\10. Semester\3d programing\2ter Teil, Jittering\P3D\MyRayTracer\MyRayTracer\grid.h(55,28): warning C4390: ';': empty controlled statement found; is this the intent?
+C:\Users\Ivo\Desktop\Master\Semester\10. Semester\3d programing\2ter Teil, Jittering\P3D\MyRayTracer\MyRayTracer\grid.h(58,28): warning C4390: ';': empty controlled statement found; is this the intent?
+C:\Users\Ivo\Desktop\Master\Semester\10. Semester\3d programing\2ter Teil, Jittering\P3D\MyRayTracer\MyRayTracer\grid.h(61,28): warning C4390: ';': empty controlled statement found; is this the intent?
+C:\Users\Ivo\Desktop\Master\Semester\10. Semester\3d programing\2ter Teil, Jittering\P3D\MyRayTracer\MyRayTracer\grid.h(74,1): warning C4267: 'initializing': conversion from 'size_t' to 'int', possible loss of data
+C:\Users\Ivo\Desktop\Master\Semester\10. Semester\3d programing\2ter Teil, Jittering\P3D\MyRayTracer\MyRayTracer\grid.h(76,1): error C2027: use of undefined type 'Object'
+C:\Users\Ivo\Desktop\Master\Semester\10. Semester\3d programing\2ter Teil, Jittering\P3D\MyRayTracer\MyRayTracer\grid.h(19): message : see declaration of 'Object'
+C:\Users\Ivo\Desktop\Master\Semester\10. Semester\3d programing\2ter Teil, Jittering\P3D\MyRayTracer\MyRayTracer\grid.h(78,28): warning C4390: ';': empty controlled statement found; is this the intent?
+C:\Users\Ivo\Desktop\Master\Semester\10. Semester\3d programing\2ter Teil, Jittering\P3D\MyRayTracer\MyRayTracer\grid.h(81,28): warning C4390: ';': empty controlled statement found; is this the intent?
+C:\Users\Ivo\Desktop\Master\Semester\10. Semester\3d programing\2ter Teil, Jittering\P3D\MyRayTracer\MyRayTracer\grid.h(84,28): warning C4390: ';': empty controlled statement found; is this the intent?
+C:\Users\Ivo\Desktop\Master\Semester\10. Semester\3d programing\2ter Teil, Jittering\P3D\MyRayTracer\MyRayTracer\main.cpp(84,14): error C2065: 'scene_ptr': undeclared identifier
+C:\Users\Ivo\Desktop\Master\Semester\10. Semester\3d programing\2ter Teil, Jittering\P3D\MyRayTracer\MyRayTracer\main.cpp(84,39): error C2227: left of '->Traverse' must point to class/struct/union/generic type
+C:\Users\Ivo\Desktop\Master\Semester\10. Semester\3d programing\2ter Teil, Jittering\P3D\MyRayTracer\MyRayTracer\main.cpp(84,40): error C2143: syntax error: missing ')' before 'const'
+C:\Users\Ivo\Desktop\Master\Semester\10. Semester\3d programing\2ter Teil, Jittering\P3D\MyRayTracer\MyRayTracer\main.cpp(84,40): error C2059: syntax error: 'const'
+C:\Users\Ivo\Desktop\Master\Semester\10. Semester\3d programing\2ter Teil, Jittering\P3D\MyRayTracer\MyRayTracer\main.cpp(84,55): error C2059: syntax error: ')'
+C:\Users\Ivo\Desktop\Master\Semester\10. Semester\3d programing\2ter Teil, Jittering\P3D\MyRayTracer\MyRayTracer\main.cpp(87,7): error C2065: 'sr': undeclared identifier
+C:\Users\Ivo\Desktop\Master\Semester\10. Semester\3d programing\2ter Teil, Jittering\P3D\MyRayTracer\MyRayTracer\main.cpp(88,12): error C2065: 'sr': undeclared identifier
+C:\Users\Ivo\Desktop\Master\Semester\10. Semester\3d programing\2ter Teil, Jittering\P3D\MyRayTracer\MyRayTracer\main.cpp(91,11): error C2065: 'scene_ptr': undeclared identifier
+C:\Users\Ivo\Desktop\Master\Semester\10. Semester\3d programing\2ter Teil, Jittering\P3D\MyRayTracer\MyRayTracer\main.cpp(97,53): error C2065: 'sr': undeclared identifier
+C:\Users\Ivo\Desktop\Master\Semester\10. Semester\3d programing\2ter Teil, Jittering\P3D\MyRayTracer\MyRayTracer\main.cpp(135,63): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
+C:\Users\Ivo\Desktop\Master\Semester\10. Semester\3d programing\2ter Teil, Jittering\P3D\MyRayTracer\MyRayTracer\main.cpp(135,97): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
+C:\Users\Ivo\Desktop\Master\Semester\10. Semester\3d programing\2ter Teil, Jittering\P3D\MyRayTracer\MyRayTracer\main.cpp(153,64): error C2065: 'sr': undeclared identifier
+C:\Users\Ivo\Desktop\Master\Semester\10. Semester\3d programing\2ter Teil, Jittering\P3D\MyRayTracer\MyRayTracer\main.cpp(178,35): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
+C:\Users\Ivo\Desktop\Master\Semester\10. Semester\3d programing\2ter Teil, Jittering\P3D\MyRayTracer\MyRayTracer\main.cpp(180,51): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
+C:\Users\Ivo\Desktop\Master\Semester\10. Semester\3d programing\2ter Teil, Jittering\P3D\MyRayTracer\MyRayTracer\main.cpp(209,62): error C2065: 'sr': undeclared identifier
+C:\Users\Ivo\Desktop\Master\Semester\10. Semester\3d programing\2ter Teil, Jittering\P3D\MyRayTracer\MyRayTracer\main.cpp(283,15): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
+C:\Users\Ivo\Desktop\Master\Semester\10. Semester\3d programing\2ter Teil, Jittering\P3D\MyRayTracer\MyRayTracer\main.cpp(476,12): warning C4244: 'argument': conversion from 'time_t' to 'unsigned int', possible loss of data
+C:\Users\Ivo\Desktop\Master\Semester\10. Semester\3d programing\2ter Teil, Jittering\P3D\MyRayTracer\MyRayTracer\main.cpp(497,28): error C2352: 'Grid::Build': illegal call of non-static member function
+C:\Users\Ivo\Desktop\Master\Semester\10. Semester\3d programing\2ter Teil, Jittering\P3D\MyRayTracer\MyRayTracer\grid.h(31): message : see declaration of 'Grid::Build'
+C:\Users\Ivo\Desktop\Master\Semester\10. Semester\3d programing\2ter Teil, Jittering\P3D\MyRayTracer\MyRayTracer\main.cpp(497,55): error C2352: 'Grid::Build': illegal call of non-static member function
+C:\Users\Ivo\Desktop\Master\Semester\10. Semester\3d programing\2ter Teil, Jittering\P3D\MyRayTracer\MyRayTracer\grid.h(31): message : see declaration of 'Grid::Build'
+C:\Users\Ivo\Desktop\Master\Semester\10. Semester\3d programing\2ter Teil, Jittering\P3D\MyRayTracer\MyRayTracer\main.cpp(498,28): error C2352: 'Grid::Build': illegal call of non-static member function
+C:\Users\Ivo\Desktop\Master\Semester\10. Semester\3d programing\2ter Teil, Jittering\P3D\MyRayTracer\MyRayTracer\grid.h(31): message : see declaration of 'Grid::Build'
+C:\Users\Ivo\Desktop\Master\Semester\10. Semester\3d programing\2ter Teil, Jittering\P3D\MyRayTracer\MyRayTracer\main.cpp(498,56): error C2352: 'Grid::Build': illegal call of non-static member function
+C:\Users\Ivo\Desktop\Master\Semester\10. Semester\3d programing\2ter Teil, Jittering\P3D\MyRayTracer\MyRayTracer\grid.h(31): message : see declaration of 'Grid::Build'
+C:\Users\Ivo\Desktop\Master\Semester\10. Semester\3d programing\2ter Teil, Jittering\P3D\MyRayTracer\MyRayTracer\main.cpp(499,48): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
+C:\Users\Ivo\Desktop\Master\Semester\10. Semester\3d programing\2ter Teil, Jittering\P3D\MyRayTracer\MyRayTracer\main.cpp(499,39): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
+C:\Users\Ivo\Desktop\Master\Semester\10. Semester\3d programing\2ter Teil, Jittering\P3D\MyRayTracer\MyRayTracer\main.cpp(499,30): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
+C:\Users\Ivo\Desktop\Master\Semester\10. Semester\3d programing\2ter Teil, Jittering\P3D\MyRayTracer\MyRayTracer\main.cpp(500,34): error C2039: 'Traverse': is not a member of 'Triangle'
+C:\Users\Ivo\Desktop\Master\Semester\10. Semester\3d programing\2ter Teil, Jittering\P3D\MyRayTracer\MyRayTracer\scene.h(106): message : see declaration of 'Triangle'
+C:\Users\Ivo\Desktop\Master\Semester\10. Semester\3d programing\2ter Teil, Jittering\P3D\MyRayTracer\MyRayTracer\main.cpp(529,20): warning C4244: 'initializing': conversion from 'double' to 'int', possible loss of data
+C:\Users\Ivo\Desktop\Master\Semester\10. Semester\3d programing\2ter Teil, Jittering\P3D\MyRayTracer\MyRayTracer\main.cpp(545,16): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
+C:\Users\Ivo\Desktop\Master\Semester\10. Semester\3d programing\2ter Teil, Jittering\P3D\MyRayTracer\MyRayTracer\main.cpp(752,10): error C2352: 'Grid::Build': illegal call of non-static member function
+C:\Users\Ivo\Desktop\Master\Semester\10. Semester\3d programing\2ter Teil, Jittering\P3D\MyRayTracer\MyRayTracer\grid.h(31): message : see declaration of 'Grid::Build'
   scene.cpp
 C:\Users\Ivo\Desktop\Master\Semester\10. Semester\3d programing\2ter Teil, Jittering\P3D\MyRayTracer\MyRayTracer\color.h(42,14): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
 C:\Users\Ivo\Desktop\Master\Semester\10. Semester\3d programing\2ter Teil, Jittering\P3D\MyRayTracer\MyRayTracer\color.h(41,14): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
 C:\Users\Ivo\Desktop\Master\Semester\10. Semester\3d programing\2ter Teil, Jittering\P3D\MyRayTracer\MyRayTracer\color.h(40,28): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
-C:\Users\Ivo\Desktop\Master\Semester\10. Semester\3d programing\2ter Teil, Jittering\P3D\MyRayTracer\MyRayTracer\scene.cpp(209,23): warning C4267: 'return': conversion from 'size_t' to 'int', possible loss of data
-C:\Users\Ivo\Desktop\Master\Semester\10. Semester\3d programing\2ter Teil, Jittering\P3D\MyRayTracer\MyRayTracer\scene.cpp(229,22): warning C4267: 'return': conversion from 'size_t' to 'int', possible loss of data
-C:\Users\Ivo\Desktop\Master\Semester\10. Semester\3d programing\2ter Teil, Jittering\P3D\MyRayTracer\MyRayTracer\scene.cpp(357,23): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
-C:\Users\Ivo\Desktop\Master\Semester\10. Semester\3d programing\2ter Teil, Jittering\P3D\MyRayTracer\MyRayTracer\scene.cpp(358,23): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
-C:\Users\Ivo\Desktop\Master\Semester\10. Semester\3d programing\2ter Teil, Jittering\P3D\MyRayTracer\MyRayTracer\scene.cpp(297,8): warning C4101: 't_intersec': unreferenced local variable
-C:\Users\Ivo\Desktop\Master\Semester\10. Semester\3d programing\2ter Teil, Jittering\P3D\MyRayTracer\MyRayTracer\scene.cpp(411,55): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
-C:\Users\Ivo\Desktop\Master\Semester\10. Semester\3d programing\2ter Teil, Jittering\P3D\MyRayTracer\MyRayTracer\scene.cpp(411,52): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
-C:\Users\Ivo\Desktop\Master\Semester\10. Semester\3d programing\2ter Teil, Jittering\P3D\MyRayTracer\MyRayTracer\scene.cpp(411,45): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
-C:\Users\Ivo\Desktop\Master\Semester\10. Semester\3d programing\2ter Teil, Jittering\P3D\MyRayTracer\MyRayTracer\scene.cpp(411,41): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
-C:\Users\Ivo\Desktop\Master\Semester\10. Semester\3d programing\2ter Teil, Jittering\P3D\MyRayTracer\MyRayTracer\scene.cpp(411,33): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
-C:\Users\Ivo\Desktop\Master\Semester\10. Semester\3d programing\2ter Teil, Jittering\P3D\MyRayTracer\MyRayTracer\scene.cpp(511,58): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
+C:\Users\Ivo\Desktop\Master\Semester\10. Semester\3d programing\2ter Teil, Jittering\P3D\MyRayTracer\MyRayTracer\grid.h(10,10): warning C4067: unexpected tokens following preprocessor directive - expected a newline
+C:\Users\Ivo\Desktop\Master\Semester\10. Semester\3d programing\2ter Teil, Jittering\P3D\MyRayTracer\MyRayTracer\grid.h(51,1): warning C4267: 'initializing': conversion from 'size_t' to 'int', possible loss of data
+C:\Users\Ivo\Desktop\Master\Semester\10. Semester\3d programing\2ter Teil, Jittering\P3D\MyRayTracer\MyRayTracer\grid.h(53,1): error C2027: use of undefined type 'Object'
+C:\Users\Ivo\Desktop\Master\Semester\10. Semester\3d programing\2ter Teil, Jittering\P3D\MyRayTracer\MyRayTracer\grid.h(19): message : see declaration of 'Object'
+C:\Users\Ivo\Desktop\Master\Semester\10. Semester\3d programing\2ter Teil, Jittering\P3D\MyRayTracer\MyRayTracer\grid.h(55,28): warning C4390: ';': empty controlled statement found; is this the intent?
+C:\Users\Ivo\Desktop\Master\Semester\10. Semester\3d programing\2ter Teil, Jittering\P3D\MyRayTracer\MyRayTracer\grid.h(58,28): warning C4390: ';': empty controlled statement found; is this the intent?
+C:\Users\Ivo\Desktop\Master\Semester\10. Semester\3d programing\2ter Teil, Jittering\P3D\MyRayTracer\MyRayTracer\grid.h(61,28): warning C4390: ';': empty controlled statement found; is this the intent?
+C:\Users\Ivo\Desktop\Master\Semester\10. Semester\3d programing\2ter Teil, Jittering\P3D\MyRayTracer\MyRayTracer\grid.h(74,1): warning C4267: 'initializing': conversion from 'size_t' to 'int', possible loss of data
+C:\Users\Ivo\Desktop\Master\Semester\10. Semester\3d programing\2ter Teil, Jittering\P3D\MyRayTracer\MyRayTracer\grid.h(76,1): error C2027: use of undefined type 'Object'
+C:\Users\Ivo\Desktop\Master\Semester\10. Semester\3d programing\2ter Teil, Jittering\P3D\MyRayTracer\MyRayTracer\grid.h(19): message : see declaration of 'Object'
+C:\Users\Ivo\Desktop\Master\Semester\10. Semester\3d programing\2ter Teil, Jittering\P3D\MyRayTracer\MyRayTracer\grid.h(78,28): warning C4390: ';': empty controlled statement found; is this the intent?
+C:\Users\Ivo\Desktop\Master\Semester\10. Semester\3d programing\2ter Teil, Jittering\P3D\MyRayTracer\MyRayTracer\grid.h(81,28): warning C4390: ';': empty controlled statement found; is this the intent?
+C:\Users\Ivo\Desktop\Master\Semester\10. Semester\3d programing\2ter Teil, Jittering\P3D\MyRayTracer\MyRayTracer\grid.h(84,28): warning C4390: ';': empty controlled statement found; is this the intent?
+C:\Users\Ivo\Desktop\Master\Semester\10. Semester\3d programing\2ter Teil, Jittering\P3D\MyRayTracer\MyRayTracer\scene.cpp(45,36): error C2678: binary '%': no operator found which takes a left-hand operand of type 'const Vector' (or there is no acceptable conversion)
+C:\Users\Ivo\Desktop\Master\Semester\10. Semester\3d programing\2ter Teil, Jittering\P3D\MyRayTracer\MyRayTracer\vector.h(24,9): message : could be 'Vector Vector::operator %(const Vector &)'
+C:\Users\Ivo\Desktop\Master\Semester\10. Semester\3d programing\2ter Teil, Jittering\P3D\MyRayTracer\MyRayTracer\scene.cpp(45,36): message : while trying to match the argument list '(const Vector, Vector)'
+C:\Users\Ivo\Desktop\Master\Semester\10. Semester\3d programing\2ter Teil, Jittering\P3D\MyRayTracer\MyRayTracer\scene.cpp(54,36): error C2678: binary '-': no operator found which takes a left-hand operand of type 'const Vector' (or there is no acceptable conversion)
+C:\Users\Ivo\Desktop\Master\Semester\10. Semester\3d programing\2ter Teil, Jittering\P3D\MyRayTracer\MyRayTracer\vector.h(20,9): message : could be 'Vector Vector::operator -(const Vector &)'
+C:\Users\Ivo\Desktop\Master\Semester\10. Semester\3d programing\2ter Teil, Jittering\P3D\MyRayTracer\MyRayTracer\scene.cpp(54,36): message : while trying to match the argument list '(const Vector, Vector)'
+C:\Users\Ivo\Desktop\Master\Semester\10. Semester\3d programing\2ter Teil, Jittering\P3D\MyRayTracer\MyRayTracer\scene.cpp(59,32): error C2678: binary '*': no operator found which takes a left-hand operand of type 'const Vector' (or there is no acceptable conversion)
+C:\Users\Ivo\Desktop\Master\Semester\10. Semester\3d programing\2ter Teil, Jittering\P3D\MyRayTracer\MyRayTracer\vector.h(22,9): message : could be 'float Vector::operator *(const Vector &)'
+C:\Users\Ivo\Desktop\Master\Semester\10. Semester\3d programing\2ter Teil, Jittering\P3D\MyRayTracer\MyRayTracer\vector.h(21,9): message : or       'Vector Vector::operator *(float)'
+C:\Users\Ivo\Desktop\Master\Semester\10. Semester\3d programing\2ter Teil, Jittering\P3D\MyRayTracer\MyRayTracer\scene.cpp(59,32): message : while trying to match the argument list '(const Vector, Vector)'
+C:\Users\Ivo\Desktop\Master\Semester\10. Semester\3d programing\2ter Teil, Jittering\P3D\MyRayTracer\MyRayTracer\scene.cpp(140,28): error C2678: binary '*': no operator found which takes a left-hand operand of type 'const Vector' (or there is no acceptable conversion)
+C:\Users\Ivo\Desktop\Master\Semester\10. Semester\3d programing\2ter Teil, Jittering\P3D\MyRayTracer\MyRayTracer\vector.h(22,9): message : could be 'float Vector::operator *(const Vector &)'
+C:\Users\Ivo\Desktop\Master\Semester\10. Semester\3d programing\2ter Teil, Jittering\P3D\MyRayTracer\MyRayTracer\vector.h(21,9): message : or       'Vector Vector::operator *(float)'
+C:\Users\Ivo\Desktop\Master\Semester\10. Semester\3d programing\2ter Teil, Jittering\P3D\MyRayTracer\MyRayTracer\scene.cpp(140,28): message : while trying to match the argument list '(const Vector, Vector)'
+C:\Users\Ivo\Desktop\Master\Semester\10. Semester\3d programing\2ter Teil, Jittering\P3D\MyRayTracer\MyRayTracer\scene.cpp(207,23): warning C4267: 'return': conversion from 'size_t' to 'int', possible loss of data
+C:\Users\Ivo\Desktop\Master\Semester\10. Semester\3d programing\2ter Teil, Jittering\P3D\MyRayTracer\MyRayTracer\scene.cpp(227,22): warning C4267: 'return': conversion from 'size_t' to 'int', possible loss of data
+C:\Users\Ivo\Desktop\Master\Semester\10. Semester\3d programing\2ter Teil, Jittering\P3D\MyRayTracer\MyRayTracer\scene.cpp(355,23): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
+C:\Users\Ivo\Desktop\Master\Semester\10. Semester\3d programing\2ter Teil, Jittering\P3D\MyRayTracer\MyRayTracer\scene.cpp(356,23): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
+C:\Users\Ivo\Desktop\Master\Semester\10. Semester\3d programing\2ter Teil, Jittering\P3D\MyRayTracer\MyRayTracer\scene.cpp(408,55): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
+C:\Users\Ivo\Desktop\Master\Semester\10. Semester\3d programing\2ter Teil, Jittering\P3D\MyRayTracer\MyRayTracer\scene.cpp(408,52): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
+C:\Users\Ivo\Desktop\Master\Semester\10. Semester\3d programing\2ter Teil, Jittering\P3D\MyRayTracer\MyRayTracer\scene.cpp(408,45): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
+C:\Users\Ivo\Desktop\Master\Semester\10. Semester\3d programing\2ter Teil, Jittering\P3D\MyRayTracer\MyRayTracer\scene.cpp(408,41): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
+C:\Users\Ivo\Desktop\Master\Semester\10. Semester\3d programing\2ter Teil, Jittering\P3D\MyRayTracer\MyRayTracer\scene.cpp(408,33): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
+C:\Users\Ivo\Desktop\Master\Semester\10. Semester\3d programing\2ter Teil, Jittering\P3D\MyRayTracer\MyRayTracer\scene.cpp(508,58): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
   Generating Code...

@@ -12,7 +12,6 @@ using namespace std;
 #include "color.h"
 #include "vector.h"
 #include "ray.h"
-#include "boundingBox.h"
 #include "grid.h"
 
 #define MIN(a, b)		( ( a ) < ( b ) ? ( a ) : ( b ) )
@@ -154,12 +153,11 @@ private:
 };
 
 // Sphere traverse
+/*
 virtual Sphere::Traverse(const Ray& ray) const {
 	ShadeRec sr(*scene_ptr); //not used
 	double t; //not used
 	//example for sphere object,
-	Sphere* sphere_ptr = new Sphere;
-	sphere_ptr({ 0,-25,0 }, 80);
 	
 	if (scene_ptr->sphere.intercepts(ray, t, sr)) {
 		return (Color(0,0,0)); // now this color has to be taken from where?
@@ -167,7 +165,7 @@ virtual Sphere::Traverse(const Ray& ray) const {
 		return (Color(1,1,1)); // this has to be original Materialcolor of the object when not enlightened by the ray?
 	}
 
-}
+}*/ // Not sure if this is needed
 
 class Scene
 {
@@ -213,6 +211,7 @@ private:
 
 };
 
+class AABB; //defined here to avoid C2061 error - circulalry including; only one #include header in 2 files, but classes from instantiated in both 2
 
 class ShadeRec {
 public:
@@ -238,13 +237,15 @@ ShadeRec::ShadeRec(Scene& wr)	//constructor
 	w(wr)
 {}
 
+
+
 class Tracer {
 public:
 	Tracer(void);
 	Tracer(Scene* s_ptr);
 	//virtual RGBColor; //A C++ virtual function is a member function in the base class that you redefine in a derived class. It is declared using the virtual keyword.
 	//It is used to tell the compiler to perform dynamic linkage or late binding on the function.
-	std::vector<Vector> Grid::Traverse(const Ray& ray) const;	//instead of trace_ray()
+	 virtual Color Traverse(const Ray& ray) const;	//instead of trace_ray()
 
 protected:
 	Scene* scene_ptr;
@@ -253,10 +254,10 @@ protected:
  Tracer::Tracer(void)
 	: scene_ptr(NULL) {}
 
- Tracer::Tracer(scene* s_ptr)
+ Tracer::Tracer(Scene* s_ptr)
 	:scene_ptr(s_ptr) {}
 
-virtual Tracer::Traverse(const Ray& ray) const { //only virtual instead of RGBColor
+Color Tracer::Traverse(const Ray& ray) const { //only virtual instead of RGBColor
 	return Color(0, 0, 0);
 }
 

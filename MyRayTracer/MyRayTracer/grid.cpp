@@ -52,7 +52,7 @@ void Grid::Build(void) {
 		cells.reserve(getNumObjects());
 
 		for (int j = 0; j < num_cells; j++) {
-			cells.push_back(NULL); // are {} needed?
+			cells.push_back({NULL}); // are {} needed?
 		};
 
 		//set up a temporary array to hold the number of objects stored in each cell
@@ -61,7 +61,7 @@ void Grid::Build(void) {
 		counts.reserve(num_cells);
 
 		for (int j = 0; j < num_cells; j++) {
-			cells.push_back(0); //are {} needed ?
+			cells.push_back({0}); //are {} needed ?
 		};
 
 		// put objects into the cells 
@@ -108,7 +108,7 @@ void Grid::Build(void) {
 							}*/
 							 //counts[index] > 1			// maybe only use this one
 								// just add current object
-							cells[index]->addObject(getObject(j));
+							cells[index].push_back(getObject(j)); //changed add_object method from above to the push_back method
 								
 
 								//for statistics only
@@ -123,15 +123,104 @@ void Grid::Build(void) {
 				objects.erase(objects.begin(), objects.end());
 				//erase temporary counts vector
 				counts.erase(counts.begin(), counts.end());
-				return s, wx, wy;
+				
 			};
 			
-};
+			ShadeRec Grid::Traverse(const Ray& ray, double& tmin, ShadeRec& sr) { 	//or shall we implement it in our RayTracer with bool Traverse(Ray& ray, Object** hitobject, Vector& hitindex)? alias hit_bare_bones_objects
+					//ShadeRec sr(*this); -> disappears because is a Parameter
+				float t;
+				//double tmin = 100000; // = kHugeValue -> disappears because is a Parameter
+				int num_objects = getNumObjects();
+
+				for (int j = 0; j < num_objects; j++) {
+					if (getObject(j)->intercepts(ray, t, sr) && (t < tmin)) {
+						sr.hit_an_object = true;
+						tmin = t;
+						sr.color = objects[j]; // eigentlich objects[j]->get_color() ; doch wie bekomme ich den Color von den Objekten
+							//->get_color(); TBD -> can we take Set_Material()
+					};
+					return sr; // SR-Object saves Informations on how to shade ray-object at the hitting point
+				}
+			};
+
+			std::vector<Vector> Traverse(Ray& ray) {  //Traverse for shadow ray and return found intersected Object (?); Code based on https://github.com/francisengelmann/fast_voxel_traversal
+				std::vector<Vector> visited_voxels;
+				Vector ray_start = ray.origin;
+				Vector ray_end = ray.direction;
+				Vector ray_dir = (ray.direction - ray.origin).normalize();
+
+				// This id of the first/current voxel which is hitted by the ray.
+				// Using floor to round down
+				// the implicit int-casting will round up for negative numbers.
+				Vector current_voxel(std::floor(ray_start.x / _bin_size), std::floor(ray_start.y / _bin_size), std::floor(ray_start.z / _bin_size));
+				Vector last_voxel(std::floor(ray_end.x / _bin_size), std::floor(ray_end.y / _bin_size), std::floor(ray_end.z / _bin_size));
+
+				// In which direction are the voxel ids incremented.
+				double stepX = (ray_dir.x >= 0) ? 1 : -1; // correct
+				double stepY = (ray_dir.y >= 0) ? 1 : -1; // correct
+				double stepZ = (ray_dir.z >= 0) ? 1 : -1; // correct
+
+				  // Distance along the ray to the next voxel border from the current position (tMaxX, tMaxY, tMaxZ).
+				double next_voxel_boundary_x = (current_voxel.x + stepX) * _bin_size; // correct
+				double next_voxel_boundary_y = (current_voxel.y + stepY) * _bin_size; // correct
+				double next_voxel_boundary_z = (current_voxel.z + stepZ) * _bin_size; // correct
+
+				// tMaxX, tMaxY, tMaxZ -- distance until next intersection with voxel-border
+				// the value of t at which the ray crosses the first vertical voxel boundary
+				double tMaxX = (ray_dir.x != 0) ? (next_voxel_boundary_x - ray_start.x) / ray_dir.x : DBL_MAX; //
+				double tMaxY = (ray_dir.y != 0) ? (next_voxel_boundary_y - ray_start.y) / ray_dir.y : DBL_MAX; //
+				double tMaxZ = (ray_dir.z != 0) ? (next_voxel_boundary_z - ray_start.z) / ray_dir.z : DBL_MAX; //
+
+				// tDeltaX, tDeltaY, tDeltaZ --
+				// how far along the ray we must move for the horizontal component to equal the width of a voxel
+				// the direction in which we traverse the grid
+				// can only be FLT_MAX if we never go in that direction
+				double tDeltaX = (ray_dir.x != 0) ? _bin_size / ray_dir.x * stepX : DBL_MAX;
+				double tDeltaY = (ray_dir.y != 0) ? _bin_size / ray_dir.y * stepY : DBL_MAX;
+				double tDeltaZ = (ray_dir.z != 0) ? _bin_size / ray_dir.z * stepZ : DBL_MAX;
+
+				Vector diff(0, 0, 0);
+				bool neg_ray = false;
+				if (current_voxel.x != last_voxel.x && ray_dir.x < 0) { diff.x--; neg_ray = true; }
+				if (current_voxel.y != last_voxel.y && ray_dir.y < 0) { diff.y--; neg_ray = true; }
+				if (current_voxel.z != last_voxel.z && ray_dir.z < 0) { diff.z--; neg_ray = true; }
+				visited_voxels.push_back(current_voxel);
+				if (neg_ray) {
+					current_voxel + diff;
+					visited_voxels.push_back(current_voxel);
+				};
+
+
+				while ((last_voxel != current_voxel)) {
+					if (tMaxX < tMaxY) {
+						if (tMaxX < tMaxZ) {
+							current_voxel.x += stepX;
+							tMaxX += tDeltaX;
+						}
+						else {
+							current_voxel.z += stepZ;
+							tMaxZ += tDeltaZ;
+						}
+					}
+					else {
+						if (tMaxY < tMaxZ) {
+							current_voxel.y += stepY;
+							tMaxY += tDeltaY;
+						}
+						else {
+							current_voxel.z += stepZ;
+							tMaxZ += tDeltaZ;
+						}
+					}
+					visited_voxels.push_back(current_voxel);
+				}
+				return visited_voxels;
+			};
+
 
 
 	
-bool Traverse(Ray & ray, Object * *hitobject, Vector & hitpoint);//(const Ray& ray, double& tmin, ShadeRec& sr) alias hit_bare_bones_objects()
-bool Traverse(Ray & ray);  //Traverse for shadow ray
+
 
 
 

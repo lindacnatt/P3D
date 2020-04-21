@@ -5,7 +5,6 @@
 
 #include "maths.h"
 #include "scene.h"
-#include "grid.h"
 
 Triangle::Triangle(Vector& P0, Vector& P1, Vector& P2)
 {
@@ -39,7 +38,7 @@ Vector Triangle::getNormal(Vector point)
 // Ray/Triangle intersection test using Tomas Moller-Ben Trumbore algorithm.
 //
 
-bool Triangle::intercepts(Ray& r, float& t, ShadeRec& rs) {
+bool Triangle::intercepts(const Ray& r, float& t, ShadeRec& sr) {
 	cout << "checking triangle";
 	Vector P0P1 = points[1] - points[0];
 	Vector P0P2 = points[2] - points[0];
@@ -180,7 +179,7 @@ AABB aaBox::GetBoundingBox() {
 	return(AABB(min, max));
 }
 
-bool aaBox::intercepts(Ray& ray, float& t, ShadeRec& sr)
+bool aaBox::intercepts(const Ray& ray, float& t, ShadeRec& sr)
 {
 	return (false);
 }
@@ -372,7 +371,6 @@ Color Scene::GetSkyboxColor(Ray& r) {
 	return(Color(red, green, blue));
 }
 
-ShadeRec Scene::
 
 
 ////////////////////////////////////////////////////////////////////////////////

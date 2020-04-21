@@ -81,7 +81,7 @@ Color rayTracing(Ray ray, int depth, float ior_1)  //index of refraction of medi
 	int hitIndex = -1;
 	Vector phit;
 	Vector normal;
-	ShadeRec sr(scene_ptr->Grid::Traverse(const Ray & ray);
+	ShadeRec sr(scene_ptr->Grid::Traverse(const Ray& ray));
 
 	if (grid == true) {
 		if (sr.hit_an_object) {
@@ -90,7 +90,7 @@ Color rayTracing(Ray ray, int depth, float ior_1)  //index of refraction of medi
 		else {
 			return scene_ptr->GetBackgroundColor();
 		};
-	}:
+	};
 
 	for (int obj_i = 0; obj_i < scene->getNumObjects(); obj_i += 1)  //Looping through all objects to check if there is an intersection
 	{
@@ -484,9 +484,10 @@ void renderScene()
 			Vector pixel;  //viewport coordinates
 			float r[n * n];		// define array s and r
 			float s[n * n];
-			Ray ray;
+			Ray ray({ 0,0,0 }, {0,0,0});
 			double zw = 100.0;
-			Object tracer_ptr = new Object(this);
+			Triangle tracer_ptr();// in slides Color Multipleobjects, we can choose an object and determine its size?
+			
 
 			//depthoffield = false;
 			//antialiasing = false;
@@ -496,7 +497,7 @@ void renderScene()
 				double x_value = Grid::Build().s *(x - 0.5*(Grid::Build().wx -1.0)); //how to access build variables?also possible without return statment?
 				double y_value = Grid::Build().s *(y - 0.5)*(Grid::Build().wy - 1.0);
 				Vector ray_orig = Vector(x_value, y_value, zw);
-				color = tracer_ptr->Grid::Traverse(ray);
+				color = tracer_ptr().Traverse(ray);
 				//display_pixel function not needed from book
 			};
 
